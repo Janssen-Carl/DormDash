@@ -172,6 +172,30 @@ body {
   background: #fff;
 }
 
+.fld .show-password-wrap {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.fld .show-password-wrap label {
+  display: inline;
+  font-size: 0.875rem;
+  color: var(--sub);
+  cursor: pointer;
+  user-select: none;
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.fld .show-password-wrap input[type="checkbox"] {
+  width: 16px;        
+  flex-shrink: 0;
+}
+
 /* ── Role toggle ─────────────────────────────────────────── */
 .role-toggle {
   display: grid;
@@ -376,6 +400,8 @@ body {
   border-color: rgba(232,98,42,.6);
 }
 
+
+
 /* ── Animations ──────────────────────────────────────────── */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(20px); }
@@ -397,3 +423,5 @@ body {
   100% { box-shadow: none; }
 }
 .field-flash { animation: fieldFlash .55s ease-out; }
+
+
