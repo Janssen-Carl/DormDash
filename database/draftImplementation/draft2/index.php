@@ -54,7 +54,7 @@ try {
       <p class="card-sub">Sign in to your DormDash account</p>
 
       <?php
-      // $_SESSION['error'] = "userdoesnotexist";
+      $_SESSION['error'] = "userdoesnotexist";
       
       include __DIR__ . '/includes/errorMsg.php'; // checks for error messages in session and displays them
       ?>

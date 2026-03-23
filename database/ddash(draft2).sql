@@ -21,7 +21,7 @@ USE `multivendor_db` ;
 -- Table `multivendor_db`.`users`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `multivendor_db`.`users` (
-  `id` CHAR(36) NOT NULL DEFAULT uuid(),
+  `id` CHAR(36) NOT NULL DEFAULT (uuid()),
   `name` VARCHAR(150) NOT NULL,
   `email` VARCHAR(255) NOT NULL,
   `password_hash` VARCHAR(255) NOT NULL,
@@ -39,7 +39,7 @@ COLLATE = utf8mb4_0900_ai_ci;
 -- Table `multivendor_db`.`vendors`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `multivendor_db`.`vendors` (
-  `id` CHAR(36) NOT NULL DEFAULT uuid(),
+  `id` CHAR(36) NOT NULL DEFAULT (uuid()),
   `user_id` CHAR(36) NOT NULL,
   `store_name` VARCHAR(150) NOT NULL,
   `description` TEXT NULL DEFAULT NULL,
@@ -58,7 +58,7 @@ COLLATE = utf8mb4_0900_ai_ci;
 -- Table `multivendor_db`.`bundles`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `multivendor_db`.`bundles` (
-  `id` CHAR(36) NOT NULL DEFAULT uuid(),
+  `id` CHAR(36) NOT NULL DEFAULT (uuid()),
   `vendor_id` CHAR(36) NOT NULL,
   `name` VARCHAR(200) NOT NULL,
   `description` TEXT NULL DEFAULT NULL,
@@ -79,7 +79,7 @@ COLLATE = utf8mb4_0900_ai_ci;
 -- Table `multivendor_db`.`categories`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `multivendor_db`.`categories` (
-  `id` CHAR(36) NOT NULL DEFAULT uuid(),
+  `id` CHAR(36) NOT NULL DEFAULT (uuid()),
   `name` VARCHAR(100) NOT NULL,
   `parent_id` CHAR(36) NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -96,7 +96,7 @@ COLLATE = utf8mb4_0900_ai_ci;
 -- Table `multivendor_db`.`products`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `multivendor_db`.`products` (
-  `id` CHAR(36) NOT NULL DEFAULT uuid(),
+  `id` CHAR(36) NOT NULL DEFAULT (uuid()),
   `vendor_id` CHAR(36) NOT NULL,
   `name` VARCHAR(200) NOT NULL,
   `description` TEXT NULL DEFAULT NULL,
@@ -123,7 +123,7 @@ COLLATE = utf8mb4_0900_ai_ci;
 -- Table `multivendor_db`.`bundle_items`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `multivendor_db`.`bundle_items` (
-  `id` CHAR(36) NOT NULL DEFAULT uuid(),
+  `id` CHAR(36) NOT NULL DEFAULT (uuid()),
   `bundle_id` CHAR(36) NOT NULL,
   `product_id` CHAR(36) NOT NULL,
   `quantity_required` INT NOT NULL DEFAULT '1',
@@ -228,7 +228,7 @@ COLLATE = utf8mb4_0900_ai_ci;
 -- Table `multivendor_db`.`discounts`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `multivendor_db`.`discounts` (
-  `id` CHAR(36) NOT NULL DEFAULT uuid(),
+  `id` CHAR(36) NOT NULL DEFAULT (uuid()),
   `vendor_id` CHAR(36) NULL DEFAULT NULL,
   `code` VARCHAR(50) NULL DEFAULT NULL,
   `type` ENUM('percentage', 'fixed_amount') NOT NULL,
@@ -253,7 +253,7 @@ COLLATE = utf8mb4_0900_ai_ci;
 -- Table `multivendor_db`.`user_addresses`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `multivendor_db`.`user_addresses` (
-  `id` CHAR(36) NOT NULL DEFAULT uuid(),
+  `id` CHAR(36) NOT NULL DEFAULT (uuid()),
   `user_id` CHAR(36) NOT NULL,
   `label` VARCHAR(50) NULL DEFAULT NULL,
   `address_line` VARCHAR(255) NOT NULL,
@@ -272,7 +272,7 @@ COLLATE = utf8mb4_0900_ai_ci;
 -- Table `multivendor_db`.`orders`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `multivendor_db`.`orders` (
-  `id` CHAR(36) NOT NULL DEFAULT uuid(),
+  `id` CHAR(36) NOT NULL DEFAULT (uuid()),
   `user_id` CHAR(36) NOT NULL,
   `discount_id` CHAR(36) NULL DEFAULT NULL,
   `subtotal` DECIMAL(10,2) NOT NULL,
@@ -304,7 +304,7 @@ COLLATE = utf8mb4_0900_ai_ci;
 -- Table `multivendor_db`.`order_items`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `multivendor_db`.`order_items` (
-  `id` CHAR(36) NOT NULL DEFAULT uuid(),
+  `id` CHAR(36) NOT NULL DEFAULT (uuid()),
   `order_id` CHAR(36) NOT NULL,
   `product_id` CHAR(36) NULL DEFAULT NULL,
   `variant_id` CHAR(36) NULL DEFAULT NULL COMMENT 'References the specific variant purchased, if any',
@@ -341,7 +341,7 @@ COLLATE = utf8mb4_0900_ai_ci;
 -- Table `multivendor_db`.`payments`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `multivendor_db`.`payments` (
-  `id` CHAR(36) NOT NULL DEFAULT uuid(),
+  `id` CHAR(36) NOT NULL DEFAULT (uuid()),
   `order_id` CHAR(36) NOT NULL,
   `method` VARCHAR(50) NOT NULL,
   `status` ENUM('pending', 'paid', 'failed', 'refunded') NULL DEFAULT 'pending',
