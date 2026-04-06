@@ -1,4 +1,4 @@
-FROM php:8.4-fpm-alpine
+FROM php:8.4-fpm-alpine AS builder
 
 # Install system dependencies for PHP extensions
 RUN apk add --no-cache \
@@ -18,7 +18,8 @@ RUN apk add --no-cache \
     autoconf \
     pkgconf \
     re2c \
-    && docker-php-ext-configure gd \
+
+RUN docker-php-ext-configure gd \
         --with-freetype=/usr/include/ \
         --with-jpeg=/usr/include/ \
     && docker-php-ext-install \
@@ -39,12 +40,31 @@ COPY . .
 # Install PHP dependencies (Autoloader)
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
+RUN rm -rf /root/.composer/cache
+
 # Edit Perms
 RUN chown -R www-data:www-data /var/www && chmod -R 755 /var/www
 
+# Install only runtime PHP extensions (skip build tools)
+RUN apk add --no-cache \
+    libpng \
+    libjpeg-turbo \
+    freetype \
+    libzip \
+    oniguruma \
+    icu
+
+# Copy built application & vendor from builder
+COPY --from=builder /var/www /var/www
+
+# Set permissions
+RUN chown -R www-data:www-data /var/www && chmod -R 755 /var/www
+
+# Use non-root user
 USER www-data
 
-# Expose 9000
+# Expose PHP-FPM port
 EXPOSE 9000
 
+# Start PHP-FPM
 CMD ["php-fpm"]
