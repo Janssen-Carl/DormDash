@@ -16,7 +16,7 @@ USE dormdash_db_v3;
 -- =========================================
 -- 1) USER
 -- =========================================
-CREATE TABLE user (
+CREATE TABLE users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
     email VARCHAR(100) NOT NULL UNIQUE,
@@ -29,7 +29,7 @@ CREATE TABLE user (
 -- =========================================
 -- 2) ADDRESS
 -- =========================================
-CREATE TABLE address (
+CREATE TABLE addresses (
     address_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     street VARCHAR(150) NOT NULL,
@@ -52,7 +52,7 @@ CREATE TABLE address (
 -- 3) VENDOR
 -- subclass of user
 -- =========================================
-CREATE TABLE vendor (
+CREATE TABLE vendors (
     vendor_id INT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL,
@@ -80,7 +80,7 @@ CREATE TABLE vendor (
 -- 4) CUSTOMER
 -- subclass of user
 -- =========================================
-CREATE TABLE customer (
+CREATE TABLE customers (
     customer_id INT PRIMARY KEY,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
@@ -142,7 +142,7 @@ CREATE TABLE cus_banking_info (
 ) ENGINE=InnoDB;
 
 -- Add customer optional references after banking/address tables exist
-ALTER TABLE customer
+ALTER TABLE customers
     ADD CONSTRAINT fk_customer_primary_address
         FOREIGN KEY (primary_address) REFERENCES address(address_id)
         ON DELETE SET NULL
@@ -155,7 +155,7 @@ ALTER TABLE customer
 -- =========================================
 -- 7) PAGE
 -- =========================================
-CREATE TABLE page (
+CREATE TABLE pages (
     page_id INT AUTO_INCREMENT PRIMARY KEY,
     vendor_id INT NOT NULL,
     name VARCHAR(100) NOT NULL,
@@ -166,7 +166,7 @@ CREATE TABLE page (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_page_vendor
-        FOREIGN KEY (vendor_id) REFERENCES vendor(vendor_id)
+        FOREIGN KEY (vendor_id) REFERENCES vendors(vendor_id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
 ) ENGINE=InnoDB;
@@ -174,7 +174,7 @@ CREATE TABLE page (
 -- =========================================
 -- 8) CATEGORY
 -- =========================================
-CREATE TABLE category (
+CREATE TABLE categories (
     category_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     description TEXT,
