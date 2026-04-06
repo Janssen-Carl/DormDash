@@ -17,7 +17,7 @@ RUN apk add --no-cache \
     make \
     autoconf \
     pkgconf \
-    re2c \
+    re2c
 
 RUN docker-php-ext-configure gd \
         --with-freetype=/usr/include/ \
@@ -53,6 +53,8 @@ RUN apk add --no-cache \
     libzip \
     oniguruma \
     icu
+
+FROM php:8.4-fpm-alpine AS runtime
 
 # Copy built application & vendor from builder
 COPY --from=builder /var/www /var/www
