@@ -30,6 +30,7 @@ services:
     db:
         image: mysql:8.0
         container_name: dormdash-db
+        restart: always
         ports:
             - "3307:3306" #3307 so it doesn't conflict with your host
         environment:
