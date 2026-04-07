@@ -13,3 +13,11 @@ Route::get('/register', function () {
 });
 
 Route::post('/register', [UserController::class, 'register']);
+
+Route::get('/login', function () {
+    return view('slave');
+});
+
+Route::get('/catalog', function () {
+    return view('catalog');
+});
