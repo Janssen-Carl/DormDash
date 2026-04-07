@@ -33,3 +33,6 @@ yarn.lock
 
 # PHPUnit / test cache
 .phpunit.result.cache
+
+# Ignore old backup files
+/backup/
