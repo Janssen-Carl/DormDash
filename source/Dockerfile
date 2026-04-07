@@ -1,6 +1,12 @@
+# =========================
+# Builder Stage
+# =========================
 FROM php:8.4-fpm-alpine AS builder
 
-# Install system dependencies for PHP extensions
+# Set working directory
+WORKDIR /var/www
+
+# Install system dependencies & PHP build tools
 RUN apk add --no-cache \
     bash \
     git \
@@ -17,35 +23,41 @@ RUN apk add --no-cache \
     make \
     autoconf \
     pkgconf \
-    re2c
+    re2c \
+    shadow
 
-RUN docker-php-ext-configure gd \
-        --with-freetype=/usr/include/ \
-        --with-jpeg=/usr/include/ \
+# Install PHP extensions needed by Laravel
+RUN docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ \
     && docker-php-ext-install \
-        pdo pdo_mysql mbstring zip exif pcntl intl gd
+        pdo_mysql \
+        mbstring \
+        bcmath \
+        exif \
+        pcntl \
+        intl \
+        gd \
+        zip
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Set working directory
-WORKDIR /var/www
-
-# Copy composer files first (Caching)
-COPY composer.json composer.lock ./
-
-# Copy everythang
+# Copy the entire application first (includes artisan)
 COPY . .
 
-# Install PHP dependencies (Autoloader)
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+# Install PHP dependencies
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader --ignore-platform-reqs
 
-RUN rm -rf /root/.composer/cache
-
-# Edit Perms
+# Fix permissions
 RUN chown -R www-data:www-data /var/www && chmod -R 755 /var/www
 
-# Install only runtime PHP extensions (skip build tools)
+# =========================
+# Runtime Stage
+# =========================
+FROM php:8.4-fpm-alpine AS runtime
+
+WORKDIR /var/www
+
+# Install runtime PHP extensions
 RUN apk add --no-cache \
     libpng \
     libjpeg-turbo \
@@ -54,19 +66,31 @@ RUN apk add --no-cache \
     oniguruma \
     icu
 
-FROM php:8.4-fpm-alpine AS runtime
-
-# Copy built application & vendor from builder
+# Copy application & vendor from builder
 COPY --from=builder /var/www /var/www
 
-# Set permissions
+# Copy Composer too (optional, useful for dev containers)
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+RUN composer install
+
+# Copy custom PHP-FPM config
+COPY docker/fpm.d/www.conf /usr/local/etc/php-fpm.d/www.conf
+
+# Fix permissions
 RUN chown -R www-data:www-data /var/www && chmod -R 755 /var/www
 
-# Use non-root user
+# Fix permissions
+RUN chown -R www-data:www-data /var/www /usr/local/etc/php-fpm.d
+
+# Fix permissions
+RUN mkdir -p /run/php /var/log/php-fpm \
+    && chown -R www-data:www-data /run/php /var/log/php-fpm
+
+#Use non-root user
 USER www-data
 
-# Expose PHP-FPM port
+# Expose PHP-FPM
 EXPOSE 9000
 
-# Start PHP-FPM
-CMD ["php-fpm"]
+CMD ["php-fpm", "-F"]

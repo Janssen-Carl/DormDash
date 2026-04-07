@@ -6,10 +6,12 @@
     <title>DormDash - Sign Up</title>
 
     <!-- CDN for now, unless install tailwind with laravel -->
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!--<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script> -->
 
     <!-- Change in laravel integration -->
-    <link rel="stylesheet" href="styles.css">
+    <!-- <link rel="stylesheet" href="styles.css"> -->
+    <!-- installed tailwindcss locally. use npm and vite-->
+    @vite(['resources/js/app.js', 'resources/css/app.css'])
 
 </head>
 

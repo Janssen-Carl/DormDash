@@ -12,7 +12,13 @@ export default defineConfig({
     ],
     server: {
         watch: {
+            usePolling: true,
+            interval: 100,
             ignored: ['**/storage/framework/views/**'],
         },
+        hmr: {
+            host: 'localhost', // or your Docker host IP
+            port: 5173
+        }
     },
 });

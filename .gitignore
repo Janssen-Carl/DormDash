@@ -1,7 +1,7 @@
 # Laravel / PHP
 .vscode
 /vendor/
-/source/node_modules/
+/source/node12_modules111/
 /source/public/storage
 /source/storage/*.key
 /.idea/
