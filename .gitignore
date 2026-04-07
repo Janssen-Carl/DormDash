@@ -1,4 +1,35 @@
+# Laravel / PHP
 .vscode
-.idea
-.env
-/.idea
+/vendor/
+/source/node_modules/
+/source/public/storage
+/source/storage/*.key
+/.idea/
+/*.log
+/source/.vscode/
+/source/.env
+.env.backup
+.env.local
+.env.*.local
+
+# Cache & compiled files
+bootstrap/cache/*.php
+storage/*.key
+storage/debugbar/*
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Composer / NPM
+composer.lock
+package-lock.json
+yarn.lock
+
+# Optional: IDE/project files
+*.iml
+*.sublime-project
+*.sublime-workspace
+
+# PHPUnit / test cache
+.phpunit.result.cache
