@@ -9,7 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
     <!-- Change in laravel integration -->
-    <link rel="stylesheet" href="styles.css">
+    <!--  <link rel="stylesheet" href="styles.css"> -->
 
 </head>
 
@@ -23,7 +23,7 @@
     <button
         class="mt-2 rounded-lg bg-green-600 px-6 py-2 font-medium text-white transition-colors hover:bg-green-700"
     >
-        Sign Up
+        Button
     </button>
 </nav>
 
@@ -120,7 +120,7 @@
 <footer class="bg-[#04244E] relative w-full">
     <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
         <p class="text-center text-sm text-white">
-            2024 DormDash. All rights reserved.
+            2026 DormDash. All rights reserved.
         </p>
     </div>
 </footer>
