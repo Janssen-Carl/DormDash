@@ -5,109 +5,127 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>DormDash - Sign Up</title>
 
-        <!-- CDN for now, unless install tailwind with laravel -->
-        <!--<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script> -->
-
-        <!-- Change in laravel integration -->
-        <!-- <link rel="stylesheet" href="styles.css"> -->
-        <!-- installed tailwindcss locally. use npm and vite-->
         @vite(['resources/js/app.js', 'resources/css/app.css'])
+
+        <link rel="preconnect" href="https://fonts.bunny.net" />
+        <link href="https://fonts.bunny.net/css?family=inter:400,500,600&display=swap" rel="stylesheet" />
     </head>
 
-    <body class="bg-gray-50">
-        <!-- Navbar -->
-        <nav class="flex justify-between bg-gray-50 px-4 py-6 sm:px-6 lg:px-8">
-            <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                <h1 class="text-3xl font-bold text-gray-900">DormDash</h1>
-            </div>
-            <button
-                class="mt-2 rounded-lg bg-green-600 px-6 py-2 font-medium text-white transition-colors hover:bg-green-700"
-            >
-                Sign Up
-            </button>
-        </nav>
+    <body>
+        @extends('layouts.main')
 
-        <!-- Main Content -->
-        <main class="flex min-h-screen">
-            <!-- Left Side -->
-            <div class="flex w-1/2 flex-col justify-center bg-gray-50 px-12">
-                <h1 class="text-4xl font-bold text-gray-900">Register</h1>
-                <p class="mt-4 text-gray-600">Enter your credentials to continue.</p>
-            </div>
+        @section('content')
+            <section class="flex min-h-[calc(100vh-80px)] flex-1 items-center justify-center px-4">
+                <div
+                    class="grid w-full max-w-3xl grid-cols-2 overflow-hidden rounded-2xl border border-gray-200 shadow-sm"
+                >
+                    <div class="flex flex-col justify-center bg-emerald-50 px-10 py-14">
+                        <p class="mb-1 text-[11px] font-semibold tracking-widest text-emerald-600 uppercase">
+                            DormDash
+                        </p>
+                        <h1 class="mb-3 text-3xl leading-tight font-bold text-emerald-900">
+                            Create your
+                            <br />
+                            account
+                        </h1>
+                        <p class="text-sm leading-relaxed text-emerald-700/60">
+                            Start enjoying our grocery delivery service today.
+                        </p>
 
-            <!-- Right Side -->
-            <div class="flex w-1/2 flex-col justify-center bg-gray-50 px-12">
-                <form class="space-y-6" method="post" action="/register">
-                    @csrf
-                    <!-- Email Input -->
+                        <ul class="mt-6 space-y-2.5">
+                            @foreach (['Fast grocery delivery', 'Track your orders live', 'Exclusive dorm deals'] as $perk)
+                                <li class="flex items-center gap-2.5">
+                                    <div
+                                        class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-600"
+                                    >
+                                        <x-heroicon-s-check class="h-2.5 w-2.5 text-white" />
+                                    </div>
+                                    <span class="text-xs text-emerald-800">{{ $perk }}</span>
+                                </li>
+                            @endforeach
+                        </ul>
 
-                    <div>
-                        <label for="username" class="block text-sm font-medium text-gray-900">Username</label>
-                        <input
-                            type="text"
-                            id="username"
-                            name="username"
-                            placeholder="juandelacruz@email.com"
-                            class="mt-2 w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-900 placeholder-gray-400 focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none"
-                        />
+                        <div class="mt-10 border-t border-emerald-200 pt-6">
+                            <p class="mb-1 text-xs text-emerald-700/40">Already have an account?</p>
+                            <a
+                                href="/login"
+                                class="text-sm font-semibold text-emerald-600 transition-colors hover:text-emerald-700"
+                            >
+                                Log in instead →
+                            </a>
+                        </div>
                     </div>
 
-                    <div>
-                        <label for="email" class="block text-sm font-medium text-gray-900">Email</label>
-                        <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            placeholder="juandelacruz@email.com"
-                            class="mt-2 w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-900 placeholder-gray-400 focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none"
-                        />
-                        <p class="mt-2 text-xs text-gray-500">We'll never share your email. Trust</p>
-                    </div>
+                    <div class="flex flex-col justify-center bg-white px-10 py-10">
+                        <h2 class="mb-6 text-lg font-semibold text-zinc-900">Sign up for free</h2>
 
-                    <!-- Password Input -->
-                    <div>
-                        <label for="password" class="block text-sm font-medium text-gray-900">Password</label>
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            placeholder="password123"
-                            class="mt-2 w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-900 placeholder-gray-400 focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none"
-                        />
-                        <p class="mt-2 text-xs text-gray-500">Minimum 8 characters</p>
-                    </div>
+                        <form method="POST" action="">
+                            <div class="mb-4">
+                                <label class="mb-1.5 block text-xs font-semibold tracking-wide text-zinc-400 uppercase">
+                                    Full Name
+                                </label>
+                                <input
+                                    type="text"
+                                    name="name"
+                                    placeholder="Juan dela Cruz"
+                                    required
+                                    autofocus
+                                    value="{{ old('name') }}"
+                                    class="h-11 w-full rounded-lg border border-zinc-300 bg-white px-4 text-sm text-zinc-900 placeholder-zinc-300 transition outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                                />
+                            </div>
 
-                    <div>
-                        <label for="password_confirmation" class="block text-sm font-medium text-gray-900">
-                            Confirm Password
-                        </label>
-                        <input
-                            type="password"
-                            id="password_confirmation"
-                            name="password_confirmation"
-                            placeholder="Confirm Password"
-                            class="mt-2 w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-900 placeholder-gray-400 focus:border-green-500 focus:ring-2 focus:ring-green-200 focus:outline-none"
-                        />
-                    </div>
+                            {{-- Email --}}
+                            <div class="mb-4">
+                                <label class="mb-1.5 block text-xs font-semibold tracking-wide text-zinc-400 uppercase">
+                                    Email
+                                </label>
+                                <input
+                                    type="email"
+                                    name="email"
+                                    placeholder="you@example.com"
+                                    required
+                                    value="{{ old('email') }}"
+                                    class="h-11 w-full rounded-lg border border-zinc-300 bg-white px-4 text-sm text-zinc-900 placeholder-zinc-300 transition outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                                />
+                            </div>
 
-                    <!-- Buttons -->
-                    <div class="flex gap-4 pt-4">
-                        <button
-                            type="submit"
-                            class="flex-1 rounded-lg bg-green-600 px-6 py-2 font-medium text-white transition-colors hover:bg-green-700"
-                        >
-                            Register
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </main>
+                            <div class="mb-4">
+                                <label class="mb-1.5 block text-xs font-semibold tracking-wide text-zinc-400 uppercase">
+                                    Password
+                                </label>
+                                <input
+                                    type="password"
+                                    name="password"
+                                    placeholder="••••••••"
+                                    required
+                                    class="h-11 w-full rounded-lg border border-zinc-300 bg-white px-4 text-sm text-zinc-900 placeholder-zinc-300 transition outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                                />
+                            </div>
 
-        <!-- Footer -->
-        <footer class="relative w-full bg-[#04244E]">
-            <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                <p class="text-center text-sm text-white">2024 DormDash. All rights reserved.</p>
-            </div>
-        </footer>
+                            <div class="mb-6">
+                                <label class="mb-1.5 block text-xs font-semibold tracking-wide text-zinc-400 uppercase">
+                                    Confirm Password
+                                </label>
+                                <input
+                                    type="password"
+                                    name="password_confirmation"
+                                    placeholder="••••••••"
+                                    required
+                                    class="h-11 w-full rounded-lg border border-zinc-300 bg-white px-4 text-sm text-zinc-900 placeholder-zinc-300 transition outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                                />
+                            </div>
+
+                            <button
+                                type="submit"
+                                class="h-11 w-full rounded-xl bg-emerald-600 text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
+                            >
+                                Create Account
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        @endsection
     </body>
 </html>
