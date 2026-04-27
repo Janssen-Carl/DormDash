@@ -1,7 +1,7 @@
-<header class="flex h-[60px] items-center justify-between border-b border-gray-200 bg-white px-8">
+<header class="flex h-15 items-center justify-between border-b border-gray-200 bg-white px-8">
     {{-- Logo --}}
     <div class="flex items-center gap-2.5">
-        <div class="flex h-[34px] w-[34px] items-center justify-center rounded-full bg-green-600">
+        <div class="flex h-8.5 w-8.5 items-center justify-center rounded-full bg-green-600">
             <x-heroicon-o-home class="h-4 w-4 text-white" />
         </div>
         <span class="text-lg font-bold tracking-tight text-gray-900">DormDash</span>
@@ -52,7 +52,7 @@
 
         {{-- Profile Avatar --}}
         <div
-            class="flex h-[34px] w-[34px] cursor-pointer items-center justify-center rounded-full border-2 border-green-200 bg-green-600 text-xs font-semibold text-white"
+            class="flex h-8.5 w-8.5 cursor-pointer items-center justify-center rounded-full border-2 border-green-200 bg-green-600 text-xs font-semibold text-white"
         >
             @if (auth()->check() && auth()->user()->name)
                 {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
