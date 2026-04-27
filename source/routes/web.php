@@ -7,13 +7,19 @@ Route::get('/', function () {
     return view('home');
 });
 
+Route::get('/home', function () {
+    return view('home');
+});
+
 Route::get('/register', function () {
-    return view('register');
+    return view('auth/register');
 });
 
 Route::post('/register', [UserController::class, 'register']);
 
 Route::get('/login', function () {
-    return view('login');
+    return view('auth/login');
 });
+
+
 

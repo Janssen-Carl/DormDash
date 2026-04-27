@@ -1,33 +1,45 @@
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    @vite(['resources/js/app.js', 'resources/css/app.css'])
-    <title>Home</title>
-</head>
-<body>
-    <!-- Navbar -->
-    <nav class="flex justify-between bg-gray-50 px-4 py-6 sm:px-6 lg:px-8">
-        <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-            <h1 class="text-3xl font-bold text-gray-900">DormDash</h1>
-        </div>
-        <a  href="/register" class="mt-2 rounded-lg bg-green-600 px-6 py-2 font-medium text-white transition-colors hover:bg-green-700">
-            <button>
-                Sign Up
-            </button>
-        </a>
-    </nav>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    @yield('content')
+        @vite(['resources/js/app.js', 'resources/css/app.css'])
 
-    <!-- Footer -->
-    <footer class="bg-[#04244E] relative w-full">
-        <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-            <p class="text-center text-sm text-white">
-                2024 DormDash. All rights reserved.
-            </p>
-        </div>
-    </footer>
+        <link rel="preconnect" href="https://fonts.bunny.net" />
+        <link href="https://fonts.bunny.net/css?family=inter:400,500,600&display=swap" rel="stylesheet" />
 
-</body>
+        <title>Home</title>
+    </head>
+    <body>
+        @extends('layouts.main')
+
+        @section('content')
+            <section class="flex min-h-[60vh] flex-col items-center justify-center px-5 text-center">
+                <h1 class="text-4xl font-bold tracking-tight text-zinc-900 sm:text-5xl">Welcome to DormDash</h1>
+
+                <p class="mt-4 max-w-md text-base leading-relaxed text-zinc-500 sm:text-lg">
+                    Your one-stop grocery solution. Sign up or log in to start shopping!
+                </p>
+
+                <div class="mt-10 grid w-full max-w-sm grid-cols-2 gap-3">
+                    <a
+                        href="/register"
+                        class="flex h-12 w-full items-center justify-center rounded-xl border border-emerald-500 bg-white text-sm font-semibold text-emerald-600 transition-colors hover:bg-emerald-50"
+                    >
+                        Sign Up
+                    </a>
+
+                    <a
+                        href="/login"
+                        class="flex h-12 w-full items-center justify-center rounded-xl bg-emerald-600 text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
+                    >
+                        Log In
+                    </a>
+                </div>
+            </section>
+        @endsection
+
+        @livewireScripts
+        @fluxScripts
+    </body>
 </html>
