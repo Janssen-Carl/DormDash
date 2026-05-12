@@ -33,6 +33,10 @@ Route::get('/orders', function () {
     return view('pages/orders');
 });
 
+Route::get('/orders-overview', function () {
+    return view('pages/orders-overview');
+});
+
 Route::get('/profile', function () {
     return view('pages/profile');
 });
