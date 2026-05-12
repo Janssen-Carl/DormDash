@@ -1,20 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>DormDash - Orders</title>
+@extends('layouts.main')
 
-        @vite(['resources/js/app.js', 'resources/css/app.css'])
+@section('title', 'My Orders')
 
-        <link rel="preconnect" href="https://fonts.bunny.net" />
-        <link href="https://fonts.bunny.net/css?family=inter:400,500,600&display=swap" rel="stylesheet" />
-    </head>
-
-    <body>
-        @extends('layouts.main')
-
-        @section('content')
+@section('content')
             <div class="mx-auto max-w-6xl px-8 py-12">
                 <div class="mb-8">
                     <h1 class="text-4xl font-bold tracking-tight text-gray-900">Your Orders</h1>
@@ -103,8 +91,3 @@
                 </div>
             </div>
         @endsection
-
-        @livewireScripts
-        @fluxScripts
-    </body>
-</html>

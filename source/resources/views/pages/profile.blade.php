@@ -1,20 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>DormDash - Profile</title>
+@extends('layouts.main')
 
-        @vite(['resources/js/app.js', 'resources/css/app.css'])
+@section('title', 'My Profile')
 
-        <link rel="preconnect" href="https://fonts.bunny.net" />
-        <link href="https://fonts.bunny.net/css?family=inter:400,500,600&display=swap" rel="stylesheet" />
-    </head>
-
-    <body>
-        @extends('layouts.main')
-
-        @section('content')
+@section('content')
             <div class="mx-auto max-w-6xl px-8 py-12" x-data="{ showPhotoModal: false }">
                 <div class="mb-12 flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
                     <div>
@@ -304,8 +292,3 @@
                 </div>
             </div>
         @endsection
-
-        @livewireScripts
-        @fluxScripts
-    </body>
-</html>

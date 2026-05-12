@@ -1,20 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>DormDash - Edit Profile</title>
+@extends('layouts.main')
 
-        @vite(['resources/js/app.js', 'resources/css/app.css'])
+@section('title', 'Edit Profile')
 
-        <link rel="preconnect" href="https://fonts.bunny.net" />
-        <link href="https://fonts.bunny.net/css?family=inter:400,500,600&display=swap" rel="stylesheet" />
-    </head>
-
-    <body>
-        @extends('layouts.main')
-
-        @section('content')
+@section('content')
             <div class="mx-auto max-w-2xl px-8 py-12">
                 <div class="mb-8">
                     <a href="/profile" class="inline-flex items-center gap-2 text-green-600 font-semibold text-sm hover:text-green-700 transition-colors mb-4">
@@ -155,8 +143,3 @@
                 </form>
             </div>
         @endsection
-
-        @livewireScripts
-        @fluxScripts
-    </body>
-</html>

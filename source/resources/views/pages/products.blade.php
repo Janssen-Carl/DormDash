@@ -1,21 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
+@extends('layouts.main')
 
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>DormDash - Products</title>
+@section('title', 'Products')
 
-    @vite(['resources/js/app.js', 'resources/css/app.css'])
-
-    <link rel="preconnect" href="https://fonts.bunny.net" />
-    <link href="https://fonts.bunny.net/css?family=inter:400,500,600&display=swap" rel="stylesheet" />
-</head>
-
-<body>
-    @extends('layouts.main')
-
-    @section('content')
+@section('content')
         <div x-data="{ sidebarOpen: true }" class="relative flex min-h-[calc(100vh-80px)]">
 
             {{-- Sidebar Filters --}}
@@ -256,9 +243,6 @@
         </div>
     @endsection
 
-    @livewireScripts
-    @fluxScripts
-
     <script>
         function productCarousel() {
             return {
@@ -282,6 +266,3 @@
             display: none;
         }
     </style>
-</body>
-
-</html>

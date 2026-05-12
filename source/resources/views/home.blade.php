@@ -1,22 +1,8 @@
-<html lang="en">
+@extends('layouts.main')
 
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+@section('title', 'Home - DormDash')
 
-    @vite(['resources/js/app.js', 'resources/css/app.css'])
-
-    <link rel="preconnect" href="https://fonts.bunny.net" />
-    <link href="https://fonts.bunny.net/css?family=inter:400,500,600&display=swap" rel="stylesheet" />
-
-    <title>Home - DormDash</title>
-</head>
-
-<body>
-    @extends('layouts.main')
-
-    @section('content')
-        {{-- Welcome Section --}}
+@section('content')
         <section class="px-8 py-16">
             <div class="mx-auto max-w-6xl">
                 <div class="grid grid-cols-2 gap-16 items-center">
@@ -213,9 +199,3 @@
             </div>
         </section>
     @endsection
-
-    @livewireScripts
-    @fluxScripts
-</body>
-
-</html>
