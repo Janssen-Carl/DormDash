@@ -21,5 +21,21 @@ Route::get('/login', function () {
     return view('auth/login');
 });
 
+Route::get('/products', function () {
+    return view('pages/products');
+});
+
+Route::get('/cart', function () {
+    return view('pages/cart');
+});
+
+Route::get('/orders', function () {
+    return view('pages/orders');
+});
+
+Route::get('/profile', function () {
+    return view('pages/profile');
+});
+
 
 
