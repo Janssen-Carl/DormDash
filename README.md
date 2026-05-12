@@ -51,3 +51,44 @@ composer require blade-ui-kit/blade-heroicons
 composer require livewire/livewire   
 composer require livewire/flux   
 ```
+
+
+To access database 
+
+create it first:
+```
+cd source
+php artisan migrate
+```
+
+then use the seeder
+Option 1: Run seeder alone
+````
+php artisan db:seed
+````
+
+Option 2: Fresh database + migrations + seeder
+````
+php artisan migrate:fresh --seed
+````
+
+
+Test Accounts Created:
+
+Account 1: Customer
+
+Username: johndoe
+Email: john@example.com
+Password: password123
+
+Account 2: Vendor
+
+Username: vendor_store
+Email: vendor@example.com
+Password: password123
+
+Account 3-7: Random (5 factory users)
+
+Username: auto-generated (e.g., user_abc123)
+Email: auto-generated
+Password: password
