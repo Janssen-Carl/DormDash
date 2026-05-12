@@ -41,5 +41,13 @@ Route::get('/profile', function () {
     return view('pages/profile');
 });
 
+Route::get('/profile/edit', function () {
+    return view('pages/profile-edit');
+});
+
+Route::get('/address-payment/add', function () {
+    return view('pages/address-payment-add');
+});
+
 
 
