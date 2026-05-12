@@ -1,20 +1,8 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>DormDash - Sign Up</title>
+@extends('layouts.main')
 
-        @vite(['resources/js/app.js', 'resources/css/app.css'])
+@section('title', 'Sign Up - DormDash')
 
-        <link rel="preconnect" href="https://fonts.bunny.net" />
-        <link href="https://fonts.bunny.net/css?family=inter:400,500,600&display=swap" rel="stylesheet" />
-    </head>
-
-    <body>
-        @extends('layouts.main')
-
-        @section('content')
+@section('content')
             <section class="flex min-h-[calc(100vh-80px)] flex-1 items-center justify-center px-4">
                 <div
                     class="grid w-full max-w-3xl grid-cols-2 overflow-hidden rounded-2xl border border-gray-200 shadow-sm"
@@ -59,20 +47,24 @@
                     <div class="flex flex-col justify-center bg-white px-10 py-10">
                         <h2 class="mb-6 text-lg font-semibold text-zinc-900">Sign up for free</h2>
 
-                        <form method="POST" action="">
+                        <form method="POST" action="/register">
+                            @csrf
                             <div class="mb-4">
                                 <label class="mb-1.5 block text-xs font-semibold tracking-wide text-zinc-400 uppercase">
-                                    Full Name
+                                    Username
                                 </label>
                                 <input
                                     type="text"
-                                    name="name"
-                                    placeholder="Juan dela Cruz"
+                                    name="username"
+                                    placeholder="juan.delacruz"
                                     required
                                     autofocus
-                                    value="{{ old('name') }}"
-                                    class="h-11 w-full rounded-lg border border-zinc-300 bg-white px-4 text-sm text-zinc-900 placeholder-zinc-300 transition outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                                    value="{{ old('username') }}"
+                                    class="h-11 w-full rounded-lg border border-zinc-300 bg-white px-4 text-sm text-zinc-900 placeholder-zinc-300 transition outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 @error('username') border-red-500 @enderror"
                                 />
+                                @error('username')
+                                    <p class="mt-1.5 text-xs text-red-600">{{ $message }}</p>
+                                @enderror
                             </div>
 
                             {{-- Email --}}
@@ -86,8 +78,29 @@
                                     placeholder="you@example.com"
                                     required
                                     value="{{ old('email') }}"
-                                    class="h-11 w-full rounded-lg border border-zinc-300 bg-white px-4 text-sm text-zinc-900 placeholder-zinc-300 transition outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                                    class="h-11 w-full rounded-lg border border-zinc-300 bg-white px-4 text-sm text-zinc-900 placeholder-zinc-300 transition outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 @error('email') border-red-500 @enderror"
                                 />
+                                @error('email')
+                                    <p class="mt-1.5 text-xs text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="mb-1.5 block text-xs font-semibold tracking-wide text-zinc-400 uppercase">
+                                    I am a
+                                </label>
+                                <select
+                                    name="role"
+                                    required
+                                    class="h-11 w-full rounded-lg border border-zinc-300 bg-white px-4 text-sm text-zinc-900 transition outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                                >
+                                    <option value="">Select your account type</option>
+                                    <option value="customer" @selected(old('role') === 'customer')>Customer</option>
+                                    <option value="vendor" @selected(old('role') === 'vendor')>Vendor</option>
+                                </select>
+                                @error('role')
+                                    <p class="mt-1.5 text-xs text-red-600">{{ $message }}</p>
+                                @enderror
                             </div>
 
                             <div class="mb-4">
@@ -99,8 +112,11 @@
                                     name="password"
                                     placeholder="••••••••"
                                     required
-                                    class="h-11 w-full rounded-lg border border-zinc-300 bg-white px-4 text-sm text-zinc-900 placeholder-zinc-300 transition outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                                    class="h-11 w-full rounded-lg border border-zinc-300 bg-white px-4 text-sm text-zinc-900 placeholder-zinc-300 transition outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 @error('password') border-red-500 @enderror"
                                 />
+                                @error('password')
+                                    <p class="mt-1.5 text-xs text-red-600">{{ $message }}</p>
+                                @enderror
                             </div>
 
                             <div class="mb-6">
@@ -127,5 +143,3 @@
                 </div>
             </section>
         @endsection
-    </body>
-</html>

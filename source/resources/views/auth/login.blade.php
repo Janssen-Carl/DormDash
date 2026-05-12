@@ -3,7 +3,6 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>DormDash - Login</title>
 
         @vite(['resources/js/app.js', 'resources/css/app.css'])
 
@@ -13,6 +12,8 @@
 
     <body>
         @extends('layouts.main')
+
+        @section('title', 'Login - DormDash')
 
         @section('content')
             <section class="flex min-h-[calc(100vh-80px)] flex-1 items-center justify-center">
@@ -59,7 +60,8 @@
                     <div class="flex flex-col justify-center bg-white px-10 py-14">
                         <h2 class="mb-7 text-lg font-semibold text-zinc-900">Log in to your account</h2>
 
-                        <form method="POST" action="">
+                        <form method="POST" action="/login">
+                            @csrf
                             <div class="mb-4">
                                 <label class="mb-1.5 block text-xs font-medium tracking-wide text-zinc-400 uppercase">
                                     Email Address
@@ -70,8 +72,12 @@
                                     placeholder="you@example.com"
                                     required
                                     autofocus
+                                    value="{{ old('email') }}"
                                     class="rounded-lg border border-zinc-300 bg-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
                                 />
+                                @error('email')
+                                    <p class="mt-1.5 text-xs text-red-600">{{ $message }}</p>
+                                @enderror
                             </div>
 
                             <div class="mb-2">
@@ -87,6 +93,9 @@
                                     required
                                     class="rounded-lg border border-zinc-300 bg-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
                                 />
+                                @error('password')
+                                    <p class="mt-1.5 text-xs text-red-600">{{ $message }}</p>
+                                @enderror
 
                                 <a
                                     href=""
@@ -107,5 +116,3 @@
                 </div>
             </section>
         @endsection
-    </body>
-</html>

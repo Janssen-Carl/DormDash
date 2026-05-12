@@ -21,33 +21,37 @@ Route::get('/login', function () {
     return view('auth/login');
 });
 
+Route::post('/login', [UserController::class, 'login']);
+
+Route::post('/logout', [UserController::class, 'logout']);
+
 Route::get('/products', function () {
     return view('pages/products');
 });
 
 Route::get('/cart', function () {
     return view('pages/cart');
-});
+})->middleware('auth');
 
 Route::get('/orders', function () {
     return view('pages/orders');
-});
+})->middleware('auth');
 
 Route::get('/orders-overview', function () {
     return view('pages/orders-overview');
-});
+})->middleware('auth');
 
 Route::get('/profile', function () {
     return view('pages/profile');
-});
+})->middleware('auth');
 
 Route::get('/profile/edit', function () {
     return view('pages/profile-edit');
-});
+})->middleware('auth');
 
 Route::get('/address-payment/add', function () {
     return view('pages/address-payment-add');
-});
+})->middleware('auth');
 
 
 
