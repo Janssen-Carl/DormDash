@@ -24,7 +24,8 @@ RUN apk add --no-cache \
     autoconf \
     pkgconf \
     re2c \
-    shadow
+    shadow \
+    oniguruma
 
 # Install PHP extensions needed by Laravel
 RUN docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ \
@@ -71,8 +72,6 @@ COPY --from=builder /var/www /var/www
 
 # Copy Composer too (optional, useful for dev containers)
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
-RUN composer install
 
 # Copy custom PHP-FPM config
 COPY docker/fpm.d/www.conf /usr/local/etc/php-fpm.d/www.conf

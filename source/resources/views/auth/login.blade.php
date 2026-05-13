@@ -36,7 +36,7 @@
                             <div class="mt-12 space-y-4">
                                 <div class="flex items-start gap-3">
                                     <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20 mt-1">
-                                        <x-heroicon-o-lightning-bolt class="h-5 w-5 text-emerald-100" />
+                                        <x-heroicon-o-bolt class="h-5 w-5 text-emerald-100" />
                                     </div>
                                     <div>
                                         <p class="font-semibold text-white">Fast & Easy</p>
@@ -69,7 +69,7 @@
                                     href="/register"
                                     class="inline-flex items-center gap-2 text-lg font-semibold text-white hover:text-emerald-100 transition-colors group"
                                 >
-                                    Create account 
+                                    Create account
                                     <x-heroicon-o-arrow-right class="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                                 </a>
                             </div>
