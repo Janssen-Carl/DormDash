@@ -16,101 +16,162 @@
         @section('title', 'Login - DormDash')
 
         @section('content')
-            <section class="flex min-h-[calc(100vh-80px)] flex-1 items-center justify-center">
+            <section class="flex min-h-[calc(100vh-80px)] flex-1 items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 px-4">
                 <div
-                    class="grid w-full max-w-3xl grid-cols-2 overflow-hidden rounded-2xl border border-gray-200 shadow-sm"
+                    class="grid w-full max-w-4xl grid-cols-2 overflow-hidden rounded-3xl border border-gray-200 shadow-2xl bg-white"
                 >
-                    <div class="flex flex-col justify-center bg-emerald-50 px-10 py-14">
-                        <p class="mb-1 text-[11px] font-semibold tracking-widest text-emerald-600 uppercase">
-                            DormDash
-                        </p>
-                        <h1 class="mb-3 text-3xl leading-tight font-bold text-emerald-900">Welcome back</h1>
-                        <p class="text-sm leading-relaxed text-emerald-700/60">Log in back to continue shopping.</p>
-<!-- 
-                        <div class="mt-6 grid grid-cols-2 gap-3">
-                            <div class="rounded-xl bg-emerald-100 px-4 py-3">
-                                <p class="text-lg font-bold text-emerald-800">500+</p>
-                                <p class="text-xs text-emerald-700/60">Students served</p>
-                            </div>
-                            <div class="rounded-xl bg-emerald-100 px-4 py-3">
-                                <p class="text-lg font-bold text-emerald-800">30 min</p>
-                                <p class="text-xs text-emerald-700/60">Avg. delivery</p>
-                            </div>
-                            <div class="rounded-xl bg-emerald-100 px-4 py-3">
-                                <p class="text-lg font-bold text-emerald-800">100+</p>
-                                <p class="text-xs text-emerald-700/60">Products</p>
-                            </div>
-                            <div class="rounded-xl bg-emerald-100 px-4 py-3">
-                                <p class="text-lg font-bold text-emerald-800">4.9★</p>
-                                <p class="text-xs text-emerald-700/60">Avg. rating</p>
-                            </div>
-                        </div> -->
+                    {{-- Left Side --}}
+                    <div class="flex flex-col justify-center bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-700 px-12 py-16 text-white relative overflow-hidden">
+                        {{-- Decorative elements --}}
+                        <div class="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -mr-40 -mt-40"></div>
+                        <div class="absolute bottom-0 left-0 w-72 h-72 bg-white/5 rounded-full -ml-36 -mb-36"></div>
 
-                        <div class="mt-10 border-t border-emerald-200 pt-6">
-                            <p class="mb-1 text-xs text-emerald-700/40">Don't have an account?</p>
-                            <a
-                                href="/register"
-                                class="text-sm font-semibold text-emerald-500 transition-colors hover:text-emerald-400"
-                            >
-                                Sign up here →
-                            </a>
+                        <div class="relative z-10">
+                            <p class="mb-2 text-sm font-semibold tracking-widest text-emerald-100 uppercase">
+                                Welcome Back
+                            </p>
+                            <h1 class="mb-4 text-5xl leading-tight font-bold">Log in to DormDash</h1>
+                            <p class="text-lg leading-relaxed text-emerald-50/80">Continue your shopping journey and discover fresh groceries delivered to your dorm.</p>
+
+                            <div class="mt-12 space-y-4">
+                                <div class="flex items-start gap-3">
+                                    <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20 mt-1">
+                                        <x-heroicon-o-lightning-bolt class="h-5 w-5 text-emerald-100" />
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-white">Fast & Easy</p>
+                                        <p class="text-sm text-emerald-50/70">Login takes seconds</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-3">
+                                    <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20 mt-1">
+                                        <x-heroicon-o-shield-check class="h-5 w-5 text-emerald-100" />
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-white">Secure</p>
+                                        <p class="text-sm text-emerald-50/70">Your data is protected</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-3">
+                                    <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20 mt-1">
+                                        <x-heroicon-o-truck class="h-5 w-5 text-emerald-100" />
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-white">Fast Delivery</p>
+                                        <p class="text-sm text-emerald-50/70">30 min or less</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-12 pt-8 border-t border-white/20">
+                                <p class="mb-2 text-sm text-emerald-50/60">Don't have an account?</p>
+                                <a
+                                    href="/register"
+                                    class="inline-flex items-center gap-2 text-lg font-semibold text-white hover:text-emerald-100 transition-colors group"
+                                >
+                                    Create account 
+                                    <x-heroicon-o-arrow-right class="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                                </a>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="flex flex-col justify-center bg-white px-10 py-14">
-                        <h2 class="mb-7 text-lg font-semibold text-zinc-900">Log in to your account</h2>
+                    {{-- Right Side --}}
+                    <div class="flex flex-col justify-center bg-white px-12 py-16">
+                        <h2 class="mb-2 text-3xl font-bold text-gray-900">Sign In</h2>
+                        <p class="mb-8 text-gray-600">Enter your credentials to access your account</p>
 
-                        <form method="POST" action="/login">
+                        <form method="POST" action="/login" class="space-y-5">
                             @csrf
-                            <div class="mb-4">
-                                <label class="mb-1.5 block text-xs font-medium tracking-wide text-zinc-400 uppercase">
-                                    Email Address
-                                </label>
-                                <flux:input
-                                    type="email"
-                                    name="email"
-                                    placeholder="you@example.com"
-                                    required
-                                    autofocus
-                                    value="{{ old('email') }}"
-                                    class="rounded-lg border border-zinc-300 bg-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
-                                />
-                                @error('email')
-                                    <p class="mt-1.5 text-xs text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div class="mb-2">
-                                <div class="mb-1.5 flex items-center justify-between">
-                                    <label class="text-xs font-medium tracking-wide text-zinc-400 uppercase">
-                                        Password
-                                    </label>
+                            {{-- Email Field --}}
+                            <div>
+                                <label class="mb-2 block text-sm font-semibold text-gray-700">Email Address</label>
+                                <div class="relative group">
+                                    <div class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-emerald-500 transition-colors">
+                                        <x-heroicon-o-envelope class="h-5 w-5" />
+                                    </div>
+                                    <flux:input
+                                        type="email"
+                                        name="email"
+                                        placeholder="john@example.com"
+                                        required
+                                        autofocus
+                                        value="{{ old('email') }}"
+                                        class="pl-12 w-full rounded-xl border-2 border-gray-200 bg-gray-50 py-3 transition-all focus:border-emerald-500 focus:bg-white focus:outline-none focus:ring-0"
+                                    />
                                 </div>
-                                <flux:input
-                                    type="password"
-                                    name="password"
-                                    placeholder="••••••••"
-                                    required
-                                    class="rounded-lg border border-zinc-300 bg-white shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
-                                />
-                                @error('password')
-                                    <p class="mt-1.5 text-xs text-red-600">{{ $message }}</p>
+                                @error('email')
+                                    <p class="mt-2 text-sm font-medium text-red-600 flex items-center gap-1">
+                                        <x-heroicon-o-exclamation-circle class="h-4 w-4" />
+                                        {{ $message }}
+                                    </p>
                                 @enderror
-
-                                <a
-                                    href=""
-                                    class="text-xs font-medium text-emerald-600 transition-colors hover:text-emerald-700"
-                                >
-                                    Forgot password?
-                                </a>
                             </div>
 
+                            {{-- Password Field --}}
+                            <div>
+                                <div class="mb-2 flex items-center justify-between">
+                                    <label class="text-sm font-semibold text-gray-700">Password</label>
+                                    <a
+                                        href="#"
+                                        class="text-sm font-medium text-emerald-600 hover:text-emerald-700 transition-colors"
+                                    >
+                                        Forgot?
+                                    </a>
+                                </div>
+                                <div class="relative group">
+                                    <div class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-emerald-500 transition-colors">
+                                        <x-heroicon-o-lock-closed class="h-5 w-5" />
+                                    </div>
+                                    <flux:input
+                                        type="password"
+                                        name="password"
+                                        placeholder="••••••••"
+                                        required
+                                        class="pl-12 w-full rounded-xl border-2 border-gray-200 bg-gray-50 py-3 transition-all focus:border-emerald-500 focus:bg-white focus:outline-none focus:ring-0"
+                                    />
+                                </div>
+                                @error('password')
+                                    <p class="mt-2 text-sm font-medium text-red-600 flex items-center gap-1">
+                                        <x-heroicon-o-exclamation-circle class="h-4 w-4" />
+                                        {{ $message }}
+                                    </p>
+                                @enderror
+                            </div>
+
+                            {{-- Submit Button --}}
                             <button
                                 type="submit"
-                                class="mt-6 h-11 w-full rounded-xl bg-emerald-600 text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
+                                class="mt-8 w-full rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 py-3 text-lg font-semibold text-white transition-all duration-200 hover:shadow-lg hover:from-emerald-700 hover:to-emerald-600 active:scale-95 shadow-md"
                             >
-                                Log In
+                                <span class="flex items-center justify-center gap-2">
+                                    Sign In
+                                    <x-heroicon-o-arrow-right class="h-5 w-5" />
+                                </span>
                             </button>
+
+                            {{-- Divider --}}
+                            <div class="relative my-8">
+                                <div class="absolute inset-0 flex items-center">
+                                    <div class="w-full border-t border-gray-200"></div>
+                                </div>
+                                <div class="relative flex justify-center text-sm">
+                                    <span class="bg-white px-2 text-gray-500">Or continue as</span>
+                                </div>
+                            </div>
+
+                            {{-- Demo Accounts --}}
+                            <div class="space-y-2 text-center">
+                                <p class="text-xs text-gray-600">Test Accounts:</p>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button type="button" class="rounded-lg border-2 border-gray-200 py-2 text-xs font-medium text-gray-700 transition-all hover:border-emerald-500 hover:bg-emerald-50">
+                                        Customer
+                                    </button>
+                                    <button type="button" class="rounded-lg border-2 border-gray-200 py-2 text-xs font-medium text-gray-700 transition-all hover:border-emerald-500 hover:bg-emerald-50">
+                                        Vendor
+                                    </button>
+                                </div>
+                            </div>
                         </form>
                     </div>
                 </div>
