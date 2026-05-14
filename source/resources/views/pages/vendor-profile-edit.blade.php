@@ -5,7 +5,7 @@
 @section('content')
             <div class="mx-auto max-w-2xl px-8 py-12">
                 <div class="mb-8">
-                    <a href="/profile" class="inline-flex items-center gap-2 text-green-600 font-semibold text-sm hover:text-green-700 transition-colors mb-4">
+                    <a href="/vendor-profile" class="inline-flex items-center gap-2 text-green-600 font-semibold text-sm hover:text-green-700 transition-colors mb-4">
                         <x-heroicon-o-arrow-left class="h-4 w-4" />
                         Back to Profile
                     </a>

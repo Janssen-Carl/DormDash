@@ -102,7 +102,7 @@
                         <div class="rounded-3xl border border-gray-100 bg-gradient-to-br from-white to-gray-50 p-8 shadow-lg transition-all duration-300 hover:shadow-xl">
                             <div class="mb-8 flex items-center justify-between">
                                 <h3 class="text-lg font-bold text-gray-900">Vendor Addresses</h3>
-                                <a href="/address-payment/add" class="inline-flex items-center justify-center gap-2 rounded-lg bg-green-50 border border-green-200 px-4 py-2 text-xs font-semibold text-green-600 transition-all duration-200 hover:bg-green-100 hover:border-green-300 hover:shadow-md">
+                                <a href="/vendor-profile/vendor-address-add" class="inline-flex items-center justify-center gap-2 rounded-lg bg-green-50 border border-green-200 px-4 py-2 text-xs font-semibold text-green-600 transition-all duration-200 hover:bg-green-100 hover:border-green-300 hover:shadow-md">
                                     <x-heroicon-o-plus class="h-4 w-4" />
                                     Add Address
                                 </a>
