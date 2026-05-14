@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CartController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -19,7 +20,7 @@ Route::post('/register', [UserController::class, 'register']);
 
 Route::get('/login', function () {
     return view('auth/login');
-});
+})->name('login');
 
 Route::post('/login', [UserController::class, 'login']);
 
@@ -29,12 +30,39 @@ Route::get('/products', function () {
     return view('pages/products');
 });
 
+
+Route::get('/test-session', function () {
+    session(['test' => 'working']);
+
+    return session('test');
+});
+
+Route::get('/auth-check', function () {
+    return [
+        'logged_in' => auth()->check(),
+        'user' => auth()->user(),
+    ];
+});
+
+Route::get('/test-login', function () {
+
+    auth()->loginUsingId(1);
+
+    return [
+        'logged_in' => auth()->check(),
+        'user' => auth()->user(),
+    ];
+});
 /* Customer Routes */
 
 Route::get('/cart', function () {
     return view('pages/cart');
-})->middleware('auth');
+})->middleware('user');
 
+/*
+Route::get('/cart', function () {
+    return view('pages/cart');});
+*/
 Route::get('/orders', function () {
     return view('pages/orders');
 })->middleware('auth');

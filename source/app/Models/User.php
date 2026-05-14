@@ -14,6 +14,7 @@ use Illuminate\Notifications\Notifiable;
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
+    protected $primaryKey = 'user_id';
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 

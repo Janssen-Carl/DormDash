@@ -1,13 +1,13 @@
 @extends('layouts.main')
 
-@section('title', 'Shopping Cart')
+@section('title', 'Shopping CartController')
 
 @section('content')
             <div class="mx-auto max-w-7xl px-8 py-8">
                 <h1 class="mb-8 text-4xl font-bold tracking-tight text-gray-900">Your Shopping Cart</h1>
 
                 <div class="grid grid-cols-3 gap-8">
-                    {{-- Cart Items --}}
+                    {{-- CartController Items --}}
                     <div class="col-span-2">
                         <div class="rounded-xl border border-gray-200 bg-white">
                             @foreach (range(1, 3) as $i)

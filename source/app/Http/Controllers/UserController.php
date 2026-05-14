@@ -32,8 +32,9 @@ class UserController extends Controller
 
         if (auth()->attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect('/');
+            return redirect('/'); // supposed to be dashboard
         }
+
 
         return back()->withErrors([
             'email' => 'The provided credentials do not match our records.'

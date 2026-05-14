@@ -1,18 +1,14 @@
-# =========================
-# Builder Stage
-# =========================
-FROM php:8.4-fpm-alpine AS builder
+FROM php:8.4-fpm-alpine
 
-# Set working directory
 WORKDIR /var/www
 
-# Install system dependencies & PHP build tools
+# System dependencies
 RUN apk add --no-cache \
     bash \
     git \
+    curl \
     zip \
     unzip \
-    curl \
     libpng-dev \
     libjpeg-turbo-dev \
     freetype-dev \
@@ -22,13 +18,12 @@ RUN apk add --no-cache \
     g++ \
     make \
     autoconf \
-    pkgconf \
-    re2c \
-    shadow \
-    oniguruma
+    pkgconf
 
-# Install PHP extensions needed by Laravel
-RUN docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ \
+# PHP extensions (IMPORTANT: includes pdo_mysql)
+RUN docker-php-ext-configure gd \
+        --with-freetype=/usr/include/ \
+        --with-jpeg=/usr/include/ \
     && docker-php-ext-install \
         pdo_mysql \
         mbstring \
@@ -42,54 +37,17 @@ RUN docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/i
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Copy the entire application first (includes artisan)
+# Copy project files
 COPY . .
 
-# Install PHP dependencies
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader --ignore-platform-reqs
+# Install Laravel dependencies
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
-# Fix permissions
-RUN chown -R www-data:www-data /var/www && chmod -R 755 /var/www
+# Permissions
+RUN chown -R www-data:www-data /var/www
 
-# =========================
-# Runtime Stage
-# =========================
-FROM php:8.4-fpm-alpine AS runtime
-
-WORKDIR /var/www
-
-# Install runtime PHP extensions
-RUN apk add --no-cache \
-    libpng \
-    libjpeg-turbo \
-    freetype \
-    libzip \
-    oniguruma \
-    icu
-
-# Copy application & vendor from builder
-COPY --from=builder /var/www /var/www
-
-# Copy Composer too (optional, useful for dev containers)
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
-# Copy custom PHP-FPM config
-COPY docker/fpm.d/www.conf /usr/local/etc/php-fpm.d/www.conf
-
-# Fix permissions
-RUN chown -R www-data:www-data /var/www && chmod -R 755 /var/www
-
-# Fix permissions
-RUN chown -R www-data:www-data /var/www /usr/local/etc/php-fpm.d
-
-# Fix permissions
-RUN mkdir -p /run/php /var/log/php-fpm \
-    && chown -R www-data:www-data /run/php /var/log/php-fpm
-
-#Use non-root user
 USER www-data
 
-# Expose PHP-FPM
 EXPOSE 9000
 
 CMD ["php-fpm", "-F"]
