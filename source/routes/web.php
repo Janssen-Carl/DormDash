@@ -72,3 +72,7 @@ Route::get('/vendor-profile', function () {
 Route::get('/vendor-profile/vendor-profile-edit', function () {
     return view('pages/vendor-profile-edit');
 });
+
+Route::get('/vendor-profile/vendor-address-add', function () {
+    return view('pages/vendor-address-add');
+});
