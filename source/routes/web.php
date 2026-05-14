@@ -60,3 +60,11 @@ Route::get('/vendor-home', function () {
 Route::get('/vendor-products', function () {
     return view('pages/vendor-products');
 });
+
+Route::get('/vendor-profile', function () {
+    return view('pages/vendor-profile');
+});
+
+Route::get('/vendor-profile/vendor-profile-edit', function () {
+    return view('pages/vendor-profile-edit');
+});
