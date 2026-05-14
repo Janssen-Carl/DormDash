@@ -1,6 +1,6 @@
 <header class="flex h-15 items-center justify-between border-b border-gray-200 bg-white px-8">
     {{-- Logo --}}
-    <a href="/home" class="flex items-center gap-2.5 transition-opacity hover:opacity-80">
+    <a href="/vendor-home" class="flex items-center gap-2.5 transition-opacity hover:opacity-80">
         <div class="flex h-8.5 w-8.5 items-center justify-center rounded-full bg-green-600">
             <x-heroicon-o-home class="h-4 w-4 text-white" />
         </div>
@@ -10,16 +10,16 @@
     {{-- Nav Links --}}
     <nav class="flex items-center gap-1">
         <a
-            href="/home"
-            class="{{ request()->routeIs('home') || request()->path() === 'home' ? 'border border-green-200 bg-green-50 text-green-600' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' }} flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-sm font-medium transition-colors"
+            href="/vendor-home"
+            class="{{ request()->routeIs('vendor-home') || request()->path() === 'vendor-home' ? 'border border-green-200 bg-green-50 text-green-600' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' }} flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-sm font-medium transition-colors"
         >
             <x-heroicon-o-home class="h-3.5 w-3.5" />
             Home
         </a>
 
         <a
-            href="/products"
-            class="{{ request()->path() === 'products' ? 'border border-green-200 bg-green-50 text-green-600' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' }} flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-sm transition-colors"
+            href="/vendor-products"
+            class="{{ request()->routeIs('vendor-products') || request()->path() === 'vendor-products' ? 'border border-green-200 bg-green-50 text-green-600' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' }} flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-sm transition-colors"
         >
             <x-heroicon-o-squares-2x2 class="h-3.5 w-3.5" />
             Products
