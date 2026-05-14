@@ -53,6 +53,10 @@ Route::get('/address-payment/add', function () {
     return view('pages/address-payment-add');
 })->middleware('auth');
 
+Route::get('/vendor-home', function () {
+    return view('vendor-home');
+});
+
 Route::get('/vendor-products', function () {
     return view('pages/vendor-products');
 });
