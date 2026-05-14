@@ -29,6 +29,8 @@ Route::get('/products', function () {
     return view('pages/products');
 });
 
+/* Customer Routes */
+
 Route::get('/cart', function () {
     return view('pages/cart');
 })->middleware('auth');
@@ -53,6 +55,8 @@ Route::get('/address-payment/add', function () {
     return view('pages/address-payment-add');
 })->middleware('auth');
 
+
+/* Vendor Routes */
 Route::get('/vendor-home', function () {
     return view('vendor-home');
 });
