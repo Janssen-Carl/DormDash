@@ -27,7 +27,6 @@
 
         <div class="mx-1.5 h-5 w-px bg-gray-200"></div>
 
-        @auth
             {{-- Profile Dropdown --}}
             <div class="relative group">
                 <button
@@ -42,14 +41,11 @@
                 
                 {{-- Dropdown Menu --}}
                 <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg border border-gray-200 shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                    <a href="/profile" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 first:rounded-t-lg">
+                    <a href="/vendor-profile" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 first:rounded-t-lg">
                         <x-heroicon-o-user class="inline h-4 w-4 mr-2" />
                         My Profile
                     </a>
-                    <a href="/orders" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
-                        <x-heroicon-o-clipboard-document-list class="inline h-4 w-4 mr-2" />
-                        Orders
-                    </a>
+                    
                     <form method="POST" action="/logout" class="block">
                         @csrf
                         <button type="submit" class="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-gray-50 last:rounded-b-lg border-t border-gray-200">
@@ -59,14 +55,5 @@
                     </form>
                 </div>
             </div>
-        @else
-            {{-- Guest Auth Links --}}
-            <a href="/login" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-green-600 transition-colors">
-                Log In
-            </a>
-            <a href="/register" class="px-4 py-2 text-sm font-medium bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                Sign Up
-            </a>
-        @endauth
     </nav>
 </header>
