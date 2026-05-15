@@ -43,11 +43,20 @@ COPY . .
 # Install Laravel dependencies
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
+# Laravel permissions
+RUN mkdir -p storage/framework/cache \
+    storage/framework/sessions \
+    storage/framework/views \
+    storage/logs \
+    bootstrap/cache \
+ && chown -R www-data:www-data storage bootstrap/cache \
+ && chmod -R 775 storage bootstrap/cache
+
+# Ensure temp dir works
+RUN chmod 1777 /tmp
 # Permissions
 RUN chown -R www-data:www-data /var/www
 
-USER www-data
-
 EXPOSE 9000
 
-CMD ["php-fpm", "-F"]
+# CMD ["php-fpm", "-F"]

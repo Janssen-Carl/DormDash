@@ -1,6 +1,5 @@
 services:
     app:
-        user: "${UID}:${GID}"
         build:
             context: .
         container_name: dormdash-app
@@ -8,6 +7,19 @@ services:
         depends_on:
             db:
                 condition: service_healthy
+        healthcheck:
+            test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+            interval: 5s
+            timeout: 5s
+            retries: 10
+        environment:
+            - APP_ENV=local
+            - DB_HOST=db
+            - DB_DATABASE=dormdash_db_v4
+            - DB_USERNAME=root
+            - DB_PASSWORD=pass
+        entrypoint: ["/bin/sh", "/var/www/docker/maria-db/entrypoint.sh"]
+        command: ["php-fpm", "-F"]
         volumes:
             - .:/var/www
         networks:
@@ -34,7 +46,7 @@ services:
             - "3307:3306" #3307 so it doesn't conflict with your host
         environment:
             MYSQL_ROOT_PASSWORD: pass
-            MYSQL_DATABASE: dormdash_db_v3
+            MYSQL_DATABASE: dormdash_db_v4
         volumes:
             - dbdata:/var/lib/mysql
             - ./database/init:/docker-entrypoint-initdb.d

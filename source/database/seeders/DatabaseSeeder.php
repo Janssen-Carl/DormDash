@@ -19,18 +19,23 @@ class DatabaseSeeder extends Seeder
         User::factory(5)->create();
 
         // Create specific test users
-        User::create([
-            'username' => 'johndoe',
-            'email' => 'john@example.com',
-            'password' => bcrypt('password123'),
-            'role' => 'customer'
-        ]);
+        User::firstOrCreate(
+            ['username' => 'johndoe'],
+            [
+                'email' => 'john@example.com',
+                'password' => bcrypt('password123'),
+                'role' => 'customer'
+            ]
+        );
 
-        User::create([
-            'username' => 'vendor_store',
-            'email' => 'vendor@example.com',
-            'password' => bcrypt('password123'),
-            'role' => 'vendor'
-        ]);
+        User::firstOrCreate(
+            ['username' => 'vendor_store'],
+            [
+                'email' => 'vendor@example.com',
+                'password' => bcrypt('password123'),
+                'role' => 'vendor'
+            ]
+        );
+
     }
 }

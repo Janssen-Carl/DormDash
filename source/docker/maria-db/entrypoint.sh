@@ -1,0 +1,54 @@
+#!/bin/sh
+set -e
+
+echo "Waiting for MySQL server..."
+
+until php -r "
+try {
+    new PDO(
+        'mysql:host=${DB_HOST}',
+        '${DB_USERNAME}',
+        '${DB_PASSWORD}'
+    );
+} catch (Exception \$e) {
+    exit(1);
+}
+"; do
+  sleep 2
+done
+
+echo "Creating database if not exists..."
+
+php -r "
+try {
+    \$pdo = new PDO(
+        'mysql:host=${DB_HOST}',
+        '${DB_USERNAME}',
+        '${DB_PASSWORD}'
+    );
+
+    \$pdo->exec('CREATE DATABASE IF NOT EXISTS \`${DB_DATABASE}\`');
+
+    echo 'Database ready.';
+} catch (Exception \$e) {
+    echo \$e->getMessage();
+    exit(1);
+}
+"
+
+echo "Running migrations..."
+
+php artisan migrate --force
+php artisan db:seed --force
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+echo "Fixing Laravel permissions..."
+
+chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+chmod -R 775 /var/www/storage /var/www/bootstrap/cache
+
+echo "Starting PHP-FPM..."
+
+exec "$@"
