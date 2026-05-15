@@ -2,65 +2,20 @@
 
 ## Run with Docker
 
-From the `\source`, open a terminal and run:
+From the `/source` folder, open a terminal and run:
 
 ```bash
     docker compose up --build
 ```
 
 Then open:
-http://localhost:8000
+http://localhost:8080
 
+```Note
+    Note: might need to fix file permissions first before successful execution. THIS IS FOR DOCKER USERS ONLY
+```
 
 ----------------------------------------------------------------------------------------
-Run current project:
-
-```bash
-cd ./source
-docker-compose up -d db
-
-Other tab
-cd ./source
-php artisan serve
-
-Other tab
-cd ./source
-npm run dev
-```
-Then open http://localhost:8000
-
-To stop the container:
-
-```bash
-docker compose down
-```
-
-To stop other tabs:
-
-```bash
-ctrl + c 
-```
-
-
-
-To access database 
-
-create it first:
-```
-cd source
-php artisan migrate
-```
-
-then use the seeder
-Option 1: Run seeder alone
-````
-php artisan db:seed
-````
-
-Option 2: Fresh database + migrations + seeder
-````
-php artisan migrate:fresh --seed
-````
 
 
 Test Accounts Created:
