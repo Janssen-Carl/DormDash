@@ -2,16 +2,15 @@
 
 ## Run with Docker
 
-From the project root, open a terminal and run:
+From the `\source`, open a terminal and run:
 
 ```bash
-cd database/draftImplementation/draft2
-docker compose up --build
+    docker compose up --build
 ```
 
 Then open:
-
 http://localhost:8000
+
 
 ----------------------------------------------------------------------------------------
 Run current project:
@@ -42,15 +41,6 @@ To stop other tabs:
 ctrl + c 
 ```
 
-
-First time install for ui shits:
-```bash
-composer require blade-ui-kit/blade-icons    
-composer require blade-ui-kit/blade-heroicons
-
-composer require livewire/livewire   
-composer require livewire/flux   
-```
 
 
 To access database 
