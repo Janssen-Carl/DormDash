@@ -78,7 +78,7 @@ Route::get('/test-login', function () {
 
 Route::get('/cart', function () {
     return view('pages/cart');
-})->middleware('user');
+})->middleware(['auth', 'role:customer']);
 
 /*
 Route::get('/cart', function () {

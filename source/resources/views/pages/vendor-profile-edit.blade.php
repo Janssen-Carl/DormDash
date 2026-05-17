@@ -1,4 +1,4 @@
-@extends('layouts.main')
+@extends('layouts.main-vendor')
 
 @section('title', 'Edit Profile')
 
