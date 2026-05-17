@@ -10,10 +10,14 @@
         <p class="mt-2 text-zinc-500 text-sm">Make changes to your product inventory.</p>
     </div>
 
-    {{-- Add shits --}}
+    {{-- Add product and bundle buttons --}}
     <div class="mt-8 flex justify-end gap-3">
-        <button type="button" class="px-10 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">Add Product</button>
-        <button type="button" class="px-10 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">Add Bundle</button>
+        <a href="/vendor-product-add">
+            <button type="button" class="px-10 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">Add Product</button>
+        </a>
+        <a href="/vendor-product-add-bundle">
+            <button type="button" class="px-10 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">Add Bundle</button>
+        </a>
     </div> 
 
     {{-- Product Table Section --}}

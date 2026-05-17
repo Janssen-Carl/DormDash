@@ -104,6 +104,9 @@ Route::get('/address-payment/add', function () {
     return view('pages/address-payment-add');
 })->middleware('auth');
 
+
+/* Vendor Routes */
+
 Route::get('/vendor-products', function () {
     return view('pages/vendor-products');
 });
