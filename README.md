@@ -2,16 +2,18 @@
 
 ## Run with Docker
 
-From the project root, open a terminal and run:
+From the `/source` folder, open a terminal and run:
 
 ```bash
-cd database/draftImplementation/draft2
-docker compose up --build
+    docker compose up --build
 ```
 
 Then open:
+http://localhost:8080
 
-http://localhost:8000
+```Note
+    Note: might need to fix file permissions first before successful execution. THIS IS FOR DOCKER USERS ONLY
+```
 
 ----------------------------------------------------------------------------------------
 Run current project:
