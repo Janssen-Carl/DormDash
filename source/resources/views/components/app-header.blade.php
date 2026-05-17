@@ -46,13 +46,13 @@
             Cart
         </a>
 
-        <a
+        <!-- <a
             href="/orders-overview"
             class="{{ request()->path() === 'orders-overview' ? 'border border-green-200 bg-green-50 text-green-600' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' }} flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-sm transition-colors"
         >
             <x-heroicon-o-clipboard-document-list class="h-3.5 w-3.5" />
             Orders
-        </a>
+        </a> -->
 
         <div class="mx-1.5 h-5 w-px bg-gray-200"></div>
         @endauth
@@ -76,10 +76,10 @@
                         <x-heroicon-o-user class="inline h-4 w-4 mr-2" />
                         My Profile
                     </a>
-                    <!-- <a href="/orders" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
+                    <a href="/orders" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
                         <x-heroicon-o-clipboard-document-list class="inline h-4 w-4 mr-2" />
                         Orders
-                    </a> -->
+                    </a>
                     <form method="POST" action="/logout" class="block">
                         @csrf
                         <button type="submit" class="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-gray-50 last:rounded-b-lg border-t border-gray-200">
