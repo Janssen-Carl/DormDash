@@ -6,24 +6,20 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class IsUser
+class CheckRole
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  Closure(Request): (Response)  $next
-     */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next, ...$roles): Response
     {
         if (!auth()->check()) {
             return redirect('/login');
         }
-/*
-        if (auth()->user()->role !== 'user')
-        {
-            abort(403);
-        } // checks for role(Hypothetical :])
-    */
+
+        $user = auth()->user();
+
+        if (!empty($roles) && !in_array($user->role, $roles)) {
+            abort(403, 'Unauthorized');
+        }
+
         return $next($request);
     }
 }
