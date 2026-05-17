@@ -104,3 +104,13 @@ Route::get('/vendor-profile/vendor-profile-edit', function () {
 Route::get('/vendor-profile/vendor-address-add', function () {
     return view('pages/vendor-address-add');
 });
+
+Route::get('/vendor-profile/vendor-product-edit', function () {
+    return view('pages/vendor-product-edit');
+});
+
+Route::get('/vendor-profile/vendor-product-add', function () {
+    return view('pages/vendor-product-add');
+});
+
+
