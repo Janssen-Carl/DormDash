@@ -5,14 +5,14 @@
 
 -- ----- USERS (5 vendors + 3 customers) -----
 INSERT INTO users (username, email, email_verified_at, role, password, created_at, updated_at) VALUES
-('snack_shack',    'snackshack@example.com',    NOW(), 'vendor',   '$2y$12$abcdefghijklmnopqrstuuWECKcuX3ERz1aGOf.Gj/RaGWliGu3XC', NOW(), NOW()),
-('dorm_bites',     'dormbites@example.com',     NOW(), 'vendor',   '$2y$12$abcdefghijklmnopqrstuuWECKcuX3ERz1aGOf.Gj/RaGWliGu3XC', NOW(), NOW()),
-('campus_pantry',  'campuspantry@example.com',  NOW(), 'vendor',   '$2y$12$abcdefghijklmnopqrstuuWECKcuX3ERz1aGOf.Gj/RaGWliGu3XC', NOW(), NOW()),
-('quick_mart',     'quickmart@example.com',     NOW(), 'vendor',   '$2y$12$abcdefghijklmnopqrstuuWECKcuX3ERz1aGOf.Gj/RaGWliGu3XC', NOW(), NOW()),
-('fresh_hub',      'freshhub@example.com',      NOW(), 'vendor',   '$2y$12$abcdefghijklmnopqrstuuWECKcuX3ERz1aGOf.Gj/RaGWliGu3XC', NOW(), NOW()),
-('juan_cruz',      'juan@example.com',          NOW(), 'customer', '$2y$12$abcdefghijklmnopqrstuuWECKcuX3ERz1aGOf.Gj/RaGWliGu3XC', NOW(), NOW()),
-('maria_santos',   'maria@example.com',         NOW(), 'customer', '$2y$12$abcdefghijklmnopqrstuuWECKcuX3ERz1aGOf.Gj/RaGWliGu3XC', NOW(), NOW()),
-('carlo_reyes',    'carlo@example.com',         NOW(), 'customer', '$2y$12$abcdefghijklmnopqrstuuWECKcuX3ERz1aGOf.Gj/RaGWliGu3XC', NOW(), NOW());
+('snack_shack',    'snackshack@example.com',    NOW(), 'vendor',   '$2y$12$Pu44kh5xjEnwyy.XikmXpOBBZj5aBiNNoSQqUPGTYxIuZH/em6ngK', NOW(), NOW()),
+('dorm_bites',     'dormbites@example.com',     NOW(), 'vendor',   '$2y$12$Pu44kh5xjEnwyy.XikmXpOBBZj5aBiNNoSQqUPGTYxIuZH/em6ngK', NOW(), NOW()),
+('campus_pantry',  'campuspantry@example.com',  NOW(), 'vendor',   '$2y$12$Pu44kh5xjEnwyy.XikmXpOBBZj5aBiNNoSQqUPGTYxIuZH/em6ngK', NOW(), NOW()),
+('quick_mart',     'quickmart@example.com',     NOW(), 'vendor',   '$2y$12$Pu44kh5xjEnwyy.XikmXpOBBZj5aBiNNoSQqUPGTYxIuZH/em6ngK', NOW(), NOW()),
+('fresh_hub',      'freshhub@example.com',      NOW(), 'vendor',   '$2y$12$Pu44kh5xjEnwyy.XikmXpOBBZj5aBiNNoSQqUPGTYxIuZH/em6ngK', NOW(), NOW()),
+('juan_cruz',      'juan@example.com',          NOW(), 'customer', '$2y$12$Pu44kh5xjEnwyy.XikmXpOBBZj5aBiNNoSQqUPGTYxIuZH/em6ngK', NOW(), NOW()),
+('maria_santos',   'maria@example.com',         NOW(), 'customer', '$2y$12$Pu44kh5xjEnwyy.XikmXpOBBZj5aBiNNoSQqUPGTYxIuZH/em6ngK', NOW(), NOW()),
+('carlo_reyes',    'carlo@example.com',         NOW(), 'customer', '$2y$12$Pu44kh5xjEnwyy.XikmXpOBBZj5aBiNNoSQqUPGTYxIuZH/em6ngK', NOW(), NOW());
 
 -- ----- ADDRESSES -----
 -- vendor addresses (user_id 1-5)

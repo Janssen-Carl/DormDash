@@ -23,6 +23,7 @@ php artisan migrate
 | 05 | `seed_05_vendor4_quickmart.sql` | Quick Mart – 10 items (personal care) |
 | 06 | `seed_06_vendor5_freshhub.sql` | Fresh Hub – 10 items (dorm essentials) |
 | 07 | `seed_07_relations.sql` | 5 pages, 25 page_items, 6 carts, 4 orders, 9 order_items, 4 payments, 4 discounts |
+| 08 | `fix_passwords.sql` | Overwrites all user passwords with a valid bcrypt hash (plain: `password`) |
 
 ## How to Run
 
@@ -45,6 +46,9 @@ cmd /c "type seed_04_vendor3_campuspantry.sql | docker exec -i dormdash-db mysql
 cmd /c "type seed_05_vendor4_quickmart.sql | docker exec -i dormdash-db mysql -u root -ppass dormdash_v4_migration"
 cmd /c "type seed_06_vendor5_freshhub.sql | docker exec -i dormdash-db mysql -u root -ppass dormdash_v4_migration"
 cmd /c "type seed_07_relations.sql | docker exec -i dormdash-db mysql -u root -ppass dormdash_v4_migration"
+
+# Fix password hashes (the seed SQL has $ chars that cmd can't mangle via echo, but are fine via type)
+cmd /c "type fix_passwords.sql | docker exec -i dormdash-db mysql -u root -ppass dormdash_v4_migration"
 ```
 
 ### Option B – Run individually (useful for debugging)
