@@ -23,23 +23,21 @@
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">Product Name</label>
                                     <div class="flex items-center gap-2">
                                         <div class="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-600 cursor-not-allowed">Enter Product Name</div>
+                                         </div>
                                     </div>
-                                </div>
+
 
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">Product Description</label>
                                     <div class="flex items-center gap-2">
                                         <div class="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-600 cursor-not-allowed">Enter Product Description</div>
-                            
                                     </div>
-                                </div>
+                                 </div>
 
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">Price</label>
                                     <div class="flex items-center gap-2">
                                         <div class="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-600 cursor-not-allowed">Enter Price</div>
-                                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100 text-green-600">
-                                        </div>
                                     </div>
                                 </div>
 
@@ -47,8 +45,6 @@
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">Stocks</label>
                                     <div class="flex items-center gap-2">
                                         <div class="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-600 cursor-not-allowed">Enter Stocks</div>
-                                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100 text-green-600">
-                                        </div>
                                     </div>
                                 </div>
 
@@ -56,8 +52,6 @@
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">URL</label>
                                     <div class="flex items-center gap-2">
                                         <div class="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-600 cursor-not-allowed">Enter Product Image URL</div>
-                                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100 text-green-600">
-                                        </div>
                                     </div>
                                 </div>
 
@@ -65,8 +59,6 @@
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">Bundle</label>
                                     <div class="flex items-center gap-2">
                                         <div class="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-600 cursor-not-allowed">Yes or No</div>
-                                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100 text-green-600">
-                                        </div>
                                     </div>
                                 </div>
 
