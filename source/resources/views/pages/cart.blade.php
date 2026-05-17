@@ -3,7 +3,7 @@
 @section('title', 'Shopping Cart')
 
 @section('content')
-    <div class="mx-auto max-w-7xl px-8 py-8">
+    <div class="mx-auto max-w-7xl px-8 pt-8 pb-12">
         <h1 class="mb-8 text-4xl font-bold tracking-tight text-gray-900">Your Shopping Cart</h1>
 
         @if(session('success'))
