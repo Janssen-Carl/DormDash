@@ -78,6 +78,8 @@
     {{-- Action Buttons --}}
     
     <div class="mt-8 flex justify-end gap-3">
+        <a href="/vendor-profile/vendor-product-add" class="px-10 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">Add Product</a>
+        <a href="/vendor-profile/vendor-product-edit" class="px-10 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">Edit Product</a>
         <button type="button" class="px-10 py-2 border border-red-500 text-red-500 rounded-lg hover:bg-red-50">Cancel</button>
         <button type="button" class="px-10 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">Save Changes</button>
     </div> 
