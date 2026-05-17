@@ -21,8 +21,6 @@ Route::get('/', function () {
 
 Route::get('/home', fn () => redirect('/'));
 
-Route::get('/products', fn () => view('pages/products'));
-
 Route::get('/register', fn () => view('auth/register'));
 Route::post('/register', [UserController::class, 'register']);
 
@@ -35,6 +33,7 @@ Route::post('/logout', [UserController::class, 'logout']);
 
 Route::middleware('auth')->group(function () {
 
+    Route::get('/products', fn () => view('pages/products'));
     Route::get('/orders', fn () => view('pages/orders'));
     Route::get('/orders-overview', fn () => view('pages/orders-overview'));
     Route::get('/profile', fn () => view('pages/profile'));
