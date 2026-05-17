@@ -9,8 +9,8 @@
             <aside x-show="sidebarOpen" x-transition:enter="transition ease-out duration-300"
                 x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0"
                 x-transition:leave="transition ease-in duration-300" x-transition:leave-start="translate-x-0"
-                x-transition:leave-end="-translate-x-full" class="relative z-40 w-72 overflow-y-auto bg-white">
-                <div class="p-6">
+                x-transition:leave-end="-translate-x-full" class="relative z-40 w-72 shrink-0 overflow-y-auto bg-white border-r border-gray-100">
+                <form action="/products" method="GET" class="p-6">
                     <div class="mb-6 flex items-center justify-between">
                         <h3 class="text-lg font-semibold text-gray-900">Filters</h3>
                         <button @click="sidebarOpen = false" type="button"
@@ -19,31 +19,94 @@
                         </button>
                     </div>
 
-                    {{-- All Products --}}
-                    <div class="mb-6 cursor-pointer">
-                        <a href="/products"
-                            class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-100">
-                            <x-heroicon-o-squares-2x2 class="h-4 w-4" />
-                            <span>All Products</span>
-                        </a>
-                    </div>
-
                     {{-- Vendor --}}
-                    <div class="mb-6">
-                        <button type="button"
-                            class="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-100">
-                            <x-heroicon-o-building-storefront class="h-4 w-4" />
-                            <span>Vendor</span>
+                    <div class="mb-6" x-data="{ 
+                        open: true, 
+                        search: '',
+                        showAll: false,
+                        vendors: {{ Js::from($vendors->map(fn($v) => ['id' => $v->vendor_id, 'name' => $v->name])) }},
+                        get filteredVendors() {
+                            if (this.search === '') return this.vendors;
+                            return this.vendors.filter(v => v.name.toLowerCase().includes(this.search.toLowerCase()));
+                        }
+                    }">
+                        <button type="button" @click="open = !open"
+                            class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-100">
+                            <div class="flex items-center gap-2.5">
+                                <x-heroicon-o-building-storefront class="h-4 w-4" />
+                                <span>Vendor</span>
+                            </div>
+                            <x-heroicon-o-chevron-down class="h-4 w-4 transition-transform duration-200" x-bind:class="open ? 'rotate-180' : ''" />
                         </button>
+                        <div x-show="open" x-collapse class="mt-2 space-y-2 px-3">
+                            <div class="relative">
+                                <x-heroicon-o-magnifying-glass class="absolute left-2.5 top-2 h-4 w-4 text-gray-400" />
+                                <input type="text" x-model="search" placeholder="Search vendors..."
+                                    class="w-full rounded-md border border-gray-300 py-1.5 pl-8 pr-2 text-xs text-gray-900 focus:border-green-600 focus:ring-1 focus:ring-green-600" />
+                            </div>
+                            <div class="space-y-1 mt-2">
+                                <template x-for="(vendor, index) in filteredVendors" :key="vendor.id">
+                                    <label x-show="showAll || index < 5" class="flex items-center gap-2 py-1 cursor-pointer">
+                                        <input type="checkbox" name="vendors[]" :value="vendor.id" class="rounded border-gray-300 text-green-600 focus:ring-green-600">
+                                        <span class="text-sm text-gray-600" x-text="vendor.name"></span>
+                                    </label>
+                                </template>
+                            </div>
+                            <button type="button" x-show="filteredVendors.length > 5 && !showAll" @click="showAll = true" 
+                                class="text-xs font-semibold text-green-600 hover:text-green-700 w-full text-left py-1">
+                                Show More...
+                            </button>
+                            <button type="button" x-show="showAll" @click="showAll = false" 
+                                class="text-xs font-semibold text-green-600 hover:text-green-700 w-full text-left py-1">
+                                Show Less
+                            </button>
+                            <p x-show="filteredVendors.length === 0" class="text-xs text-gray-500 py-1">No vendors found.</p>
+                        </div>
                     </div>
 
                     {{-- Categories --}}
-                    <div class="mb-6">
-                        <button type="button"
-                            class="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-100">
-                            <x-heroicon-o-tag class="h-4 w-4" />
-                            <span>Categories</span>
+                    <div class="mb-6" x-data="{ 
+                        open: true,
+                        search: '',
+                        showAll: false,
+                        categories: {{ Js::from($parentCategories->map(fn($c) => ['id' => $c->category_id, 'name' => $c->name])) }},
+                        get filteredCategories() {
+                            if (this.search === '') return this.categories;
+                            return this.categories.filter(c => c.name.toLowerCase().includes(this.search.toLowerCase()));
+                        }
+                    }">
+                        <button type="button" @click="open = !open"
+                            class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-100">
+                            <div class="flex items-center gap-2.5">
+                                <x-heroicon-o-tag class="h-4 w-4" />
+                                <span>Categories</span>
+                            </div>
+                            <x-heroicon-o-chevron-down class="h-4 w-4 transition-transform duration-200" x-bind:class="open ? 'rotate-180' : ''" />
                         </button>
+                        <div x-show="open" x-collapse class="mt-2 space-y-2 px-3">
+                            <div class="relative">
+                                <x-heroicon-o-magnifying-glass class="absolute left-2.5 top-2 h-4 w-4 text-gray-400" />
+                                <input type="text" x-model="search" placeholder="Search categories..."
+                                    class="w-full rounded-md border border-gray-300 py-1.5 pl-8 pr-2 text-xs text-gray-900 focus:border-green-600 focus:ring-1 focus:ring-green-600" />
+                            </div>
+                            <div class="space-y-1 mt-2">
+                                <template x-for="(category, index) in filteredCategories" :key="category.id">
+                                    <label x-show="showAll || index < 5" class="flex items-center gap-2 py-1 cursor-pointer">
+                                        <input type="checkbox" name="categories[]" :value="category.id" class="rounded border-gray-300 text-green-600 focus:ring-green-600">
+                                        <span class="text-sm text-gray-600" x-text="category.name"></span>
+                                    </label>
+                                </template>
+                            </div>
+                            <button type="button" x-show="filteredCategories.length > 5 && !showAll" @click="showAll = true" 
+                                class="text-xs font-semibold text-green-600 hover:text-green-700 w-full text-left py-1">
+                                Show More...
+                            </button>
+                            <button type="button" x-show="showAll" @click="showAll = false" 
+                                class="text-xs font-semibold text-green-600 hover:text-green-700 w-full text-left py-1">
+                                Show Less
+                            </button>
+                            <p x-show="filteredCategories.length === 0" class="text-xs text-gray-500 py-1">No categories found.</p>
+                        </div>
                     </div>
 
                     {{-- Bundles --}}
@@ -63,11 +126,18 @@
                             <span>Discounts</span>
                         </button>
                     </div>
-                </div>
+
+                    {{-- Apply Filters --}}
+                    <div class="mt-8">
+                        <button type="submit" class="w-full rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-700 shadow-sm">
+                            Apply Filters
+                        </button>
+                    </div>
+                </form>
             </aside>
 
             {{-- Main Content --}}
-            <main class="flex-1 overflow-y-auto px-8 py-8">
+            <main class="flex-1 overflow-y-auto px-8 py-8 w-full">
                 {{-- Toggle Button --}}
                 <div x-show="!sidebarOpen" x-transition:enter="transition ease-out duration-300"
                     x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
@@ -80,6 +150,7 @@
                 </div>
 
                 {{-- Header Section --}}
+                @guest
                 <div class="py-8 mb-12 flex flex-col items-center">
                     <div class="text-center">
                         <h1 class="text-4xl font-bold tracking-tight text-gray-900">Products</h1>
@@ -98,147 +169,88 @@
                         </a>
                     </div>
                 </div>
+                @endguest
 
                 {{-- Products by Category --}}
-
-                {{-- Fruits Section --}}
-                <section class="mb-12" x-data="productCarousel()">
-                    <div class="mb-6 flex items-center justify-between">
-                        <h2 class="text-2xl font-bold text-gray-900">Fruits</h2>
-                        <div class="flex gap-2">
-                            <button @click="scrollCarousel('fruits-carousel', -400)" type="button"
-                                class="rounded-lg border border-gray-200 p-2 text-gray-600 transition-colors hover:bg-gray-100">
-                                <x-heroicon-o-chevron-left class="h-5 w-5" />
-                            </button>
-                            <button @click="scrollCarousel('fruits-carousel', 400)" type="button"
-                                class="rounded-lg border border-gray-200 p-2 text-gray-600 transition-colors hover:bg-gray-100">
-                                <x-heroicon-o-chevron-right class="h-5 w-5" />
-                            </button>
-                        </div>
-                    </div>
-
-                    <div id="fruits-carousel" class="scrollbar-hide flex gap-4 overflow-x-auto transition-all duration-300"
-                        style="scroll-behavior: smooth;">
-                        @foreach (range(1, 8) as $i)
-                            <div
-                                class="group shrink-0 w-72 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:shadow-lg hover:border-gray-200">
-                                <div class="relative aspect-square bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
-                                    <div
-                                        class="flex h-full w-full items-center justify-center text-gray-300 group-hover:scale-110 transition-transform duration-300">
-                                        <x-heroicon-o-photo class="h-16 w-16" />
-                                    </div>
-                                    <div
-                                        class="absolute top-3 right-3 bg-green-600 text-white text-xs font-bold px-2.5 py-1 rounded-full">
-                                        Fresh
-                                    </div>
-                                </div>
-                                <div class="p-4">
-                                    <p class="text-xs font-semibold text-green-600 uppercase tracking-wide">Fresh Fruits</p>
-                                    <h3 class="mt-2 text-base font-bold text-gray-900">
-                                        {{ ['Apples', 'Oranges', 'Bananas', 'Mangoes', 'Grapes', 'Pineapple', 'Strawberries', 'Blueberries'][$i - 1] }}
-                                    </h3>
-
-                                    <div class="mt-2 flex items-center gap-1">
-                                        @for ($j = 0; $j < 5; $j++)
-                                            <x-heroicon-s-star
-                                                class="h-3.5 w-3.5 {{ $j < 4 ? 'text-yellow-400' : 'text-gray-300' }}" />
-                                        @endfor
-                                        <span class="ml-1 text-xs text-gray-500">({{ 40 + $i * 5 }})</span>
-                                    </div>
-
-                                    <p class="mt-2 text-xs text-gray-600">Stock: {{ 30 + $i * 10 }} available</p>
-
-                                    <div class="mt-4 flex items-baseline gap-2">
-                                        <span class="text-xl font-bold text-gray-900">₱{{ 40 + $i * 10 }}</span>
-                                        <span class="text-xs text-gray-500">/pc</span>
-                                    </div>
-
-                                    <div class="mt-4 flex gap-2">
-                                        <button type="button"
-                                            class="flex-1 rounded-lg bg-green-50 border border-green-200 py-2 text-xs font-semibold text-green-600 transition-all duration-200 hover:bg-green-100">
-                                            <x-heroicon-o-shopping-cart class="inline h-4 w-4 mr-1" />
-                                            Add to Cart
-                                        </button>
-                                        <button type="button"
-                                            class="flex-1 rounded-lg bg-green-600 py-2 text-xs font-semibold text-white transition-all duration-200 hover:bg-green-700 shadow-sm hover:shadow-md">
-                                            Buy Now
-                                        </button>
-                                    </div>
-                                </div>
+                @forelse ($categoryItems as $group)
+                    <section class="mb-12" x-data="productCarousel()">
+                        <div class="mb-6 flex items-center justify-between">
+                            <h2 class="text-2xl font-bold text-gray-900">{{ $group['category']->name }}</h2>
+                            <div class="flex gap-2">
+                                <button @click="scrollCarousel('carousel-{{ $group['category']->category_id }}', -400)" type="button"
+                                    class="rounded-lg border border-gray-200 p-2 text-gray-600 transition-colors hover:bg-gray-100">
+                                    <x-heroicon-o-chevron-left class="h-5 w-5" />
+                                </button>
+                                <button @click="scrollCarousel('carousel-{{ $group['category']->category_id }}', 400)" type="button"
+                                    class="rounded-lg border border-gray-200 p-2 text-gray-600 transition-colors hover:bg-gray-100">
+                                    <x-heroicon-o-chevron-right class="h-5 w-5" />
+                                </button>
                             </div>
-                        @endforeach
-                    </div>
-                </section>
-
-                {{-- Vegetables Section --}}
-                <section x-data="productCarousel()">
-                    <div class="mb-6 flex items-center justify-between">
-                        <h2 class="text-2xl font-bold text-gray-900">Vegetables</h2>
-                        <div class="flex gap-2">
-                            <button @click="scrollCarousel('vegetables-carousel', -400)" type="button"
-                                class="rounded-lg border border-gray-200 p-2 text-gray-600 transition-colors hover:bg-gray-100">
-                                <x-heroicon-o-chevron-left class="h-5 w-5" />
-                            </button>
-                            <button @click="scrollCarousel('vegetables-carousel', 400)" type="button"
-                                class="rounded-lg border border-gray-200 p-2 text-gray-600 transition-colors hover:bg-gray-100">
-                                <x-heroicon-o-chevron-right class="h-5 w-5" />
-                            </button>
                         </div>
-                    </div>
 
-                    <div id="vegetables-carousel"
-                        class="scrollbar-hide flex gap-4 overflow-x-auto transition-all duration-300"
-                        style="scroll-behavior: smooth;">
-                        @foreach (range(1, 8) as $i)
-                            <div
-                                class="group shrink-0 w-72 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:shadow-lg hover:border-gray-200">
-                                <div class="relative aspect-square bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
-                                    <div
-                                        class="flex h-full w-full items-center justify-center text-gray-300 group-hover:scale-110 transition-transform duration-300">
-                                        <x-heroicon-o-photo class="h-16 w-16" />
+                        <div id="carousel-{{ $group['category']->category_id }}" class="scrollbar-hide flex gap-4 overflow-x-auto transition-all duration-300"
+                            style="scroll-behavior: smooth;">
+                            @foreach ($group['items'] as $product)
+                                <div
+                                    class="group shrink-0 w-72 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:shadow-lg hover:border-gray-200">
+                                    <div class="relative aspect-square bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
+                                        @if ($product->images->first())
+                                            <img src="{{ asset($product->images->first()->image) }}"
+                                                alt="{{ $product->name }}"
+                                                class="h-full w-full object-cover group-hover:scale-110 transition-transform duration-300" />
+                                        @else
+                                            <div
+                                                class="flex h-full w-full items-center justify-center text-gray-300 group-hover:scale-110 transition-transform duration-300">
+                                                <x-heroicon-o-photo class="h-16 w-16" />
+                                            </div>
+                                        @endif
+
+                                        @if ($product->is_perishable)
+                                            <div
+                                                class="absolute top-3 right-3 bg-green-600 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">
+                                                Fresh
+                                            </div>
+                                        @endif
                                     </div>
-                                    <div
-                                        class="absolute top-3 right-3 bg-green-600 text-white text-xs font-bold px-2.5 py-1 rounded-full">
-                                        Fresh
+                                    <div class="p-4">
+                                        <p class="text-xs font-semibold text-green-600 uppercase tracking-wide">
+                                            {{ $product->vendor->name ?? 'DormDash' }}
+                                        </p>
+                                        <h3 class="mt-2 text-base font-bold text-gray-900 truncate" title="{{ $product->name }}">
+                                            {{ $product->name }}
+                                        </h3>
+
+                                        <p class="mt-2 text-xs text-gray-600">Stock: {{ $product->stock }} available</p>
+
+                                        <div class="mt-4 flex items-baseline gap-2">
+                                            <span class="text-xl font-bold text-gray-900">₱{{ number_format($product->price, 2) }}</span>
+                                            @if ($product->unit_type)
+                                                <span class="text-xs text-gray-500">/{{ $product->unit_type }}</span>
+                                            @endif
+                                        </div>
+
+                                        <div class="mt-4 flex gap-2">
+                                            <button type="button"
+                                                class="flex-1 rounded-lg bg-green-50 border border-green-200 py-2 text-xs font-semibold text-green-600 transition-all duration-200 hover:bg-green-100">
+                                                <x-heroicon-o-shopping-cart class="inline h-4 w-4 mr-1" />
+                                                Add to Cart
+                                            </button>
+                                            <button type="button"
+                                                class="flex-1 rounded-lg bg-green-600 py-2 text-xs font-semibold text-white transition-all duration-200 hover:bg-green-700 shadow-sm hover:shadow-md">
+                                                Buy Now
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="p-4">
-                                    <p class="text-xs font-semibold text-green-600 uppercase tracking-wide">Fresh Produce</p>
-                                    <h3 class="mt-2 text-base font-bold text-gray-900">
-                                        {{ ['Carrot', 'Broccoli', 'Lettuce', 'Tomato', 'Bell Pepper', 'Cucumber', 'Spinach', 'Cabbage'][$i - 1] }}
-                                    </h3>
-
-                                    <div class="mt-2 flex items-center gap-1">
-                                        @for ($j = 0; $j < 5; $j++)
-                                            <x-heroicon-s-star
-                                                class="h-3.5 w-3.5 {{ $j < 4 ? 'text-yellow-400' : 'text-gray-300' }}" />
-                                        @endfor
-                                        <span class="ml-1 text-xs text-gray-500">({{ 35 + $i * 4 }})</span>
-                                    </div>
-
-                                    <p class="mt-2 text-xs text-gray-600">Stock: {{ 100 - $i * 10 }} available</p>
-
-                                    <div class="mt-4 flex items-baseline gap-2">
-                                        <span class="text-xl font-bold text-gray-900">₱{{ 25 + $i * 15 }}</span>
-                                        <span class="text-xs text-gray-500">/kg</span>
-                                    </div>
-
-                                    <div class="mt-4 flex gap-2">
-                                        <button type="button"
-                                            class="flex-1 rounded-lg bg-green-50 border border-green-200 py-2 text-xs font-semibold text-green-600 transition-all duration-200 hover:bg-green-100">
-                                            <x-heroicon-o-shopping-cart class="inline h-4 w-4 mr-1" />
-                                            Add to Cart
-                                        </button>
-                                        <button type="button"
-                                            class="flex-1 rounded-lg bg-green-600 py-2 text-xs font-semibold text-white transition-all duration-200 hover:bg-green-700 shadow-sm hover:shadow-md">
-                                            Buy Now
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
+                            @endforeach
+                        </div>
+                    </section>
+                @empty
+                    <div class="flex flex-col items-center justify-center py-16 text-gray-400">
+                        <x-heroicon-o-inbox class="h-16 w-16 mb-4" />
+                        <p class="text-lg font-medium">No products available at the moment.</p>
                     </div>
-                </section>
+                @endforelse
             </main>
         </div>
     @endsection
