@@ -62,17 +62,6 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="mt-12 pt-8 border-t border-white/20">
-                                <p class="mb-2 text-sm text-emerald-50/60">Don't have an account?</p>
-                                <a
-                                    href="/register"
-                                    class="inline-flex items-center gap-2 text-lg font-semibold text-white hover:text-emerald-100 transition-colors group"
-                                >
-                                    Create account
-                                    <x-heroicon-o-arrow-right class="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                                </a>
-                            </div>
                         </div>
                     </div>
 
@@ -116,7 +105,7 @@
                                         href="#"
                                         class="text-sm font-medium text-emerald-600 hover:text-emerald-700 transition-colors"
                                     >
-                                        Forgot?
+                                        Forgot Password?
                                     </a>
                                 </div>
                                 <div class="relative group">
@@ -150,7 +139,7 @@
                                 </span>
                             </button>
 
-                            {{-- Divider --}}
+                            <!-- {{-- Divider --}}
                             <div class="relative my-8">
                                 <div class="absolute inset-0 flex items-center">
                                     <div class="w-full border-t border-gray-200"></div>
@@ -158,10 +147,10 @@
                                 <div class="relative flex justify-center text-sm">
                                     <span class="bg-white px-2 text-gray-500">Or continue as</span>
                                 </div>
-                            </div>
+                            </div> -->
 
                             {{-- Demo Accounts --}}
-                            <div class="space-y-2 text-center">
+                            <!-- <div class="space-y-2 text-center">
                                 <p class="text-xs text-gray-600">Test Accounts:</p>
                                 <div class="grid grid-cols-2 gap-2">
                                     <button type="button" class="rounded-lg border-2 border-gray-200 py-2 text-xs font-medium text-gray-700 transition-all hover:border-emerald-500 hover:bg-emerald-50">
@@ -171,8 +160,19 @@
                                         Vendor
                                     </button>
                                 </div>
-                            </div>
+                            </div> -->
                         </form>
+
+                        <div class="mt-12 pt-8 border-t border-gray-200">
+                            <p class="mb-2 text-sm text-gray-600">Don't have an account?</p>
+                            <a
+                                href="/register"
+                                class="inline-flex items-center gap-2 text-lg font-semibold text-emerald-600 hover:text-emerald-700 transition-colors group"
+                            >
+                                Create account
+                                <x-heroicon-o-arrow-right class="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                            </a>
+                        </div>
                     </div>
                 </div>
             </section>
