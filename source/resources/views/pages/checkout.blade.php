@@ -1,0 +1,143 @@
+@extends('layouts.main')
+
+@section('title', 'Checkout')
+
+@section('content')
+<div class="mx-auto max-w-7xl px-8 py-12">
+    <div class="mb-8 flex items-center gap-4">
+        <a href="javascript:history.back()" class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition-colors hover:bg-gray-200 hover:text-gray-900">
+            <x-heroicon-o-arrow-left class="h-5 w-5" />
+        </a>
+        <h1 class="text-3xl font-bold tracking-tight text-gray-900">Checkout</h1>
+    </div>
+
+    @if($errors->any())
+        <div class="mb-8 rounded-lg bg-red-50 p-4 text-sm text-red-700 shadow-sm border border-red-200">
+            {{ $errors->first() }}
+        </div>
+    @endif
+
+    <form action="{{ route('checkout.store') }}" method="POST" class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        @csrf
+        
+        {{-- Left Column: Details --}}
+        <div class="col-span-1 lg:col-span-2 space-y-8">
+            {{-- Shipping Address --}}
+            <div class="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 text-green-600">
+                        <x-heroicon-s-map-pin class="h-5 w-5" />
+                    </div>
+                    <h2 class="text-xl font-bold text-gray-900">Delivery Address</h2>
+                </div>
+                
+                @if(count($addresses) > 0)
+                    <div class="space-y-4">
+                        @foreach($addresses as $address)
+                            <label class="flex cursor-pointer items-start gap-4 rounded-xl border border-gray-200 p-5 transition-colors hover:border-green-600 has-[:checked]:border-green-600 has-[:checked]:bg-green-50">
+                                <div class="flex h-5 items-center">
+                                    <input type="radio" name="address_id" value="{{ $address->address_id }}" class="h-4 w-4 border-gray-300 text-green-600 focus:ring-green-600" {{ $loop->first ? 'checked' : '' }}>
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-gray-900">{{ $address->full_name ?? auth()->user()->name ?? 'Primary Address' }}</p>
+                                    <p class="mt-1 text-sm text-gray-600">
+                                        {{ current(array_filter([$address->street, $address->city, $address->province])) ? implode(', ', array_filter([$address->street, $address->city, $address->province])) : 'No address details provided' }}
+                                    </p>
+                                    <p class="mt-1 text-sm text-gray-500">{{ $address->contact_number ?? 'No contact number' }}</p>
+                                </div>
+                            </label>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-6 text-center">
+                        <x-heroicon-o-home class="mx-auto h-8 w-8 text-gray-400 mb-2" />
+                        <p class="text-sm font-medium text-gray-900">No saved addresses</p>
+                        <p class="text-xs text-gray-500 mt-1 mb-4">You need an address to receive your delivery.</p>
+                        <a href="/profile" class="inline-flex items-center justify-center rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm transition-colors hover:bg-gray-50">
+                            Add Address in Profile
+                        </a>
+                        <input type="hidden" name="address_id" value="1"> <!-- Fallback for testing -->
+                    </div>
+                @endif
+            </div>
+
+            {{-- Payment Method --}}
+            <div class="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                        <x-heroicon-s-credit-card class="h-5 w-5" />
+                    </div>
+                    <h2 class="text-xl font-bold text-gray-900">Payment Method</h2>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <label class="flex cursor-pointer items-center gap-4 rounded-xl border border-gray-200 p-5 transition-colors hover:border-blue-600 has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50">
+                        <input type="radio" name="payment_method" value="cod" class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-600" checked>
+                        <div class="flex items-center gap-3">
+                            <x-heroicon-o-banknotes class="h-6 w-6 text-gray-500" />
+                            <span class="font-semibold text-gray-900">Cash on Delivery</span>
+                        </div>
+                    </label>
+
+                    <label class="flex cursor-pointer items-center gap-4 rounded-xl border border-gray-200 p-5 transition-colors hover:border-blue-600 has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50">
+                        <input type="radio" name="payment_method" value="card" class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-600">
+                        <div class="flex items-center gap-3">
+                            <x-heroicon-o-credit-card class="h-6 w-6 text-gray-500" />
+                            <span class="font-semibold text-gray-900">Credit / Debit Card</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        {{-- Right Column: Order Summary --}}
+        <div class="col-span-1">
+            <div class="sticky top-8 rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
+                <h2 class="text-xl font-bold text-gray-900 mb-6">Order Summary</h2>
+
+                <div class="space-y-4 mb-6">
+                    @foreach($items as $entry)
+                        <div class="flex gap-4">
+                            <div class="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-gray-100 flex items-center justify-center">
+                                @if ($entry->item->images->first())
+                                    <img src="{{ asset($entry->item->images->first()->image) }}" alt="{{ $entry->item->name }}" class="h-full w-full object-cover" />
+                                @else
+                                    <x-heroicon-o-photo class="h-6 w-6 text-gray-400" />
+                                @endif
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h4 class="truncate text-sm font-semibold text-gray-900">{{ $entry->item->name }}</h4>
+                                <p class="text-xs text-gray-500 mt-0.5">Qty: {{ $entry->quantity }}</p>
+                                <p class="text-sm font-semibold text-gray-900 mt-1">₱{{ number_format($entry->price * $entry->quantity, 2) }}</p>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                <div class="space-y-3 border-t border-gray-100 pt-6">
+                    <div class="flex justify-between text-sm text-gray-600">
+                        <span>Subtotal ({{ $items->sum('quantity') }} items)</span>
+                        <span>₱{{ number_format($subtotal, 2) }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm text-gray-600">
+                        <span>Delivery Fee</span>
+                        <span>₱{{ number_format($deliveryFee, 2) }}</span>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex items-center justify-between border-t border-gray-100 pt-6">
+                    <span class="text-lg font-bold text-gray-900">Total</span>
+                    <span class="text-2xl font-bold text-gray-900">₱{{ number_format($total, 2) }}</span>
+                </div>
+
+                <button type="submit" class="mt-8 w-full rounded-xl bg-green-600 py-4 text-sm font-bold text-white shadow-sm transition-all hover:bg-green-700 hover:shadow">
+                    Place Order Now
+                </button>
+                <p class="mt-4 text-center text-xs text-gray-500">
+                    By placing your order, you agree to our Terms of Service and Privacy Policy.
+                </p>
+            </div>
+        </div>
+    </form>
+</div>
+@endsection

@@ -15,7 +15,7 @@
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm text-gray-600">Total Orders</p>
-                                <p class="mt-2 text-3xl font-bold text-gray-900">12</p>
+                                <p class="mt-2 text-3xl font-bold text-gray-900">{{ $totalOrders }}</p>
                             </div>
                             <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
                                 <x-heroicon-o-shopping-bag class="h-6 w-6 text-blue-600" />
@@ -27,7 +27,7 @@
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm text-gray-600">Total Spent</p>
-                                <p class="mt-2 text-3xl font-bold text-gray-900">₱4,560</p>
+                                <p class="mt-2 text-3xl font-bold text-gray-900">₱{{ number_format($totalSpent, 2) }}</p>
                             </div>
                             <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
                                 <x-heroicon-o-banknotes class="h-6 w-6 text-green-600" />
@@ -39,7 +39,7 @@
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm text-gray-600">Pending</p>
-                                <p class="mt-2 text-3xl font-bold text-gray-900">2</p>
+                                <p class="mt-2 text-3xl font-bold text-gray-900">{{ $pendingCount }}</p>
                             </div>
                             <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-amber-100">
                                 <x-heroicon-o-clock class="h-6 w-6 text-amber-600" />
@@ -51,7 +51,7 @@
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm text-gray-600">Delivered</p>
-                                <p class="mt-2 text-3xl font-bold text-gray-900">10</p>
+                                <p class="mt-2 text-3xl font-bold text-gray-900">{{ $deliveredCount }}</p>
                             </div>
                             <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
                                 <x-heroicon-o-check-circle class="h-6 w-6 text-green-600" />
@@ -74,42 +74,45 @@
                     </div>
 
                     <div class="space-y-4">
-                        @foreach (range(1, 5) as $i)
+                        @forelse ($recentOrders as $order)
                             <div class="flex items-center justify-between rounded-xl border border-gray-100 bg-white p-4 transition-all duration-300 hover:shadow-md">
                                 <div class="flex items-center gap-4 flex-1">
                                     <div class="h-12 w-12 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                                        <x-heroicon-o-photo class="h-6 w-6 text-gray-400" />
+                                        <x-heroicon-o-shopping-bag class="h-6 w-6 text-gray-400" />
                                     </div>
                                     <div class="flex-1">
-                                        <p class="font-semibold text-gray-900">Order #{{ 10000 + $i }}</p>
-                                        <p class="text-xs text-gray-500">{{ now()->subDays($i)->format('M d, Y') }}</p>
+                                        <p class="font-semibold text-gray-900">Order #{{ str_pad($order->order_id, 5, '0', STR_PAD_LEFT) }}</p>
+                                        <p class="text-xs text-gray-500">{{ $order->created_at->format('M d, Y') }}</p>
                                     </div>
                                 </div>
 
                                 <div class="flex items-center gap-4">
                                     <div class="text-right">
-                                        <p class="font-semibold text-gray-900">₱{{ 80 * $i }}.00</p>
-                                        <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold
-                                            {{ ($i - 1) % 5 === 0 ? 'bg-green-100 text-green-700' : '' }}
-                                            {{ ($i - 1) % 5 === 1 ? 'bg-green-100 text-green-700' : '' }}
-                                            {{ ($i - 1) % 5 === 2 ? 'bg-blue-100 text-blue-700' : '' }}
-                                            {{ ($i - 1) % 5 === 3 ? 'bg-amber-100 text-amber-700' : '' }}
-                                            {{ ($i - 1) % 5 === 4 ? 'bg-gray-100 text-gray-700' : '' }}">
-                                            <span class="h-1.5 w-1.5 rounded-full
-                                                {{ ($i - 1) % 5 === 0 ? 'bg-green-600' : '' }}
-                                                {{ ($i - 1) % 5 === 1 ? 'bg-green-600' : '' }}
-                                                {{ ($i - 1) % 5 === 2 ? 'bg-blue-600' : '' }}
-                                                {{ ($i - 1) % 5 === 3 ? 'bg-amber-600' : '' }}
-                                                {{ ($i - 1) % 5 === 4 ? 'bg-gray-600' : '' }}"></span>
-                                            {{ ['Delivered', 'Delivered', 'In Transit', 'Processing', 'Cancelled'][($i - 1) % 5] }}
+                                        <p class="font-semibold text-gray-900">₱{{ number_format($order->order_total, 2) }}</p>
+                                        @php
+                                            $status = strtolower($order->order_status);
+                                            $color = match($status) {
+                                                'delivered', 'completed' => 'green',
+                                                'in transit', 'shipping' => 'blue',
+                                                'pending', 'processing' => 'amber',
+                                                default => 'gray'
+                                            };
+                                        @endphp
+                                        <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold bg-{{ $color }}-100 text-{{ $color }}-700">
+                                            <span class="h-1.5 w-1.5 rounded-full bg-{{ $color }}-600"></span>
+                                            {{ ucfirst($status) }}
                                         </span>
                                     </div>
-                                    <button type="button" class="inline-flex items-center justify-center rounded-lg border border-gray-200 p-2 text-gray-600 transition-all duration-200 hover:bg-gray-50">
+                                    <a href="/orders" class="inline-flex items-center justify-center rounded-lg border border-gray-200 p-2 text-gray-600 transition-all duration-200 hover:bg-gray-50">
                                         <x-heroicon-o-arrow-right class="h-5 w-5" />
-                                    </button>
+                                    </a>
                                 </div>
                             </div>
-                        @endforeach
+                        @empty
+                            <div class="rounded-xl border border-gray-100 bg-white p-8 text-center text-gray-500">
+                                No recent orders found.
+                            </div>
+                        @endforelse
                     </div>
                 </div>
             </div>
