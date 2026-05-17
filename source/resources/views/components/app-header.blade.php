@@ -71,10 +71,10 @@
                         <x-heroicon-o-user class="inline h-4 w-4 mr-2" />
                         My Profile
                     </a>
-                    <a href="/orders" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
+                    <!-- <a href="/orders" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
                         <x-heroicon-o-clipboard-document-list class="inline h-4 w-4 mr-2" />
                         Orders
-                    </a>
+                    </a> -->
                     <form method="POST" action="/logout" class="block">
                         @csrf
                         <button type="submit" class="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-gray-50 last:rounded-b-lg border-t border-gray-200">
