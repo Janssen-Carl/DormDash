@@ -52,36 +52,41 @@
                 </div>
 
                 <div class="grid grid-cols-4 gap-6">
-                    @foreach (range(1, 4) as $i)
+                    @forelse ($featuredProducts as $product)
                         <div
                             class="group overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:shadow-lg hover:border-gray-200">
                             <div class="relative aspect-square bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
-                                <div
-                                    class="flex h-full w-full items-center justify-center text-gray-300 group-hover:scale-110 transition-transform duration-300">
-                                    <x-heroicon-o-photo class="h-16 w-16" />
-                                </div>
-                                <div
-                                    class="absolute top-3 right-3 bg-green-600 text-white text-xs font-bold px-2.5 py-1 rounded-full">
-                                    Fresh
-                                </div>
+                                @if ($product->images->first())
+                                    <img src="{{ asset($product->images->first()->image) }}"
+                                         alt="{{ $product->name }}"
+                                         class="h-full w-full object-cover group-hover:scale-110 transition-transform duration-300" />
+                                @else
+                                    <div
+                                        class="flex h-full w-full items-center justify-center text-gray-300 group-hover:scale-110 transition-transform duration-300">
+                                        <x-heroicon-o-photo class="h-16 w-16" />
+                                    </div>
+                                @endif
+
+                                @if ($product->is_perishable)
+                                    <div
+                                        class="absolute top-3 right-3 bg-green-600 text-white text-xs font-bold px-2.5 py-1 rounded-full">
+                                        Fresh
+                                    </div>
+                                @endif
                             </div>
                             <div class="p-4">
-                                <p class="text-xs font-semibold text-green-600 uppercase tracking-wide">Fresh Product</p>
-                                <h3 class="mt-2 text-base font-bold text-gray-900">
-                                    {{ ['Apples', 'Bread Loaf', 'Almond Milk', 'Chicken Breast'][$i - 1] }}</h3>
+                                <p class="text-xs font-semibold text-green-600 uppercase tracking-wide">
+                                    {{ $product->vendor->name ?? 'DormDash' }}
+                                </p>
+                                <h3 class="mt-2 text-base font-bold text-gray-900">{{ $product->name }}</h3>
 
-                                <div class="mt-2 flex items-center gap-1">
-                                    @for ($j = 0; $j < 5; $j++)
-                                        <x-heroicon-s-star class="h-3.5 w-3.5 {{ $j < 4 ? 'text-yellow-400' : 'text-gray-300' }}" />
-                                    @endfor
-                                    <span class="ml-1 text-xs text-gray-500">({{ 40 + $i * 5 }})</span>
-                                </div>
-
-                                <p class="mt-2 text-xs text-gray-600">Stock: {{ 40 + $i * 10 }} available</p>
+                                <p class="mt-2 text-xs text-gray-600">Stock: {{ $product->stock }} available</p>
 
                                 <div class="mt-4 flex items-baseline gap-2">
-                                    <span class="text-xl font-bold text-gray-900">₱{{ 40 + $i * 30 }}</span>
-                                    <span class="text-xs text-gray-500">/{{ ['pc', 'loaf', 'bottle', 'kg'][$i - 1] }}</span>
+                                    <span class="text-xl font-bold text-gray-900">₱{{ number_format($product->price, 2) }}</span>
+                                    @if ($product->unit_type)
+                                        <span class="text-xs text-gray-500">/{{ $product->unit_type }}</span>
+                                    @endif
                                 </div>
 
                                 <div class="mt-4 flex gap-2">
@@ -97,7 +102,12 @@
                                 </div>
                             </div>
                         </div>
-                    @endforeach
+                    @empty
+                        <div class="col-span-4 text-center py-12 text-gray-400">
+                            <x-heroicon-o-inbox class="h-16 w-16 mx-auto mb-4" />
+                            <p class="text-lg font-medium">No products available yet.</p>
+                        </div>
+                    @endforelse
                 </div>
             </div>
         </section>
@@ -128,71 +138,58 @@
                     {{-- Right Grid with Offer Cards --}}
                     <div class="col-span-3">
                         <div class="grid grid-cols-3 gap-6">
-                            <div
-                                class="overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow duration-300 cursor-pointer group">
-                                <div
-                                    class="flex flex-col items-center justify-center bg-gradient-to-br from-emerald-50 to-green-50 px-6 py-8 h-48">
-                                    <div class="text-6xl group-hover:scale-110 transition-transform duration-300">💰</div>
-                                    <h3 class="mt-4 text-lg font-bold text-gray-900">Buy 1 Get 1 Free</h3>
-                                    <p class="mt-1 text-xs text-gray-600">Beverages</p>
-                                    <p class="mt-3 text-sm font-bold text-green-600">Limited Time Only</p>
-                                </div>
-                            </div>
+                            @php
+                                $offerGradients = [
+                                    'from-emerald-50 to-green-50',
+                                    'from-blue-50 to-indigo-50',
+                                    'from-orange-50 to-yellow-50',
+                                    'from-purple-50 to-pink-50',
+                                    'from-rose-50 to-red-50',
+                                    'from-teal-50 to-cyan-50',
+                                ];
+                                $offerColors = [
+                                    'text-green-600',
+                                    'text-blue-600',
+                                    'text-orange-600',
+                                    'text-purple-600',
+                                    'text-red-600',
+                                    'text-teal-600',
+                                ];
+                                $offerEmojis = ['💰', '📦', '🍰', '✨', '🎁', '🛒'];
+                            @endphp
 
-                            <div
-                                class="overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow duration-300 cursor-pointer group">
+                            @forelse ($offers as $index => $offer)
                                 <div
-                                    class="flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50 px-6 py-8 h-48">
-                                    <div class="text-6xl group-hover:scale-110 transition-transform duration-300">📦</div>
-                                    <h3 class="mt-4 text-lg font-bold text-gray-900">Combo Deal</h3>
-                                    <p class="mt-1 text-xs text-gray-600">Snacks</p>
-                                    <p class="mt-3 text-sm font-bold text-blue-600">Save up to 30%</p>
+                                    class="overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow duration-300 cursor-pointer group">
+                                    <div
+                                        class="flex flex-col items-center justify-center bg-gradient-to-br {{ $offerGradients[$index % count($offerGradients)] }} px-6 py-8 h-48">
+                                        <div class="text-6xl group-hover:scale-110 transition-transform duration-300">
+                                            {{ $offerEmojis[$index % count($offerEmojis)] }}
+                                        </div>
+                                        <h3 class="mt-4 text-lg font-bold text-gray-900">{{ $offer->name }}</h3>
+                                        <p class="mt-1 text-xs text-gray-600">{{ $offer->item->name }}</p>
+                                        <p class="mt-3 text-sm font-bold {{ $offerColors[$index % count($offerColors)] }}">
+                                            @if ($offer->type === 'percentage')
+                                                {{ number_format($offer->value) }}% Off
+                                            @else
+                                                ₱{{ number_format($offer->value, 2) }} Off
+                                            @endif
+                                        </p>
+                                    </div>
                                 </div>
-                            </div>
-
-                            <div
-                                class="overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow duration-300 cursor-pointer group">
+                            @empty
+                                {{-- Fallback static cards when no offers exist --}}
                                 <div
-                                    class="flex flex-col items-center justify-center bg-gradient-to-br from-orange-50 to-yellow-50 px-6 py-8 h-48">
-                                    <div class="text-6xl group-hover:scale-110 transition-transform duration-300">🍰</div>
-                                    <h3 class="mt-4 text-lg font-bold text-gray-900">Bakery Items</h3>
-                                    <p class="mt-1 text-xs text-gray-600">Freshly Baked</p>
-                                    <p class="mt-3 text-sm font-bold text-orange-600">Buy 2, Get 1 Free</p>
+                                    class="overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow duration-300 cursor-pointer group">
+                                    <div
+                                        class="flex flex-col items-center justify-center bg-gradient-to-br from-emerald-50 to-green-50 px-6 py-8 h-48">
+                                        <div class="text-6xl group-hover:scale-110 transition-transform duration-300">💰</div>
+                                        <h3 class="mt-4 text-lg font-bold text-gray-900">Coming Soon</h3>
+                                        <p class="mt-1 text-xs text-gray-600">Stay tuned for deals</p>
+                                        <p class="mt-3 text-sm font-bold text-green-600">Check Back Later</p>
+                                    </div>
                                 </div>
-                            </div>
-
-                            <div
-                                class="overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow duration-300 cursor-pointer group">
-                                <div
-                                    class="flex flex-col items-center justify-center bg-gradient-to-br from-purple-50 to-pink-50 px-6 py-8 h-48">
-                                    <div class="text-6xl group-hover:scale-110 transition-transform duration-300">✨</div>
-                                    <h3 class="mt-4 text-lg font-bold text-gray-900">Weekly Discount</h3>
-                                    <p class="mt-1 text-xs text-gray-600">Essential Groceries</p>
-                                    <p class="mt-3 text-sm font-bold text-purple-600">Up to 15% Off</p>
-                                </div>
-                            </div>
-
-                            <div
-                                class="overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow duration-300 cursor-pointer group">
-                                <div
-                                    class="flex flex-col items-center justify-center bg-gradient-to-br from-rose-50 to-red-50 px-6 py-8 h-48">
-                                    <div class="text-6xl group-hover:scale-110 transition-transform duration-300">🎁</div>
-                                    <h3 class="mt-4 text-lg font-bold text-gray-900">Special Promo</h3>
-                                    <p class="mt-1 text-xs text-gray-600">Dairy Products</p>
-                                    <p class="mt-3 text-sm font-bold text-red-600">Free Delivery</p>
-                                </div>
-                            </div>
-
-                            <div
-                                class="overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow duration-300 cursor-pointer group">
-                                <div
-                                    class="flex flex-col items-center justify-center bg-gradient-to-br from-teal-50 to-cyan-50 px-6 py-8 h-48">
-                                    <div class="text-6xl group-hover:scale-110 transition-transform duration-300">🛒</div>
-                                    <h3 class="mt-4 text-lg font-bold text-gray-900">Flash Sale</h3>
-                                    <p class="mt-1 text-xs text-gray-600">Selected Items</p>
-                                    <p class="mt-3 text-sm font-bold text-teal-600">Hurry, Limited Stock</p>
-                                </div>
-                            </div>
+                            @endforelse
                         </div>
                     </div>
                 </div>

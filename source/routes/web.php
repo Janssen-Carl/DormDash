@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -8,13 +9,13 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
 
     if (!auth()->check()) {
-        return view('home');
+        return app(HomeController::class)->index();
     }
 
     return match (auth()->user()->role) {
         'vendor' => redirect()->route('vendor.home'),
         'customer' => redirect()->route('customer.home'),
-        default => view('home'),
+        default => app(HomeController::class)->index(),
     };
 });
 
@@ -47,7 +48,7 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
 
     Route::get('/cart', fn () => view('pages/cart'));
 
-    Route::get('/customer/home', fn () => view('home'))
+    Route::get('/customer/home', [HomeController::class, 'index'])
         ->name('customer.home');
 });
 
