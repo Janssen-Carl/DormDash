@@ -24,21 +24,28 @@ class UserController extends Controller
         return redirect('/');
     }
 
-    public function login(Request $request) {
+    public function login(Request $request)
+    {
         $credentials = $request->validate([
-            'email' => ['required', 'string', 'email'],
-            'password' => ['required', 'string']
+            'email' => ['required', 'email'],
+            'password' => ['required'],
         ]);
 
         if (auth()->attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect('/'); // supposed to be dashboard
+
+            $user = auth()->user();
+
+            return match ($user->role) {
+                'vendor' => redirect()->route('vendor.home'),
+                'customer' => redirect()->route('customer.home'),
+                default => redirect('/'),
+            };
         }
 
-
         return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.'
-        ])->onlyInput('email');
+            'email' => 'Invalid credentials',
+        ]);
     }
 
     public function logout(Request $request) {

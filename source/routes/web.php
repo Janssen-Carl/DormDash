@@ -5,7 +5,16 @@ use App\Http\Controllers\CartController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('home');
+
+    if (!auth()->check()) {
+        return view('home');
+    }
+
+    return match (auth()->user()->role) {
+        'vendor' => redirect()->route('vendor.home'),
+        'customer' => redirect()->route('customer.home'),
+        default => view('home'),
+    };
 });
 
 Route::get('/home', function () {
@@ -21,6 +30,18 @@ Route::post('/register', [UserController::class, 'register']);
 Route::get('/login', function () {
     return view('auth/login');
 })->name('login');
+
+Route::middleware(['auth'])->group(function () {
+
+    Route::get('/vendor/home', function () {
+        return view('vendor-home'); //
+    })->name('vendor.home');
+
+    Route::get('/customer/home', function () {
+        return view('home');
+    })->name('customer.home');
+
+});
 
 Route::post('/login', [UserController::class, 'login']);
 
@@ -82,12 +103,6 @@ Route::get('/profile/edit', function () {
 Route::get('/address-payment/add', function () {
     return view('pages/address-payment-add');
 })->middleware('auth');
-
-
-/* Vendor Routes */
-Route::get('/vendor-home', function () {
-    return view('vendor-home');
-});
 
 Route::get('/vendor-products', function () {
     return view('pages/vendor-products');
