@@ -9,6 +9,7 @@
 
     {{-- Nav Links --}}
     <nav class="flex items-center gap-1">
+        @auth
         <a
             href="/home"
             class="{{ request()->routeIs('home') || request()->path() === 'home' ? 'border border-green-200 bg-green-50 text-green-600' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' }} flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-sm font-medium transition-colors"
@@ -49,6 +50,7 @@
         </a>
 
         <div class="mx-1.5 h-5 w-px bg-gray-200"></div>
+        @endauth
 
         @auth
             {{-- Profile Dropdown --}}
