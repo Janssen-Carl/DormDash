@@ -8,6 +8,7 @@ class Vendor extends Model
 {
     protected $table = 'vendors';
     protected $primaryKey = 'vendor_id';
+
     public $incrementing = false;
 
     protected $fillable = [
