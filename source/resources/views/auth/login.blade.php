@@ -6,7 +6,7 @@
     <section
         class="flex min-h-[calc(100vh-80px)] flex-1 items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 px-4">
         <div
-            class="grid w-full max-w-4xl grid-cols-2 overflow-hidden rounded-3xl border border-gray-200 shadow-2xl bg-white">
+            class="grid w-full max-w-4xl max-h-[calc(100vh-140px)] grid-cols-2 overflow-hidden rounded-3xl border border-gray-200 shadow-2xl bg-white">
             {{-- Left Side --}}
             <div
                 class="flex flex-col justify-center bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-700 px-12 py-16 text-white relative overflow-hidden">
@@ -55,17 +55,17 @@
             </div>
 
             {{-- Right Side --}}
-            <div class="flex flex-col justify-start bg-gradient-to-b from-white to-gray-50 px-12 py-16">
-                <div class="mb-8">
+            <div class="flex flex-col justify-start bg-gradient-to-b from-white to-gray-50 px-16 py-20">
+                <div class="mb-10">
                     <h2 class="mb-2 text-4xl font-bold text-gray-900">Sign In</h2>
                     <p class="text-gray-600 font-medium">Access your DormDash account</p>
                 </div>
 
-                <form method="POST" action="/login" class="space-y-6">
+                <form method="POST" action="/login" class="space-y-8">
                     @csrf
                     {{-- Email Field --}}
                     <div>
-                        <label class="mb-3 block text-sm font-semibold text-gray-800">Email Address</label>
+                        <label class="mb-4 block text-sm font-semibold text-gray-800">Email Address</label>
                         <div class="relative group">
                             <div
                                 class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-emerald-600 transition-colors duration-200 pointer-events-none z-10">
@@ -73,7 +73,7 @@
                             </div>
                             <input type="email" name="email" placeholder="Enter your email" required autofocus
                                 value="{{ old('email') }}"
-                                class="pl-12 pr-4 w-full rounded-xl border-2 border-gray-300 bg-white py-3 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-emerald-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-100 hover:border-gray-400" />
+                                class="pl-12 pr-4 w-full rounded-xl border-2 border-gray-300 bg-white py-4 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-emerald-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-100 hover:border-gray-400" />
                         </div>
                         @error('email')
                             <p class="mt-2 text-sm font-medium text-red-600 flex items-center gap-1">
@@ -85,7 +85,7 @@
 
                     {{-- Password Field --}}
                     <div>
-                        <label class="mb-3 block text-sm font-semibold text-gray-800">
+                        <label class="mb-4 block text-sm font-semibold text-gray-800">
                             Password
                         </label>
 
@@ -96,7 +96,7 @@
                             </div>
 
                             <input id="password" type="password" name="password" placeholder="••••••••" required
-                                class="pl-12 pr-12 w-full rounded-xl border-2 border-gray-300 bg-white py-3 text-gray-900 placeholder-gray-500 transition-all duration-200 focus:border-emerald-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-100" />
+                                class="pl-12 pr-12 w-full rounded-xl border-2 border-gray-300 bg-white py-4 text-gray-900 placeholder-gray-500 transition-all duration-200 focus:border-emerald-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-100" />
 
                             <button type="button" id="togglePassword"
                                 class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-emerald-600 transition-colors duration-200 focus:outline-none"
