@@ -42,17 +42,6 @@ To stop other tabs:
 ctrl + c 
 ```
 
-
-First time install for ui shits:
-```bash
-composer require blade-ui-kit/blade-icons    
-composer require blade-ui-kit/blade-heroicons
-
-composer require livewire/livewire   
-composer require livewire/flux   
-```
-
-
 To access database 
 
 create it first:
