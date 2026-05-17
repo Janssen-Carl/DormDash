@@ -1,14 +1,27 @@
 <?php
 
 namespace App\Models;
-#add factories and others
 
-use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
-
-#[Fillable(['user_id', 'street', 'city', 'province_state', 'postal_code', 'country', 'email', 'phone'])]
 
 class Address extends Model
 {
+    protected $table = 'addresses';
+    protected $primaryKey = 'address_id';
 
+    protected $fillable = [
+        'user_id',
+        'street',
+        'city',
+        'province_state',
+        'postal_code',
+        'phone',
+        'email',
+        'country',
+    ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }
