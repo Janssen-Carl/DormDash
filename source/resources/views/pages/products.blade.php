@@ -13,10 +13,15 @@
                 <form action="/products" method="GET" class="p-6">
                     <div class="mb-6 flex items-center justify-between">
                         <h3 class="text-lg font-semibold text-gray-900">Filters</h3>
-                        <button @click="sidebarOpen = false" type="button"
-                            class="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-600">
-                            <x-heroicon-o-x-mark class="h-5 w-5" />
-                        </button>
+                        <div class="flex items-center gap-3">
+                            @if(request()->hasAny(['vendors', 'categories']))
+                                <a href="/products" class="text-xs font-semibold text-red-600 hover:text-red-700 transition-colors">Clear All</a>
+                            @endif
+                            <button @click="sidebarOpen = false" type="button"
+                                class="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-600">
+                                <x-heroicon-o-x-mark class="h-5 w-5" />
+                            </button>
+                        </div>
                     </div>
 
                     {{-- Vendor --}}
@@ -24,6 +29,7 @@
                         open: true, 
                         search: '',
                         showAll: false,
+                        selected: {{ Js::from($selectedVendors) }},
                         vendors: {{ Js::from($vendors->map(fn($v) => ['id' => $v->vendor_id, 'name' => $v->name])) }},
                         get filteredVendors() {
                             if (this.search === '') return this.vendors;
@@ -47,7 +53,10 @@
                             <div class="space-y-1 mt-2">
                                 <template x-for="(vendor, index) in filteredVendors" :key="vendor.id">
                                     <label x-show="showAll || index < 5" class="flex items-center gap-2 py-1 cursor-pointer">
-                                        <input type="checkbox" name="vendors[]" :value="vendor.id" class="rounded border-gray-300 text-green-600 focus:ring-green-600">
+                                        <input type="checkbox" name="vendors[]" :value="vendor.id" 
+                                            :checked="selected.map(String).includes(String(vendor.id))"
+                                            x-on:change="$el.form.submit()"
+                                            class="rounded border-gray-300 text-green-600 focus:ring-green-600">
                                         <span class="text-sm text-gray-600" x-text="vendor.name"></span>
                                     </label>
                                 </template>
@@ -69,6 +78,7 @@
                         open: true,
                         search: '',
                         showAll: false,
+                        selected: {{ Js::from($selectedCategories) }},
                         categories: {{ Js::from($parentCategories->map(fn($c) => ['id' => $c->category_id, 'name' => $c->name])) }},
                         get filteredCategories() {
                             if (this.search === '') return this.categories;
@@ -92,7 +102,10 @@
                             <div class="space-y-1 mt-2">
                                 <template x-for="(category, index) in filteredCategories" :key="category.id">
                                     <label x-show="showAll || index < 5" class="flex items-center gap-2 py-1 cursor-pointer">
-                                        <input type="checkbox" name="categories[]" :value="category.id" class="rounded border-gray-300 text-green-600 focus:ring-green-600">
+                                        <input type="checkbox" name="categories[]" :value="category.id" 
+                                            :checked="selected.map(String).includes(String(category.id))"
+                                            x-on:change="$el.form.submit()"
+                                            class="rounded border-gray-300 text-green-600 focus:ring-green-600">
                                         <span class="text-sm text-gray-600" x-text="category.name"></span>
                                     </label>
                                 </template>
@@ -124,13 +137,6 @@
                             class="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-100">
                             <x-heroicon-o-sparkles class="h-4 w-4" />
                             <span>Discounts</span>
-                        </button>
-                    </div>
-
-                    {{-- Apply Filters --}}
-                    <div class="mt-8">
-                        <button type="submit" class="w-full rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-700 shadow-sm">
-                            Apply Filters
                         </button>
                     </div>
                 </form>
