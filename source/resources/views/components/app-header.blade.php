@@ -30,13 +30,18 @@
             href="/cart"
             class="{{ request()->path() === 'cart' ? 'border border-green-200 bg-green-50 text-green-600' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' }} relative flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-sm transition-colors"
         >
+            @php
+                $cartCount = auth()->check() ? \App\Models\Cart::where('customer_id', auth()->id())->sum('quantity') : 0;
+            @endphp
             <span class="relative">
                 <x-heroicon-o-shopping-cart class="h-3.5 w-3.5" />
+                @if($cartCount > 0)
                 <span
                     class="absolute -top-1.5 -right-2 rounded-full bg-green-600 px-1 text-[9px] font-semibold text-white"
                 >
-                    4
+                    {{ $cartCount }}
                 </span>
+                @endif
             </span>
             Cart
         </a>

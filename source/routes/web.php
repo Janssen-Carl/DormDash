@@ -3,6 +3,7 @@
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CartController;
 use Illuminate\Support\Facades\Route;
 
 /* -------------------- PUBLIC -------------------- */
@@ -46,7 +47,10 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth', 'role:customer'])->group(function () {
 
-    Route::get('/cart', fn () => view('pages/cart'));
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/cart', [CartController::class, 'store'])->name('cart.store');
+    Route::patch('/cart/{item_id}', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('/cart/{item_id}', [CartController::class, 'destroy'])->name('cart.destroy');
 
     Route::get('/customer/home', [HomeController::class, 'index'])
         ->name('customer.home');
