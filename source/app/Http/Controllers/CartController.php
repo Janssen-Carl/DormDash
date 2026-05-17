@@ -15,15 +15,30 @@ class CartController extends Controller
             ->with(['item.images', 'item.vendor'])
             ->get();
             
+        // Group items by vendor
+        $groupedCartItems = $cartItems->groupBy(function ($cart) {
+            return $cart->item->vendor_id ?? 'unknown';
+        });
+
+        // Create JSON data for Alpine.js dynamic pricing
+        $cartData = $cartItems->map(function ($cart) {
+            return [
+                'item_id' => $cart->item_id,
+                'vendor_id' => $cart->item->vendor_id ?? 'unknown',
+                'price' => $cart->item->price,
+                'quantity' => $cart->quantity
+            ];
+        });
+
+        // Calculate initial subtotal assuming all items are selected by default
         $subtotal = $cartItems->sum(function($cart) {
             return $cart->item->price * $cart->quantity;
         });
 
-        // Hardcoding standard fees for now (or make them dynamic if needed)
         $deliveryFee = $cartItems->count() > 0 ? 50.00 : 0.00;
         $total = $subtotal + $deliveryFee;
 
-        return view('pages.cart', compact('cartItems', 'subtotal', 'deliveryFee', 'total'));
+        return view('pages.cart', compact('groupedCartItems', 'cartData', 'subtotal', 'deliveryFee', 'total'));
     }
 
     public function store(Request $request)
