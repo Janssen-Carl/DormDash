@@ -1,8 +1,9 @@
 <?php
 
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\CartController;
 use Illuminate\Support\Facades\Route;
+
+/* -------------------- PUBLIC -------------------- */
 
 Route::get('/', function () {
 
@@ -17,105 +18,51 @@ Route::get('/', function () {
     };
 });
 
-Route::get('/home', function () {
-    return view('home');
-});
+Route::get('/home', fn () => redirect('/'));
 
-Route::get('/register', function () {
-    return view('auth/register');
-});
+Route::get('/products', fn () => view('pages/products'));
 
+Route::get('/register', fn () => view('auth/register'));
 Route::post('/register', [UserController::class, 'register']);
 
-Route::get('/login', function () {
-    return view('auth/login');
-})->name('login');
-
-Route::middleware(['auth'])->group(function () {
-
-    Route::get('/vendor/home', function () {
-        return view('vendor-home'); //
-    })->name('vendor.home');
-
-    Route::get('/customer/home', function () {
-        return view('home');
-    })->name('customer.home');
-
-});
-
+Route::get('/login', fn () => view('auth/login'))->name('login');
 Route::post('/login', [UserController::class, 'login']);
 
 Route::post('/logout', [UserController::class, 'logout']);
 
-Route::get('/products', function () {
-    return view('pages/products');
+/* -------------------- AUTH COMMON -------------------- */
+
+Route::middleware('auth')->group(function () {
+
+    Route::get('/orders', fn () => view('pages/orders'));
+    Route::get('/orders-overview', fn () => view('pages/orders-overview'));
+    Route::get('/profile', fn () => view('pages/profile'));
+    Route::get('/profile/edit', fn () => view('pages/profile-edit'));
+    Route::get('/address-payment/add', fn () => view('pages/address-payment-add'));
 });
 
+/* -------------------- CUSTOMER ONLY -------------------- */
 
-Route::get('/test-session', function () {
-    session(['test' => 'working']);
+Route::middleware(['auth', 'role:customer'])->group(function () {
 
-    return session('test');
+    Route::get('/cart', fn () => view('pages/cart'));
+
+    Route::get('/customer/home', fn () => view('home'))
+        ->name('customer.home');
 });
 
-Route::get('/auth-check', function () {
-    return [
-        'logged_in' => auth()->check(),
-        'user' => auth()->user(),
-    ];
-});
+/* -------------------- VENDOR ONLY -------------------- */
 
-Route::get('/test-login', function () {
+Route::middleware(['auth', 'role:vendor'])->group(function () {
 
-    auth()->loginUsingId(1);
+    Route::get('/vendor/home', fn () => view('vendor-home'))
+        ->name('vendor.home');
 
-    return [
-        'logged_in' => auth()->check(),
-        'user' => auth()->user(),
-    ];
-});
-/* Customer Routes */
+    Route::get('/vendor-products', fn () => view('pages/vendor-products'));
 
-Route::get('/cart', function () {
-    return view('pages/cart');
-})->middleware(['auth', 'role:customer']);
+    Route::get('/vendor-profile', fn () => view('pages/vendor-profile'));
 
-/*
-Route::get('/cart', function () {
-    return view('pages/cart');});
-*/
-Route::get('/orders', function () {
-    return view('pages/orders');
-})->middleware('auth');
+    Route::get('/vendor-profile/vendor-profile-edit', fn () => view('pages/vendor-profile-edit'));
 
-Route::get('/orders-overview', function () {
-    return view('pages/orders-overview');
-})->middleware('auth');
-
-Route::get('/profile', function () {
-    return view('pages/profile');
-})->middleware('auth');
-
-Route::get('/profile/edit', function () {
-    return view('pages/profile-edit');
-})->middleware('auth');
-
-Route::get('/address-payment/add', function () {
-    return view('pages/address-payment-add');
-})->middleware('auth');
-
-Route::get('/vendor-products', function () {
-    return view('pages/vendor-products');
-});
-
-Route::get('/vendor-profile', function () {
-    return view('pages/vendor-profile');
-});
-
-Route::get('/vendor-profile/vendor-profile-edit', function () {
-    return view('pages/vendor-profile-edit');
-});
-
-Route::get('/vendor-profile/vendor-address-add', function () {
-    return view('pages/vendor-address-add');
+    Route::get('/vendor-profile/vendor-address-add', fn () => view('pages/vendor-address-add'));
 });
