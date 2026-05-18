@@ -99,7 +99,7 @@
 
                     <div class="space-y-4">
                         @forelse ($recentOrders as $order)
-                            <div class="flex items-center justify-between rounded-xl border border-gray-100 bg-white p-4 transition-all duration-300 hover:shadow-md">
+                            <a href="/orders?expand={{ $order->order_id }}#order-{{ $order->order_id }}" class="flex items-center justify-between rounded-xl border border-gray-100 bg-white p-4 transition-all duration-300 hover:shadow-md hover:border-green-300">
                                 <div class="flex items-center gap-4 flex-1">
                                     <div class="h-12 w-12 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                                         <x-heroicon-o-shopping-bag class="h-6 w-6 text-gray-400" />
@@ -131,11 +131,11 @@
                                             {{ ucwords($status) }}
                                         </span>
                                     </div>
-                                    <a href="/orders" class="inline-flex items-center justify-center rounded-lg border border-gray-200 p-2 text-gray-600 transition-all duration-200 hover:bg-gray-50">
+                                    <div class="inline-flex items-center justify-center rounded-lg border border-gray-200 p-2 text-gray-600 transition-all duration-200 hover:bg-gray-50">
                                         <x-heroicon-o-arrow-right class="h-5 w-5" />
-                                    </a>
+                                    </div>
                                 </div>
-                            </div>
+                            </a>
                         @empty
                             <div class="rounded-xl border border-gray-100 bg-white p-8 text-center text-gray-500">
                                 No recent orders found.

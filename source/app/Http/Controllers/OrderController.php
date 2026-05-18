@@ -43,7 +43,7 @@ class OrderController extends Controller
         $userId = auth()->id();
         
         $query = Order::where('customer_id', $userId)
-            ->with(['items.images'])
+            ->with(['items.images', 'address', 'paymentTransaction'])
             ->orderBy('created_at', 'desc');
 
         if ($request->has('status') && in_array($request->status, ['to_ship', 'shipped', 'delivered', 'completed'])) {

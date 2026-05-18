@@ -46,7 +46,7 @@
                     default => 'gray'
                 };
             @endphp
-            <div x-data="{ expanded: false }" class="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:shadow-md hover:border-gray-200">
+            <div id="order-{{ $order->order_id }}" x-data="{ expanded: {{ request('expand') == $order->order_id ? 'true' : 'false' }} }" class="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:shadow-md hover:border-gray-200 scroll-mt-24">
                 <div class="flex flex-col gap-6 p-6 sm:flex-row sm:items-center sm:justify-between cursor-pointer" @click="expanded = !expanded">
                     <div class="flex-1">
                         <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -74,26 +74,82 @@
 
                 <div x-show="expanded" x-collapse>
                     <div class="border-t border-gray-100 px-6 py-6 bg-gray-50/50">
-                        <h4 class="text-sm font-bold text-gray-900 mb-4 uppercase tracking-wider">Order Items</h4>
-                        <div class="space-y-4">
-                            @foreach ($order->items as $item)
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center gap-4">
-                                        <div class="h-16 w-16 overflow-hidden rounded-lg bg-gray-100 flex items-center justify-center">
-                                            @if ($item->images->first())
-                                                <img src="{{ asset($item->images->first()->image) }}" alt="{{ $item->name }}" class="h-full w-full object-cover" />
-                                            @else
-                                                <x-heroicon-o-photo class="h-8 w-8 text-gray-400" />
-                                            @endif
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            {{-- Order Items --}}
+                            <div>
+                                <h4 class="text-sm font-bold text-gray-900 mb-4 uppercase tracking-wider">Order Items</h4>
+                                <div class="space-y-4">
+                                    @foreach ($order->items as $item)
+                                        <div class="flex items-start justify-between">
+                                            <div class="flex items-center gap-4">
+                                                <div class="h-16 w-16 overflow-hidden rounded-lg bg-white border border-gray-100 flex items-center justify-center shrink-0">
+                                                    @if ($item->images->first())
+                                                        <img src="{{ asset($item->images->first()->image) }}" alt="{{ $item->name }}" class="h-full w-full object-cover" />
+                                                    @else
+                                                        <x-heroicon-o-photo class="h-8 w-8 text-gray-400" />
+                                                    @endif
+                                                </div>
+                                                <div>
+                                                    <p class="font-semibold text-gray-900 line-clamp-2">{{ $item->name }}</p>
+                                                    <p class="text-sm text-gray-500 mt-0.5">
+                                                        {{ $item->pivot->quantity }} x ₱{{ number_format($item->pivot->price, 2) }}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <span class="font-semibold text-gray-900 shrink-0 ml-4">₱{{ number_format($item->pivot->price * $item->pivot->quantity, 2) }}</span>
                                         </div>
-                                        <div class="flex-1">
-                                            <p class="font-semibold text-gray-900">{{ $item->name }}</p>
-                                            <p class="text-sm text-gray-500">Quantity: {{ $item->pivot->quantity }}</p>
-                                        </div>
-                                    </div>
-                                    <span class="font-semibold text-gray-900">₱{{ number_format($item->pivot->price * $item->pivot->quantity, 2) }}</span>
+                                    @endforeach
                                 </div>
-                            @endforeach
+                                <div class="mt-6 border-t border-gray-100 pt-4 space-y-2 text-sm">
+                                    <div class="flex justify-between text-gray-500">
+                                        <span>Subtotal</span>
+                                        <span class="font-medium text-gray-900">₱{{ number_format($order->order_total - 50, 2) }}</span>
+                                    </div>
+                                    <div class="flex justify-between text-gray-500">
+                                        <span>Delivery Fee</span>
+                                        <span class="font-medium text-gray-900">₱50.00</span>
+                                    </div>
+                                    <div class="flex justify-between font-bold text-gray-900 pt-2 border-t border-gray-100">
+                                        <span>Total</span>
+                                        <span class="text-green-600">₱{{ number_format($order->order_total, 2) }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {{-- Order Details --}}
+                            <div>
+                                <h4 class="text-sm font-bold text-gray-900 mb-4 uppercase tracking-wider">Order Details</h4>
+                                <dl class="space-y-3 text-sm bg-white p-5 rounded-xl border border-gray-100">
+                                    <div class="flex justify-between">
+                                        <dt class="text-gray-500">Order Date</dt>
+                                        <dd class="font-medium text-gray-900">{{ $order->created_at->format('M d, Y h:i A') }}</dd>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <dt class="text-gray-500">Delivery Address</dt>
+                                        <dd class="font-medium text-gray-900 text-right">
+                                            @if($order->address)
+                                                {{ current(array_filter([$order->address->street, $order->address->city, $order->address->province_state])) ? implode(', ', array_filter([$order->address->street, $order->address->city, $order->address->province_state])) : 'No address provided' }}
+                                            @else
+                                                <span class="text-gray-400 italic">No address provided</span>
+                                            @endif
+                                        </dd>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <dt class="text-gray-500">Payment Method</dt>
+                                        <dd class="font-medium text-gray-900">
+                                            {{ $order->paymentTransaction ? ucfirst($order->paymentTransaction->status) : 'Cash on Delivery' }}
+                                        </dd>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <dt class="text-gray-500">Tracking Number</dt>
+                                        <dd class="font-medium text-gray-900">{{ $order->tracking_number ?? 'N/A' }}</dd>
+                                    </div>
+                                    <div class="mt-4 pt-4 border-t border-gray-100 flex justify-between">
+                                        <dt class="font-bold text-gray-900">Total Amount</dt>
+                                        <dd class="font-bold text-green-600 text-base">₱{{ number_format($order->order_total, 2) }}</dd>
+                                    </div>
+                                </dl>
+                            </div>
                         </div>
                     </div>
 

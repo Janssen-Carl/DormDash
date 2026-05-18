@@ -20,6 +20,21 @@
     <form action="{{ route('checkout.store') }}" method="POST" class="grid grid-cols-1 lg:grid-cols-3 gap-12">
         @csrf
         
+        {{-- Hidden State Inputs --}}
+        @if(isset($sourceType))
+            <input type="hidden" name="source" value="{{ $sourceType }}">
+            @if($sourceType === 'reorder')
+                <input type="hidden" name="reorder_id" value="{{ $sourceData }}">
+            @elseif($sourceType === 'buy_now')
+                <input type="hidden" name="buy_item" value="{{ $sourceData['item_id'] }}">
+                <input type="hidden" name="qty" value="{{ $sourceData['qty'] }}">
+            @elseif($sourceType === 'cart' && is_array($sourceData))
+                @foreach($sourceData as $id)
+                    <input type="hidden" name="selected_items[]" value="{{ $id }}">
+                @endforeach
+            @endif
+        @endif
+        
         {{-- Left Column: Details --}}
         <div class="col-span-1 lg:col-span-2 space-y-8">
             {{-- Shipping Address --}}
@@ -91,12 +106,19 @@
         </div>
 
         {{-- Right Column: Order Summary --}}
-        <div class="col-span-1">
+        <div class="col-span-1" x-data="{ 
+            items: {{ Js::from($items->map(fn($e) => ['id' => $e->item->item_id, 'price' => (float)$e->price, 'quantity' => (int)$e->quantity])) }},
+            deliveryFee: {{ $deliveryFee }},
+            get subtotal() { return this.items.reduce((sum, item) => sum + (item.price * item.quantity), 0); },
+            get totalQuantity() { return this.items.reduce((sum, item) => sum + parseInt(item.quantity), 0); },
+            get total() { return this.subtotal + this.deliveryFee; },
+            formatPrice(price) { return price.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+        }">
             <div class="sticky top-8 rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
                 <h2 class="text-xl font-bold text-gray-900 mb-6">Order Summary</h2>
 
                 <div class="space-y-4 mb-6">
-                    @foreach($items as $entry)
+                    @foreach($items as $index => $entry)
                         <div class="flex gap-4">
                             <div class="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-gray-100 flex items-center justify-center">
                                 @if ($entry->item->images->first())
@@ -107,8 +129,19 @@
                             </div>
                             <div class="flex-1 min-w-0">
                                 <h4 class="truncate text-sm font-semibold text-gray-900">{{ $entry->item->name }}</h4>
-                                <p class="text-xs text-gray-500 mt-0.5">Qty: {{ $entry->quantity }}</p>
-                                <p class="text-sm font-semibold text-gray-900 mt-1">₱{{ number_format($entry->price * $entry->quantity, 2) }}</p>
+                                <div class="mt-2 flex items-center gap-3">
+                                    <span class="text-xs text-gray-500 font-medium">Qty</span>
+                                    <div class="flex items-center rounded-lg border border-gray-200 bg-white shadow-sm overflow-hidden">
+                                        <button type="button" @click="if(items[{{ $index }}].quantity > 1) items[{{ $index }}].quantity--" class="px-2 py-1.5 text-gray-400 hover:text-green-600 hover:bg-gray-50 transition-colors focus:outline-none">
+                                            <x-heroicon-o-minus class="h-3 w-3" />
+                                        </button>
+                                        <input type="number" name="quantities[{{ $entry->item->item_id }}]" x-model.number="items[{{ $index }}].quantity" min="1" max="{{ $entry->item->stock }}" class="w-10 text-center bg-transparent border-none p-0 text-xs font-semibold text-gray-900 focus:ring-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+                                        <button type="button" @click="if(items[{{ $index }}].quantity < {{ $entry->item->stock }}) items[{{ $index }}].quantity++" class="px-2 py-1.5 text-gray-400 hover:text-green-600 hover:bg-gray-50 transition-colors focus:outline-none">
+                                            <x-heroicon-o-plus class="h-3 w-3" />
+                                        </button>
+                                    </div>
+                                </div>
+                                <p class="text-sm font-semibold text-gray-900 mt-1" x-text="'₱' + formatPrice(items[{{ $index }}].price * items[{{ $index }}].quantity)"></p>
                             </div>
                         </div>
                     @endforeach
@@ -116,8 +149,8 @@
 
                 <div class="space-y-3 border-t border-gray-100 pt-6">
                     <div class="flex justify-between text-sm text-gray-600">
-                        <span>Subtotal ({{ $items->sum('quantity') }} items)</span>
-                        <span>₱{{ number_format($subtotal, 2) }}</span>
+                        <span x-text="'Subtotal (' + totalQuantity + ' items)'"></span>
+                        <span x-text="'₱' + formatPrice(subtotal)"></span>
                     </div>
                     <div class="flex justify-between text-sm text-gray-600">
                         <span>Delivery Fee</span>
@@ -127,7 +160,7 @@
 
                 <div class="mt-6 flex items-center justify-between border-t border-gray-100 pt-6">
                     <span class="text-lg font-bold text-gray-900">Total</span>
-                    <span class="text-2xl font-bold text-gray-900">₱{{ number_format($total, 2) }}</span>
+                    <span class="text-2xl font-bold text-green-600" x-text="'₱' + formatPrice(total)"></span>
                 </div>
 
                 <button type="submit" class="mt-8 w-full rounded-xl bg-green-600 py-4 text-sm font-bold text-white shadow-sm transition-all hover:bg-green-700 hover:shadow">

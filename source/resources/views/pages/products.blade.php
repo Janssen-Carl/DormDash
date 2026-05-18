@@ -252,10 +252,14 @@
                                                     Add to Cart
                                                 </button>
                                             </form>
-                                            <button type="button"
-                                                class="flex-1 rounded-lg bg-green-600 py-2 text-xs font-semibold text-white transition-all duration-200 hover:bg-green-700 shadow-sm hover:shadow-md">
-                                                Buy Now
-                                            </button>
+                                            <form action="{{ route('checkout.index') }}" method="GET" class="flex-1 m-0">
+                                                <input type="hidden" name="buy_item" value="{{ $product->item_id }}">
+                                                <input type="hidden" name="qty" value="1">
+                                                <button type="submit"
+                                                    class="w-full rounded-lg bg-green-600 py-2 text-xs font-semibold text-white transition-all duration-200 hover:bg-green-700 shadow-sm hover:shadow-md">
+                                                    Buy Now
+                                                </button>
+                                            </form>
                                         </div>
                                     </div>
                                 </div>
