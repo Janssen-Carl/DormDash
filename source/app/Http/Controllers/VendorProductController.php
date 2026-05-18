@@ -9,6 +9,22 @@ use Illuminate\Support\Facades\Auth;
 
 class VendorProductController extends Controller
 {
+    public function index()
+    {
+        $user = Auth::user();
+        $vendor = $user->vendor;
+        
+        $products = collect();
+        if ($vendor) {
+            $products = Item::where('vendor_id', $vendor->vendor_id)
+                ->with(['images'])
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
+
+        return view('pages.vendor-products', compact('products'));
+    }
+
     public function create()
     {
         return view('pages.vendor.add-item');
@@ -48,7 +64,7 @@ class VendorProductController extends Controller
         // Create the item
         try {
             $item = Item::create(array_merge($validated, [
-                'vendor_id' => 1,
+                'vendor_id' => Auth::user()->vendor->vendor_id,
             ]));
         } catch (\Exception $e) {
             dd('Insert failed', $e->getMessage());

@@ -40,6 +40,7 @@ class DatabaseSeeder extends Seeder
         $this->command->info('Running PowerShell script for placeholder images...');
         
         $psScriptPath = base_path('database/init/setup_placeholders.ps1');
+        $psScriptPath = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $psScriptPath);
         
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
             $result = Process::run("powershell -ExecutionPolicy Bypass -File \"{$psScriptPath}\"");
@@ -53,6 +54,15 @@ class DatabaseSeeder extends Seeder
             }
         } else {
             $this->command->warn('PowerShell script skipped (not on Windows OS).');
+        }
+
+        $this->command->info('Updating item image paths to clean slug filenames...');
+        foreach (\App\Models\Item::all() as $item) {
+            $slug = \Illuminate\Support\Str::slug($item->name);
+            \App\Models\ItemImage::updateOrCreate(
+                ['item_id' => $item->item_id],
+                ['image' => "/images/items/{$slug}.jpg"]
+            );
         }
 
         $this->command->info('Database seeding completed!');

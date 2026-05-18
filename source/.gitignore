@@ -15,8 +15,6 @@
 /node_modules
 /public/build
 /public/hot
-/public/images/vendors
-/public/images/items
 /public/storage
 /storage/*.key
 /storage/pail
