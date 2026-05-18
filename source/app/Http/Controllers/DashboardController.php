@@ -29,7 +29,7 @@ class DashboardController extends Controller
             $inventory = [];
         }
 
-        return view('pages.vendor-dashboard', [
+        return view('pages.vendor-analytics', [
             'forecast' => $forecast,
             'inventory' => $inventory
         ]);
