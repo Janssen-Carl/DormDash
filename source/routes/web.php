@@ -98,7 +98,6 @@ Route::middleware(['auth', 'role:vendor'])->group(function () {
 
     Route::get('/vendor-analytics', [DashboardController::class, 'index'])->name('vendor.analytics');
     Route::get('/vendor-destroy', fn() => view('pages.vendor-analytics'))->name('vendor.products.destroy');
-});
 
     Route::get('/vendor-products/{item}/edit', [VendorProductController::class, 'edit'])->name('vendor.products.edit');
     Route::post('/vendor-products/{item}/edit', [VendorProductController::class, 'update'])->name('vendor.products.update');
