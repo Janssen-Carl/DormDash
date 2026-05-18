@@ -21,45 +21,71 @@
                             <div class="space-y-5">
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">Product Name</label>
-                                    <div class="flex items-center gap-2">
-                                        <div class="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-600 cursor-not-allowed">Enter Product Name</div>
-                                         </div>
-                                    </div>
-
-
+                                   <input
+                                        type ="text" 
+                                        id = "product-name"
+                                        name = "product-name"
+                                        class = "w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                                        >
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">Product Description</label>
-                                    <div class="flex items-center gap-2">
-                                        <div class="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-600 cursor-not-allowed">Enter Product Description</div>
-                                    </div>
+                                    <input
+                                        type ="Description"
+                                        id = "product-description"
+                                        name = "product-description"
+                                        rows = "4"
+                                        class = "w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                                        >
                                  </div>
 
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">Price</label>
-                                    <div class="flex items-center gap-2">
-                                        <div class="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-600 cursor-not-allowed">Enter Price</div>
-                                    </div>
+                                    <input
+                                        type ="number"
+                                        id = "price"
+                                        name = "price"
+                                        placeholder = "Enter Price"
+                                        class = "w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                                        >
                                 </div>
 
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">Stocks</label>
-                                    <div class="flex items-center gap-2">
-                                        <div class="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-600 cursor-not-allowed">Enter Stocks</div>
-                                    </div>
+                                    <input
+                                        type ="number"
+                                        id = "stocks"
+                                        name = "stocks"
+                                        placeholder = "Enter Stocks"
+                                        class = "w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                                        >
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">URL</label>
-                                    <div class="flex items-center gap-2">
-                                        <div class="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-600 cursor-not-allowed">Enter Product Image URL</div>
-                                    </div>
+                                    <label for="product-image-url" class="block text-sm font-semibold text-gray-700 mb-2">URL</label>
+                                    <input
+                                        type ="text"
+                                        id = "product-image-url"
+                                        name = "product-image-url"
+                                        placeholder = "Enter Product Image URL"
+                                        class = "w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                                        >
                                 </div>
+                                </div>
+                                
 
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Bundle</label>
-                                    <div class="flex items-center gap-2">
-                                        <div class="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-600 cursor-not-allowed">Yes or No</div>
-                                    </div>
+                                    <label for="bundle" class="block text-sm font-semibold text-gray-700 mb-2">Bundle</label>
+                                    <select
+                                        id = "bundle"
+                                        name = "bundle"
+                                        class = "w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                                    >
+                                        <option value="">Select Bundle</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                    </select>
+                                </div>
+                                </div>
                                 </div>
 
                                 <button type="button" class="px-10 py-2 border border-red-500 text-red-500 rounded-lg hover:bg-red-50">Cancel</button>
