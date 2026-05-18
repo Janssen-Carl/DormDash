@@ -33,3 +33,4 @@ yarn.lock
 
 # PHPUnit / test cache
 .phpunit.result.cache
+./.ddvenv

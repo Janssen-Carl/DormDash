@@ -28,7 +28,7 @@ return new class extends Migration
             $table->string('unit_type', 30);
             $table->decimal('unit_value', 10, 2);
             $table->string('brand', 100);
-            $table->string('barcode', 100);
+            $table->string('barcode', 100)->nullable();
             $table->boolean('is_perishable')->default(false);
             $table->boolean('is_available')->default(true);
             $table->boolean('has_expiry')->default(false);

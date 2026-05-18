@@ -63,7 +63,6 @@ class DatabaseSeeder extends Seeder
             ['vendor_id' => $user1->user_id],
             [
                 'name' => 'Bumble Bee',
-                'email' => 'bumblebee@example.com',
                 'phone' => '09123456789',
                 'website' => 'https://bumblebee.com',
                 'address_id' => $address->address_id,
@@ -85,7 +84,6 @@ class DatabaseSeeder extends Seeder
             ['vendor_id' => $user2->user_id],
             [
                 'name' => 'Dorm Essentials',
-                'email' => 'dormessentials@example.com',
                 'phone' => '09987654321',
                 'website' => 'https://dormessentials.com',
                 'address_id' => $address->address_id,

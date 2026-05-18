@@ -69,7 +69,7 @@
 
                 <form method="POST" action="/register" class="space-y-6 flex-1">
                     @csrf
-                    
+
                     {{-- Step 1: Username & Role --}}
                     <div id="step1" class="space-y-6">
                         {{-- Username Field --}}

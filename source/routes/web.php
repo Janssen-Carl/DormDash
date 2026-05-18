@@ -1,12 +1,15 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\VendorProductController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 
 /* -------------------- PUBLIC -------------------- */
 
@@ -23,6 +26,8 @@ Route::get('/', function () {
     };
 });
 
+Route::get('/dashboard', [DashboardController::class, 'index']);
+
 Route::get('/home', fn () => redirect('/'));
 
 Route::get('/register', fn () => view('auth/register'));
@@ -34,6 +39,14 @@ Route::post('/login', [UserController::class, 'login']);
 Route::post('/logout', [UserController::class, 'logout']);
 
 /* -------------------- AUTH COMMON -------------------- */
+
+Route::get('/test-login/{id}', function ($id) {
+
+    Auth::loginUsingId($id);
+
+    return redirect('/');
+
+});
 
 Route::middleware('auth')->group(function () {
 
@@ -91,4 +104,12 @@ Route::get('/vendor-profile/vendor-product-add', function () {
 
 Route::get('/vendor-profile/vendor-product-add-bundle', function () {
     return view('pages/vendor-product-add-bundle');
+});
+Route::prefix('vendor')->name('vendor.')->group(function () {
+
+    Route::get('/items/create', [VendorProductController::class, 'create'])
+        ->name('items.create');
+
+    Route::post('/items', [VendorProductController::class, 'store'])
+        ->name('items.store');
 });

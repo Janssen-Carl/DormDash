@@ -12,17 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('vendors', function (Blueprint $table) {
-            $table->unsignedInteger('vendor_id');
+            $table->increments('vendor_id')->primary();
             $table->foreign('vendor_id')
                 ->references('user_id')
                 ->on('users')
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
             $table->string('name', 100);
-            $table->string('email', 100)->unique();
             $table->string('phone', 30)->nullable();
             $table->string('website', 255)->nullable();
-            $table->unsignedInteger('address_id');
+            $table->unsignedInteger('address_id')->nullable();
             $table->foreign('address_id')
                 ->references('address_id')
                 ->on('addresses')

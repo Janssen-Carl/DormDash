@@ -3,31 +3,52 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Vendor;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
-
 
 class UserController extends Controller
 {
-    public function register(Request $request) {
-        $validated_fields = $request->validate([
+    public function register(Request $request)
+    {
+        $validated = $request->validate([
             'username' => ['required', 'string', 'max:255', 'unique:users'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'email'    => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'role' => ['required', 'in:customer,vendor']
+            'role'     => ['required', 'in:customer,vendor']
         ]);
 
-        $validated_fields['password'] = bcrypt($validated_fields['password']);
-        $validated_fields['role'] = $validated_fields['role'] ?? 'customer';
+        $validated['password'] = Hash::make($validated['password']);
 
-        $user = User::create($validated_fields);
+        $user = null;
+
+        DB::transaction(function () use (&$user, $validated) {
+
+            $user = User::create([
+                'username' => $validated['username'],
+                'email'    => $validated['email'],
+                'password' => $validated['password'],
+                'role'     => $validated['role'],
+            ]);
+
+            if ($validated['role'] === 'vendor') {
+                Vendor::create([
+                    'user_id' => $user->user_id, // correct PK usage
+                    'name'    => $user->username,
+                ]);
+            }
+        });
+
         auth()->login($user);
+
         return redirect('/');
     }
 
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email' => ['required', 'email'],
+            'email'    => ['required', 'email'],
             'password' => ['required'],
         ]);
 
@@ -37,9 +58,9 @@ class UserController extends Controller
             $user = auth()->user();
 
             return match ($user->role) {
-                'vendor' => redirect()->route('vendor.home'),
+                'vendor'   => redirect()->route('vendor.home'),
                 'customer' => redirect('/products'),
-                default => redirect('/'),
+                default    => redirect('/'),
             };
         }
 
@@ -48,10 +69,12 @@ class UserController extends Controller
         ]);
     }
 
-    public function logout(Request $request) {
+    public function logout(Request $request)
+    {
         auth()->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
         return redirect('/');
     }
 }
