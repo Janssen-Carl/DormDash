@@ -86,4 +86,12 @@ class Item extends Model
             'item_id'
         )->withPivot('quantity');
     }
+
+    public static function searchItems($query)
+    {
+        return self::where('name', 'LIKE', "%$query%")
+            ->orWhere('description', 'LIKE', "%$query%")
+            ->orWhere('sku', 'LIKE', "%$query%")
+            ->get();
+    }
 }

@@ -59,6 +59,13 @@ class ProductController extends Controller
             }
         }
 
+        $searchQuery = $request->input('search');
+
+        if ($searchQuery) {
+            $items = Item::searchItems($searchQuery);
+            return view('pages.products', compact('items', 'parentCategories', 'vendors', 'selectedVendors', 'selectedCategories'));
+        }
+
         return view('pages.products', compact('categoryItems', 'parentCategories', 'vendors', 'selectedVendors', 'selectedCategories'));
     }
 }
