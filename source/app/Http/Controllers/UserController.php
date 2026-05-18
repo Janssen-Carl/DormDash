@@ -78,6 +78,22 @@ class UserController extends Controller
         return redirect('/');
     }
 
+    // Show profile page
+    public function show()
+    {
+        $user = auth()->user();
+
+        // Load related profile
+        $profile = null;
+        if ($user->role === 'vendor') {
+            $profile = $user->vendor;
+        } elseif ($user->role === 'customer') {
+            $profile = $user->customer;
+        }
+
+        return view('pages.profile', compact('user', 'profile'));
+    }
+
     // Show profile edit form
     public function edit()
     {
