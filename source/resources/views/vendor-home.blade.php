@@ -5,22 +5,25 @@
 @section('content')
 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
     <!-- Header Section -->
-    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-900 via-emerald-800 to-green-900 p-8 sm:p-12 shadow-2xl mb-10">
-        <!-- Decorative blobs -->
-        <div class="absolute -top-24 -right-24 w-96 h-96 bg-white rounded-full mix-blend-overlay filter blur-3xl opacity-20 animate-blob"></div>
-        <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-green-400 rounded-full mix-blend-overlay filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-700 p-8 sm:p-12 text-white shadow-2xl mb-10">
+        <!-- Decorative elements -->
+        <div class="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -mr-40 -mt-40"></div>
+        <div class="absolute bottom-0 left-0 w-72 h-72 bg-white/5 rounded-full -ml-36 -mb-36"></div>
         
         <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
-                <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-white mb-2">
-                    Welcome back, <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-300 to-emerald-100">{{ $vendor ? $vendor->name : auth()->user()->username }}</span>! 👋
+                <p class="mb-2 text-sm font-semibold tracking-widest text-emerald-100 uppercase">
+                    Welcome Back
+                </p>
+                <h1 class="mb-4 text-4xl sm:text-5xl leading-tight font-bold">
+                    {{ $vendor ? $vendor->name : auth()->user()->username }}
                 </h1>
-                <p class="text-emerald-100 text-lg max-w-2xl">
+                <p class="text-lg leading-relaxed text-emerald-50/80 max-w-2xl">
                     Here's what's happening with your store today. Keep up the great work!
                 </p>
             </div>
             <div class="flex-shrink-0">
-                <a href="{{ route('vendor.products.add') }}" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-emerald-900 bg-white hover:bg-emerald-50 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
+                <a href="{{ route('vendor.products.add') }}" class="inline-flex items-center justify-center px-6 py-3 text-base font-medium rounded-xl text-emerald-700 bg-white hover:bg-gray-50 transition-all duration-200 shadow-md hover:shadow-lg">
                     <svg class="w-5 h-5 mr-2 -ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                     Add New Product
                 </a>
@@ -31,7 +34,7 @@
     <!-- Quick Stats Overview -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
         <!-- Stat Card 1 -->
-        <div class="bg-white/70 backdrop-blur-xl rounded-2xl p-6 border border-white/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300 transform hover:-translate-y-1">
+        <div class="bg-white rounded-2xl p-6 border border-gray-200 shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-zinc-500 mb-1">Total Products</p>
@@ -51,7 +54,7 @@
         </div>
 
         <!-- Stat Card 2 -->
-        <div class="bg-white/70 backdrop-blur-xl rounded-2xl p-6 border border-white/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300 transform hover:-translate-y-1">
+        <div class="bg-white rounded-2xl p-6 border border-gray-200 shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-zinc-500 mb-1">Active Orders</p>
@@ -71,7 +74,7 @@
         </div>
 
         <!-- Stat Card 3 -->
-        <div class="bg-white/70 backdrop-blur-xl rounded-2xl p-6 border border-white/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300 transform hover:-translate-y-1">
+        <div class="bg-white rounded-2xl p-6 border border-gray-200 shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-zinc-500 mb-1">Total Revenue</p>
@@ -88,7 +91,7 @@
     </div>
 
     <!-- Recent Activity Placeholder -->
-    <div class="bg-white rounded-3xl p-8 border border-zinc-100 shadow-sm">
+    <div class="bg-white rounded-3xl p-8 border border-gray-200 shadow-md">
         <div class="flex items-center justify-between mb-6">
             <h2 class="text-xl font-bold text-zinc-900">Recent Activity</h2>
             <a href="#" class="text-sm font-medium text-indigo-600 hover:text-indigo-800 transition-colors">View all</a>
@@ -103,18 +106,5 @@
     </div>
 </div>
 
-<style>
-    @keyframes blob {
-        0% { transform: translate(0px, 0px) scale(1); }
-        33% { transform: translate(30px, -50px) scale(1.1); }
-        66% { transform: translate(-20px, 20px) scale(0.9); }
-        100% { transform: translate(0px, 0px) scale(1); }
-    }
-    .animate-blob {
-        animation: blob 7s infinite;
-    }
-    .animation-delay-2000 {
-        animation-delay: 2s;
-    }
-</style>
+
 @endsection
