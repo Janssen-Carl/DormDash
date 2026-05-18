@@ -5,11 +5,26 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Item;
 use App\Models\ItemImage;
-use App\Models\Vendor;
 use Illuminate\Support\Facades\Auth;
 
 class VendorProductController extends Controller
 {
+    public function index()
+    {
+        $user = Auth::user();
+        $vendor = $user->vendor;
+        
+        $products = collect();
+        if ($vendor) {
+            $products = Item::where('vendor_id', $vendor->vendor_id)
+                ->with(['images'])
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
+
+        return view('pages.vendor-products', compact('products'));
+    }
+
     public function create()
     {
         return view('pages.vendor.add-item');
@@ -49,7 +64,7 @@ class VendorProductController extends Controller
         // Create the item
         try {
             $item = Item::create(array_merge($validated, [
-                'vendor_id' => auth()->id(),
+                'vendor_id' => Auth::user()->vendor->vendor_id,
             ]));
         } catch (\Exception $e) {
             dd('Insert failed', $e->getMessage());
@@ -73,15 +88,5 @@ class VendorProductController extends Controller
 
             ->route('vendor.products')
             ->with('success', 'Item and images uploaded successfully!');
-    }
-
-    public function index()
-    {
-        // assuming vendor is logged in
-        $products = Item::where('vendor_id', auth()->id())->get();
-
-
-        //dd($products);
-        return view('pages/vendor-products', compact('products'));
     }
 }
