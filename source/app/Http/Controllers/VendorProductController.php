@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Item;
 use App\Models\ItemImage;
+use App\Models\Vendor;
 use Illuminate\Support\Facades\Auth;
 
 class VendorProductController extends Controller
@@ -48,7 +49,7 @@ class VendorProductController extends Controller
         // Create the item
         try {
             $item = Item::create(array_merge($validated, [
-                'vendor_id' => 1,
+                'vendor_id' => auth()->id(),
             ]));
         } catch (\Exception $e) {
             dd('Insert failed', $e->getMessage());
@@ -72,5 +73,15 @@ class VendorProductController extends Controller
 
             ->route('vendor.products')
             ->with('success', 'Item and images uploaded successfully!');
+    }
+
+    public function index()
+    {
+        // assuming vendor is logged in
+        $products = Item::where('vendor_id', auth()->id())->get();
+
+
+        //dd($products);
+        return view('pages/vendor-products', compact('products'));
     }
 }

@@ -91,10 +91,11 @@ Route::middleware(['auth', 'role:vendor'])->group(function () {
     Route::get('/vendor-profile/vendor-profile-edit', fn () => view('pages/vendor-profile-edit'));
     Route::get('/vendor-profile/vendor-address-add', fn () => view('pages/vendor-address-add'));
 
-    Route::get('/vendor-products', fn () => view('pages/vendor-products'))->name('vendor.products');
+    Route::get('/vendor-product', fn () => view('pages/vendor-products'))->name('vendor.products');
     Route::get('/vendor-product-edit', fn () => view('pages/vendor-product-edit'))->name('vendor.products.edit');
     Route::get('/vendor-product-add', fn () => view('pages/vendor-product-add'))->name('vendor.products.add');
     Route::get('/vendor-product-add-bundle', fn () => view('pages/vendor-product-add-bundle'))->name('vendor.products.bundle');
+    Route::get('/vendor-product-add', fn () => view('pages/vendor-product-add'))->name('vendor.products.destroy');
 });
 Route::prefix('vendor')->name('vendor.')->group(function () {
 
@@ -149,3 +150,4 @@ Route::get('/test-item', function () {
         return 'Insert failed: ' . $e->getMessage();
     }
 });
+Route::get('/vendor-products', [VendorProductController::class, 'index'])->name('vendor.products.index');

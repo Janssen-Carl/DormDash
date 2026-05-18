@@ -18,14 +18,14 @@
 
     {{-- Action Buttons --}}
     <div class="mb-8 flex justify-center gap-4">
-        <a 
+        <a
             href="{{ route('vendor.products.bundle') }}"
             class="rounded-xl bg-zinc-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-zinc-800"
         >
             Add Bundle
         </a>
 
-        <a 
+        <a
             href="{{ route('vendor.products.add') }}"
             class="rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
         >
@@ -201,7 +201,7 @@
                         <div class="flex justify-end gap-2">
 
                             {{-- Edit --}}
-                            <a 
+                            <a
                                 href="{{ route('vendor.products.edit') }}"
                                 class="inline-flex items-center rounded-lg border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100"
                             >
