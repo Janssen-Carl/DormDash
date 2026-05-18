@@ -88,6 +88,49 @@
         </div>
     </div>
 
+    <!-- Search & Filter Bar -->
+    <form action="{{ route('vendor.orders') }}" method="GET" class="bg-white rounded-2xl p-4 border border-gray-200 shadow-md mb-8">
+        <div class="flex flex-col md:flex-row gap-4">
+            <!-- Search Input -->
+            <div class="flex-grow relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+                <input type="text" name="search" value="{{ $search ?? '' }}" 
+                       placeholder="Search by Order ID, customer, tracking number, product name..." 
+                       class="block w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-sm text-gray-900">
+            </div>
+            
+            <!-- Status Selector -->
+            <div class="w-full md:w-64 relative">
+                <select name="status" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-sm text-gray-700 appearance-none">
+                    <option value="all" {{ ($status ?? '') === 'all' || !($status ?? '') ? 'selected' : '' }}>All Statuses</option>
+                    <option value="pending" {{ ($status ?? '') === 'pending' ? 'selected' : '' }}>Not Confirmed Yet (Pending)</option>
+                    <option value="confirmed" {{ ($status ?? '') === 'confirmed' ? 'selected' : '' }}>Confirmed (All)</option>
+                    <option value="to_ship" {{ ($status ?? '') === 'to_ship' ? 'selected' : '' }}>To Ship</option>
+                    <option value="shipped" {{ ($status ?? '') === 'shipped' ? 'selected' : '' }}>Shipped</option>
+                    <option value="delivered" {{ ($status ?? '') === 'delivered' ? 'selected' : '' }}>Delivered</option>
+                    <option value="completed" {{ ($status ?? '') === 'completed' ? 'selected' : '' }}>Completed</option>
+                </select>
+                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-2">
+                <button type="submit" class="flex-grow md:flex-grow-0 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm transition-colors shadow-sm hover:shadow-md">
+                    Search
+                </button>
+                @if($search || ($status && $status !== 'all'))
+                    <a href="{{ route('vendor.orders') }}" class="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl text-sm transition-colors text-center flex items-center justify-center">
+                        Reset
+                    </a>
+                @endif
+            </div>
+        </div>
+    </form>
+
     <!-- Active Orders List -->
     @if(isset($orders) && $orders->isNotEmpty())
         <div class="space-y-6">
@@ -264,11 +307,22 @@
     @else
         <!-- No Orders Fallback -->
         <div class="bg-white rounded-3xl p-12 border border-gray-200 shadow-md text-center">
-            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-emerald-50 mb-6 text-emerald-600">
-                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
-            </div>
-            <h3 class="text-xl font-bold text-gray-900 mb-2">No active orders</h3>
-            <p class="text-gray-500 max-w-md mx-auto leading-relaxed">When customers place orders for your products, they will appear here for you to manage, confirm, and fulfill.</p>
+            @if($search || ($status && $status !== 'all'))
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-amber-50 mb-6 text-amber-600">
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">No matching orders found</h3>
+                <p class="text-gray-500 max-w-md mx-auto leading-relaxed mb-6">We couldn't find any orders matching your search query or status filter. Try clearing or updating your filters.</p>
+                <a href="{{ route('vendor.orders') }}" class="inline-flex items-center justify-center px-6 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl text-sm transition-colors shadow-sm">
+                    Clear Search & Filters
+                </a>
+            @else
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-emerald-50 mb-6 text-emerald-600">
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">No active orders</h3>
+                <p class="text-gray-500 max-w-md mx-auto leading-relaxed">When customers place orders for your products, they will appear here for you to manage, confirm, and fulfill.</p>
+            @endif
         </div>
     @endif
 </div>

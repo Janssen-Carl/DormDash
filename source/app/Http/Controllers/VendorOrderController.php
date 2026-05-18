@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 class VendorOrderController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
         $vendor = $user->vendor;
@@ -19,27 +19,60 @@ class VendorOrderController extends Controller
 
         $vendorId = $vendor->vendor_id;
 
-        // Get all orders containing this vendor's items, ordered by creation date descending
-        $orders = Order::with(['customer.user', 'address', 'items' => function ($query) use ($vendorId) {
-                $query->where('items.vendor_id', $vendorId);
+        // 1. Calculate overall card statistics (unfiltered)
+        $baseQuery = Order::whereHas('items', function ($query) use ($vendorId) {
+            $query->where('items.vendor_id', $vendorId);
+        });
+
+        $pendingCount = (clone $baseQuery)->where('order_status', 'pending')->count();
+        $confirmedCount = (clone $baseQuery)->whereIn('order_status', ['to_ship', 'shipped', 'delivered'])->count();
+        $totalCount = $baseQuery->count();
+
+        // 2. Build filtered orders query for listing
+        $search = $request->query('search');
+        $status = $request->query('status');
+
+        $query = Order::with(['customer.user', 'address', 'items' => function ($q) use ($vendorId) {
+                $q->where('items.vendor_id', $vendorId);
             }])
-            ->whereHas('items', function ($query) use ($vendorId) {
-                $query->where('items.vendor_id', $vendorId);
-            })
-            ->orderBy('created_at', 'desc')
-            ->get();
+            ->whereHas('items', function ($q) use ($vendorId) {
+                $q->where('items.vendor_id', $vendorId);
+            });
 
-        // Calculate card statistics:
-        // "Not Confirmed Yet" = 'pending' status
-        $pendingCount = $orders->where('order_status', 'pending')->count();
-        
-        // "Confirmed Orders" = active states beyond pending ('to_ship', 'shipped', 'delivered')
-        $confirmedCount = $orders->whereIn('order_status', ['to_ship', 'shipped', 'delivered'])->count();
+        // Apply Search Filter
+        if ($search) {
+            $query->where(function ($q) use ($search, $vendorId) {
+                $q->where('order_id', 'like', "%{$search}%")
+                  ->orWhere('tracking_number', 'like', "%{$search}%")
+                  ->orWhere('shipping_method', 'like', "%{$search}%")
+                  ->orWhereHas('customer', function ($cq) use ($search) {
+                      $cq->where('first_name', 'like', "%{$search}%")
+                         ->orWhere('last_name', 'like', "%{$search}%")
+                         ->orWhereHas('user', function ($uq) use ($search) {
+                             $uq->where('username', 'like', "%{$search}%");
+                         });
+                  })
+                  ->orWhereHas('items', function ($iq) use ($search, $vendorId) {
+                      $iq->where('items.vendor_id', $vendorId)
+                         ->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
 
-        // Total orders managed by this vendor
-        $totalCount = $orders->count();
+        // Apply Status Filter
+        if ($status && $status !== 'all') {
+            if ($status === 'pending') {
+                $query->where('order_status', 'pending');
+            } elseif ($status === 'confirmed') {
+                $query->whereIn('order_status', ['to_ship', 'shipped', 'delivered']);
+            } else {
+                $query->where('order_status', $status);
+            }
+        }
 
-        return view('pages.vendor-orders', compact('orders', 'pendingCount', 'confirmedCount', 'totalCount'));
+        $orders = $query->orderBy('created_at', 'desc')->get();
+
+        return view('pages.vendor-orders', compact('orders', 'pendingCount', 'confirmedCount', 'totalCount', 'search', 'status'));
     }
 
     public function confirm($orderId)
