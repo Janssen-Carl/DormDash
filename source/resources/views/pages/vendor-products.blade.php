@@ -20,7 +20,7 @@
     <div class="mb-8 flex justify-center gap-4">
         <a 
             href="{{ route('vendor.products.bundle') }}"
-            class="rounded-xl bg-zinc-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-zinc-800"
+            class="rounded-xl bg-white border border-emerald-600 px-6 py-3 text-sm font-semibold text-zinc-700"
         >
             Add Bundle
         </a>
@@ -167,7 +167,7 @@
 
                             {{-- Edit --}}
                             <a 
-                                href="{{ route('vendor.products.edit') }}"
+                                href="{{ route('vendor.products.edit', $product->item_id) }}"
                                 class="inline-flex items-center rounded-lg border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100"
                             >
                                 <x-heroicon-o-pencil-square class="h-4 w-4" />

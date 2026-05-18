@@ -25,6 +25,41 @@ class VendorProductController extends Controller
         return view('pages.vendor-products', compact('products'));
     }
 
+    public function edit(Item $item)
+    {
+        // Ensure the item belongs to the authenticated vendor
+        if ($item->vendor_id !== Auth::user()->vendor->vendor_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        return view('pages.vendor-product-edit', compact('item'));
+    }
+
+    public function update(Request $request, Item $item)
+    {
+        // Ensure the item belongs to the authenticated vendor
+        if ($item->vendor_id !== Auth::user()->vendor->vendor_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $validated = $request->validate([
+            'unit_type'    => 'nullable|string|max:50',
+            'unit_value'   => 'nullable|numeric|min:0',
+            'stock'        => 'required|integer|min:0',
+            'price'        => 'required|numeric|min:0',
+            'is_available' => 'nullable|boolean',
+        ]);
+
+        $validated['is_available'] = $request->has('is_available') ? 1 : 0;
+        $validated['unit_value'] = $validated['unit_value'] ?? null;
+
+        $item->update($validated);
+
+        return redirect()
+            ->route('vendor.products')
+            ->with('success', 'Product updated successfully!');
+    }
+
     public function create()
     {
         return view('pages.vendor.add-item');
@@ -82,6 +117,11 @@ class VendorProductController extends Controller
                     'image'   => 'items/' . $imageName,
                 ]);
             }
+        } else {
+            ItemImage::create([
+                'item_id' => $item->item_id,
+                'image'   => '/images/items/1/1.jpg',
+            ]);
         }
 
         return redirect() // add popup or whatever

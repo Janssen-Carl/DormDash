@@ -96,11 +96,10 @@ Route::middleware(['auth', 'role:vendor'])->group(function () {
     Route::get('/vendor-orders', fn() => view('pages.vendor-orders'))->name('vendor.orders');
 
     Route::get('/vendor-analytics', fn() => view('pages.vendor-analytics'))->name('vendor.analytics');
-});
 
-Route::get('/vendor-profile/vendor-product-edit', function () {
-    return view('pages/vendor-product-edit');
-})->name('vendor.products.edit');
+    Route::get('/vendor-products/{item}/edit', [VendorProductController::class, 'edit'])->name('vendor.products.edit');
+    Route::post('/vendor-products/{item}/edit', [VendorProductController::class, 'update'])->name('vendor.products.update');
+});
 
 Route::get('/vendor-profile/vendor-product-add', function () {
     return view('pages/vendor-product-add');
