@@ -11,7 +11,12 @@
     </div>
 
     {{-- Add shits --}}
+    
     <div class="mt-8 flex justify-end gap-3">
+        <a href="/vendor-profile/vendor-product-add" class="px-10 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">Add Product</a>
+        
+        {{-- Change route and add page for bundle, should be list, update route accoridngly--}}
+        <a href="/vendor-profile/vendor-product-add-" class="px-10 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">Add Bundle</a>
         <button type="button" class="px-10 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">Add Bundle</button>     
     </div> 
     
@@ -63,7 +68,7 @@
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-500">{{ $product['date'] }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-zinc-900">₱{{ number_format($product['price'], 2) }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <a href="#" class="text-emerald-600 hover:text-emerald-900">Edit</a>
+                        <a href="/vendor-profile/vendor-product-edit" class="text-emerald-600 hover:text-emerald-900">Edit</a>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <button class="text-zinc-400 hover:text-red-500">
@@ -78,9 +83,7 @@
 
     {{-- Action Buttons --}}
     
-    <div class="mt-8 flex justify-end gap-3">
-        <a href="/vendor-profile/vendor-product-add" class="px-10 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">Add Product</a>
-        <a href="/vendor-profile/vendor-product-edit" class="px-10 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">Edit Product</a>
+    <div class="mt-8 flex justify-end gap-3">        
         <button type="button" class="px-10 py-2 border border-red-500 text-red-500 rounded-lg hover:bg-red-50">Cancel</button>
         <button type="button" class="px-10 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">Save Changes</button>
     </div> 
