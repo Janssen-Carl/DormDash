@@ -258,3 +258,30 @@ SET @order_counter = 0;
 UPDATE orders
 SET created_at = DATE_ADD('2026-01-01', INTERVAL (@order_counter:=@order_counter+1)*5 DAY)
     ORDER BY order_id;
+
+-- Recalculate stock and record stock logs based on seeded order_items
+-- Insert aggregated stock log entries before updating actual stock
+INSERT INTO stock_logs (item_id, old_stock, new_stock, quantity_changed, remarks, created_at)
+SELECT
+    i.item_id,
+    i.stock AS old_stock,
+    GREATEST(i.stock - oi.sold, 0) AS new_stock,
+    oi.sold AS quantity_changed,
+    'seed_orders' AS remarks,
+    NOW()
+FROM items i
+JOIN (
+    SELECT item_id, SUM(quantity) AS sold
+    FROM order_items
+    GROUP BY item_id
+) oi ON oi.item_id = i.item_id;
+
+-- Update item stock according to total sold quantities (never negative)
+UPDATE items i
+JOIN (
+    SELECT item_id, SUM(quantity) AS sold
+    FROM order_items
+    GROUP BY item_id
+) oi ON oi.item_id = i.item_id
+SET i.stock = GREATEST(i.stock - oi.sold, 0);
+
