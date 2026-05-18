@@ -3,112 +3,382 @@
 @section('title', 'Add Product')
 
 @section('content')
-<div class="mx-auto max-w-7xl px-8 py-12">
-    <div class="text-center">
-        <h1 class="text-4xl font-bold tracking-tight text-zinc-900">Add Product</h1>
-        <p class="mt-2 text-zinc-500 text-sm">Fill in the details for the new product you want to add.</p>
-        <button type="button" class="px-10 py-2 bg-gray-100 text-black rounded-lg hover:bg-gray-200">General Info</button>
-        <button type="button" class="px-10 py-2 bg-gray-100 text-black rounded-lg hover:bg-gray-200">Pricing</button>
-        <button type="button" class="px-10 py-2 bg-gray-100 text-black rounded-lg hover:bg-gray-200">Images</button>
+<div 
+    class="mx-auto max-w-6xl px-6 py-10"
+    x-data="{ showPhotoModal: false }"
+>
+
+    {{-- Header --}}
+    <div class="mb-10 text-center">
+        <h1 class="text-4xl font-bold tracking-tight text-zinc-900">
+            Add Product
+        </h1>
+
+        <p class="mt-2 text-sm text-zinc-500">
+            Fill in the product details below.
+        </p>
     </div>
 
-               {{-- Main Content --}}
-                    <div class="lg:col-span-2 space-y-6">
-                        {{-- Add Product --}}
-                        <div class="rounded-3xl border border-gray-100 bg-gradient-to-br from-white to-gray-50 p-8 shadow-lg transition-all duration-300 hover:shadow-xl">
-                            <h3 class="mb-8 text-lg font-bold text-gray-900">Product Information</h3>
+    <form action="" method="POST" class="space-y-8">
+        @csrf
 
-                            <div class="space-y-5">
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Product Name</label>
-                                   <input
-                                        type ="text" 
-                                        id = "name"
-                                        name = "name"
-                                        class = "w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                                        >
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Product Description</label>
-                                    <input
-                                        type ="Description"
-                                        id = "description"
-                                        name = "description"
-                                        rows = "4"
-                                        class = "w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                                        >
-                                 </div>
+        {{-- ============================= --}}
+        {{-- BASIC INFORMATION --}}
+        {{-- ============================= --}}
+        <div class="rounded-3xl border border-gray-100 bg-white p-8 shadow-sm">
+            <h2 class="mb-8 text-lg font-bold text-gray-900">
+                Basic Information
+            </h2>
 
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Price</label>
-                                    <input
-                                        type ="number"
-                                        id = "price"
-                                        name = "price"
-                                        placeholder = "Enter Price"
-                                        class = "w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                                        >
-                                </div>
+            <div class="space-y-6">
 
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Stocks</label>
-                                    <input
-                                        type ="number"
-                                        id = "stock"
-                                        name = "stock"
-                                        placeholder = "Enter Stocks"
-                                        class = "w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                                        >
-                                </div>
+                {{-- Product Name --}}
+                <div>
+                    <label 
+                        for="name"
+                        class="mb-2 block text-sm font-semibold text-gray-700"
+                    >
+                        Product Name
+                    </label>
 
-                                <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
-                    {{-- Image URL --}}
-                    <div class="lg:col-span-1">
-                        <h1 class="block text-sm font-semibold text-gray-700 mb-2">URL</h1>
-                        <div class="rounded-3xl border border-gray-100 bg-gradient-to-br from-white to-gray-50 p-8 shadow-lg transition-all duration-300 hover:shadow-xl">
-                            <div class="flex flex-col items-center text-center">
-                                {{-- Profile Picture with Edit Button --}}
-                                <div class="relative group">
-                                    <div class="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-green-500 via-green-600 to-emerald-600 text-4xl font-bold text-white shadow-2xl">
-                                        LCC
-                                    </div>
-                                    <button 
-                                        @click="showPhotoModal = true"
-                                        type="button" 
-                                        class="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-green-600 text-white shadow-lg transition-all duration-200 hover:bg-green-700 hover:shadow-xl opacity-0 group-hover:opacity-100"
-                                    >
-                                        <x-heroicon-o-camera class="h-4 w-4" />
-                                    </button>
-                                </div>
+                    <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        placeholder="Enter product name"
+                        class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-700 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500"
+                    >
+                </div>
 
-                                <p class="mt-1 text-xs text-gray-500">Change this item icon to your desire</p>
-                            </div>
-                        </div>
+                {{-- Description --}}
+                <div>
+                    <label 
+                        for="description"
+                        class="mb-2 block text-sm font-semibold text-gray-700"
+                    >
+                        Description
+                    </label>
+
+                    <textarea
+                        id="description"
+                        name="description"
+                        rows="4"
+                        placeholder="Enter product description"
+                        class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-700 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500"
+                    ></textarea>
+                </div>
+
+                <div class="grid gap-6 md:grid-cols-2">
+
+                    {{-- Brand --}}
+                    <div>
+                        <label 
+                            for="brand"
+                            class="mb-2 block text-sm font-semibold text-gray-700"
+                        >
+                            Brand
+                        </label>
+
+                        <input
+                            type="text"
+                            id="brand"
+                            name="brand"
+                            placeholder="Enter brand name"
+                            class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-700 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500"
+                        >
                     </div>
-                                
-                                
 
-                                <div>
-                                    <label for="bundle" class="block text-sm font-semibold text-gray-700 mb-2">Bundle</label>
-                                    <select
-                                        id = "bundle"
-                                        name = "bundle"
-                                        class = "w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                                    >
-                                        <option value="">Select Bundle</option>
-                                        <option value="Yes">Yes</option>
-                                        <option value="No">No</option>
-                                    </select>
-                                </div>
-                                </div>
-                                </div>
-                                </div>
-                            </div>
+                    {{-- SKU --}}
+                    <div>
+                        <label 
+                            for="sku"
+                            class="mb-2 block text-sm font-semibold text-gray-700"
+                        >
+                            SKU
+                        </label>
 
-                                <button type="button" class="px-10 py-2 border border-red-500 text-red-500 rounded-lg hover:bg-red-50">Cancel</button>
-                                <button type="button" class="px-10 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">Add Product</button>
-                           
-                            
-                            </div>
-                        
+                        <input
+                            type="text"
+                            id="sku"
+                            name="sku"
+                            placeholder="Enter SKU"
+                            class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-700 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500"
+                        >
+                    </div>
+
+                </div>
+
+                {{-- Barcode --}}
+                <div>
+                    <label 
+                        for="barcode"
+                        class="mb-2 block text-sm font-semibold text-gray-700"
+                    >
+                        Barcode
+                    </label>
+
+                    <input
+                        type="text"
+                        id="barcode"
+                        name="barcode"
+                        placeholder="Enter barcode"
+                        class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-700 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500"
+                    >
+                </div>
+
             </div>
+        </div>
+
+        {{-- ============================= --}}
+        {{-- PRICING & INVENTORY --}}
+        {{-- ============================= --}}
+        <div class="rounded-3xl border border-gray-100 bg-white p-8 shadow-sm">
+            <h2 class="mb-8 text-lg font-bold text-gray-900">
+                Pricing & Inventory
+            </h2>
+
+            <div class="grid gap-6 md:grid-cols-2">
+
+                {{-- Price --}}
+                <div>
+                    <label 
+                        for="price"
+                        class="mb-2 block text-sm font-semibold text-gray-700"
+                    >
+                        Price
+                    </label>
+
+                    <input
+                        type="number"
+                        step="0.01"
+                        id="price"
+                        name="price"
+                        placeholder="₱0.00"
+                        class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-700 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500"
+                    >
+                </div>
+
+                {{-- Stock --}}
+                <div>
+                    <label 
+                        for="stock"
+                        class="mb-2 block text-sm font-semibold text-gray-700"
+                    >
+                        Stock
+                    </label>
+
+                    <input
+                        type="number"
+                        id="stock"
+                        name="stock"
+                        placeholder="0"
+                        class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-700 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500"
+                    >
+                </div>
+
+                {{-- Unit Type --}}
+                <div>
+                    <label 
+                        for="unit_type"
+                        class="mb-2 block text-sm font-semibold text-gray-700"
+                    >
+                        Unit Type
+                    </label>
+
+                    <select
+                        id="unit_type"
+                        name="unit_type"
+                        class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-700 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500"
+                    >
+                        <option value="">Select Unit</option>
+                        <option value="piece">Piece</option>
+                        <option value="kg">Kilogram</option>
+                        <option value="g">Gram</option>
+                        <option value="liter">Liter</option>
+                        <option value="ml">Milliliter</option>
+                        <option value="pack">Pack</option>
+                        <option value="box">Box</option>
+                    </select>
+                </div>
+
+                {{-- Unit Value --}}
+                <div>
+                    <label 
+                        for="unit_value"
+                        class="mb-2 block text-sm font-semibold text-gray-700"
+                    >
+                        Unit Value
+                    </label>
+
+                    <input
+                        type="number"
+                        step="0.01"
+                        id="unit_value"
+                        name="unit_value"
+                        placeholder="1"
+                        class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-700 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500"
+                    >
+                </div>
+
+            </div>
+        </div>
+
+        {{-- ============================= --}}
+        {{-- PRODUCT SETTINGS --}}
+        {{-- ============================= --}}
+        <div class="rounded-3xl border border-gray-100 bg-white p-8 shadow-sm">
+            <h2 class="mb-8 text-lg font-bold text-gray-900">
+                Product Settings
+            </h2>
+
+            <div class="grid gap-6 md:grid-cols-2">
+
+                {{-- Active --}}
+                <label class="flex items-center gap-3 rounded-xl border border-gray-200 p-4">
+                    <input
+                        type="checkbox"
+                        name="is_active"
+                        checked
+                        class="h-5 w-5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                    >
+
+                    <div>
+                        <p class="text-sm font-semibold text-gray-800">
+                            Active Product
+                        </p>
+
+                        <p class="text-xs text-gray-500">
+                            Product is enabled in the system
+                        </p>
+                    </div>
+                </label>
+
+                {{-- Available --}}
+                <label class="flex items-center gap-3 rounded-xl border border-gray-200 p-4">
+                    <input
+                        type="checkbox"
+                        name="is_available"
+                        checked
+                        class="h-5 w-5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                    >
+
+                    <div>
+                        <p class="text-sm font-semibold text-gray-800">
+                            Available for Purchase
+                        </p>
+
+                        <p class="text-xs text-gray-500">
+                            Customers can buy this item
+                        </p>
+                    </div>
+                </label>
+
+                {{-- Bundle --}}
+                <label class="flex items-center gap-3 rounded-xl border border-gray-200 p-4">
+                    <input
+                        type="checkbox"
+                        name="is_bundle"
+                        class="h-5 w-5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                    >
+
+                    <div>
+                        <p class="text-sm font-semibold text-gray-800">
+                            Bundle Product
+                        </p>
+
+                        <p class="text-xs text-gray-500">
+                            Product contains multiple items
+                        </p>
+                    </div>
+                </label>
+
+                {{-- Perishable --}}
+                <label class="flex items-center gap-3 rounded-xl border border-gray-200 p-4">
+                    <input
+                        type="checkbox"
+                        name="is_perishable"
+                        class="h-5 w-5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                    >
+
+                    <div>
+                        <p class="text-sm font-semibold text-gray-800">
+                            Perishable Product
+                        </p>
+
+                        <p class="text-xs text-gray-500">
+                            Product may expire or spoil
+                        </p>
+                    </div>
+                </label>
+
+                {{-- Expiry --}}
+                <label class="flex items-center gap-3 rounded-xl border border-gray-200 p-4 md:col-span-2">
+                    <input
+                        type="checkbox"
+                        name="has_expiry"
+                        class="h-5 w-5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                    >
+
+                    <div>
+                        <p class="text-sm font-semibold text-gray-800">
+                            Has Expiry Date
+                        </p>
+
+                        <p class="text-xs text-gray-500">
+                            Product includes expiration tracking
+                        </p>
+                    </div>
+                </label>
+
+            </div>
+        </div>
+
+        {{-- ============================= --}}
+        {{-- PRODUCT IMAGE --}}
+        {{-- ============================= --}}
+        <div class="rounded-3xl border border-gray-100 bg-white p-8 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-lg font-bold text-gray-900">
+                        Product Image
+                    </h2>
+
+                    <p class="mt-1 text-sm text-gray-500">
+                        Upload a clean product image.
+                    </p>
+                </div>
+
+                <button
+                    type="button"
+                    @click="showPhotoModal = true"
+                    class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
+                >
+                    <x-heroicon-o-camera class="h-5 w-5" />
+                    Add Image
+                </button>
+            </div>
+        </div>
+
+        {{-- ACTION BUTTONS --}}
+        <div class="flex gap-4">
+            <a
+                href="/vendor-products"
+                class="flex-1 rounded-xl border-2 border-gray-200 px-6 py-3 text-center text-sm font-semibold text-gray-800 transition hover:bg-gray-50"
+            >
+                Cancel
+            </a>
+
+            <button
+                type="submit"
+                class="flex-1 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
+            >
+                <span class="inline-flex items-center gap-2">
+                    <x-heroicon-o-check class="h-4 w-4" />
+                    Save Product
+                </span>
+            </button>
+        </div>
+
+    </form>
+</div>
 @endsection
