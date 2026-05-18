@@ -75,4 +75,6 @@ Route::get('/vendor-profile/vendor-product-add', function () {
     return view('pages/vendor-product-add');
 });
 
-
+Route::get('/vendor-profile/vendor-product-add-bundle', function () {
+    return view('pages/vendor-product-add-bundle');
+});
