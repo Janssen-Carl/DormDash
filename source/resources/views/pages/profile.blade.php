@@ -3,6 +3,18 @@
 @section('title', 'My Profile')
 
 @section('content')
+@php
+    // Ensure $user and $profile are always available to the view (fallbacks for callers that don't pass them)
+    $user = $user ?? auth()->user();
+    $profile = $profile ?? null;
+    if (!$profile && $user) {
+        if ($user->role === 'vendor') {
+            $profile = $user->vendor;
+        } elseif ($user->role === 'customer') {
+            $profile = $user->customer;
+        }
+    }
+@endphp
             <div class="mx-auto max-w-6xl px-8 py-12" x-data="{ showPhotoModal: false }">
                 <div class="mb-12 flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
                     <div>
