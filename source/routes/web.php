@@ -82,11 +82,7 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
 
 Route::middleware(['auth', 'role:vendor'])->group(function () {
 
-<<<<<<< Updated upstream
     Route::get('/vendor/home', fn () => view('vendor-home'))
-=======
-    Route::get('/vendor-home', [\App\Http\Controllers\VendorHomeController::class, 'index'])
->>>>>>> Stashed changes
         ->name('vendor.home');
 
     Route::get('/vendor-products', fn () => view('pages/vendor-products'));
