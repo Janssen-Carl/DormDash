@@ -117,7 +117,7 @@
 
                     {{-- Unit --}}
                     <td class="whitespace-nowrap px-6 py-4 text-sm text-zinc-700">
-                        {{ $product->unit_value ? ($product->unit_value . ' ' . $product->unit_type) : ($product->unit_type ?? 'N/A') }}
+                        {{ $product->unit_value ? (intval($product->unit_value) . ' ' . $product->unit_type) : ($product->unit_type ?? 'N/A') }}
                     </td>
 
                     {{-- Stock --}}
