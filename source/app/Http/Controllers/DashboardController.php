@@ -10,7 +10,7 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $aiBase = env('AI_API_URL', 'http://127.0.0.1:5000');
+        $aiBase = env('AI_API_URL');;
 
         // Determine vendor id if available
         $vendorId = null;
