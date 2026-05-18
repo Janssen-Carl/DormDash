@@ -1,6 +1,11 @@
 <?php
 
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\CheckoutController;
 use Illuminate\Support\Facades\Route;
 
 /* -------------------- PUBLIC -------------------- */
@@ -8,19 +13,17 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
 
     if (!auth()->check()) {
-        return view('home');
+        return app(HomeController::class)->index();
     }
 
     return match (auth()->user()->role) {
         'vendor' => redirect()->route('vendor.home'),
         'customer' => redirect()->route('customer.home'),
-        default => view('home'),
+        default => app(HomeController::class)->index(),
     };
 });
 
 Route::get('/home', fn () => redirect('/'));
-
-Route::get('/products', fn () => view('pages/products'));
 
 Route::get('/register', fn () => view('auth/register'));
 Route::post('/register', [UserController::class, 'register']);
@@ -34,8 +37,7 @@ Route::post('/logout', [UserController::class, 'logout']);
 
 Route::middleware('auth')->group(function () {
 
-    Route::get('/orders', fn () => view('pages/orders'));
-    Route::get('/orders-overview', fn () => view('pages/orders-overview'));
+    Route::get('/products', [ProductController::class, 'index']);
     Route::get('/profile', fn () => view('pages/profile'));
     Route::get('/profile/edit', fn () => view('pages/profile-edit'));
     Route::get('/address-payment/add', fn () => view('pages/address-payment-add'));
@@ -45,9 +47,21 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth', 'role:customer'])->group(function () {
 
-    Route::get('/cart', fn () => view('pages/cart'));
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/cart', [CartController::class, 'store'])->name('cart.store');
+    Route::patch('/cart/{item_id}', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('/cart/{item_id}', [CartController::class, 'destroy'])->name('cart.destroy');
 
-    Route::get('/customer/home', fn () => view('home'))
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::post('/orders/{order}/complete', [OrderController::class, 'complete'])->name('orders.complete');
+    Route::get('/orders-overview', [OrderController::class, 'overview'])->name('orders.overview');
+    Route::get('/analytics', [OrderController::class, 'analytics'])->name('orders.analytics');
+    Route::get('/track/{tracking}', fn() => view('pages.track'))->name('orders.track');
+
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+
+    Route::get('/customer/home', [HomeController::class, 'index'])
         ->name('customer.home');
 });
 

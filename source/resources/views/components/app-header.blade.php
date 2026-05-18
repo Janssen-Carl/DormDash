@@ -9,6 +9,7 @@
 
     {{-- Nav Links --}}
     <nav class="flex items-center gap-1">
+        @auth
         <a
             href="/home"
             class="{{ request()->routeIs('home') || request()->path() === 'home' ? 'border border-green-200 bg-green-50 text-green-600' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' }} flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-sm font-medium transition-colors"
@@ -29,26 +30,32 @@
             href="/cart"
             class="{{ request()->path() === 'cart' ? 'border border-green-200 bg-green-50 text-green-600' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' }} relative flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-sm transition-colors"
         >
+            @php
+                $cartCount = auth()->check() ? \App\Models\Cart::where('customer_id', auth()->id())->sum('quantity') : 0;
+            @endphp
             <span class="relative">
                 <x-heroicon-o-shopping-cart class="h-3.5 w-3.5" />
+                @if($cartCount > 0)
                 <span
                     class="absolute -top-1.5 -right-2 rounded-full bg-green-600 px-1 text-[9px] font-semibold text-white"
                 >
-                    4
+                    {{ $cartCount }}
                 </span>
+                @endif
             </span>
             Cart
         </a>
 
-        <a
+        <!-- <a
             href="/orders-overview"
             class="{{ request()->path() === 'orders-overview' ? 'border border-green-200 bg-green-50 text-green-600' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' }} flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-sm transition-colors"
         >
             <x-heroicon-o-clipboard-document-list class="h-3.5 w-3.5" />
             Orders
-        </a>
+        </a> -->
 
         <div class="mx-1.5 h-5 w-px bg-gray-200"></div>
+        @endauth
 
         @auth
             {{-- Profile Dropdown --}}
@@ -69,7 +76,7 @@
                         <x-heroicon-o-user class="inline h-4 w-4 mr-2" />
                         My Profile
                     </a>
-                    <a href="/orders" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
+                    <a href="/orders-overview" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
                         <x-heroicon-o-clipboard-document-list class="inline h-4 w-4 mr-2" />
                         Orders
                     </a>
