@@ -29,4 +29,14 @@ class ItemImage extends Model
     {
         return $this->belongsTo(Item::class, 'item_id');
     }
+    public function images()
+    {
+        return $this->hasMany(ItemImage::class, 'item_id');
+    }
+
+// Optional helper for the first image
+    public function firstImage()
+    {
+        return $this->images()->first();
+    }
 }

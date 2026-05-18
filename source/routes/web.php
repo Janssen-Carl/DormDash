@@ -85,7 +85,7 @@ Route::middleware(['auth', 'role:vendor'])->group(function () {
     Route::get('/vendor-home', [\App\Http\Controllers\VendorHomeController::class, 'index'])
         ->name('vendor.home');
 
-    Route::get('/vendor-products', fn() => view('pages/vendor-products'))->name('vendor.products');
+    Route::get('/vendor-products', [VendorProductController::class, 'index'])->name('vendor.products');
 
     Route::get('/vendor-profile', fn() => view('pages/vendor-profile'))->name('vendor.profile');
 
@@ -96,6 +96,7 @@ Route::middleware(['auth', 'role:vendor'])->group(function () {
     Route::get('/vendor-orders', fn() => view('pages.vendor-orders'))->name('vendor.orders');
 
     Route::get('/vendor-analytics', fn() => view('pages.vendor-analytics'))->name('vendor.analytics');
+    Route::get('/vendor-destroy', fn() => view('pages.vendor-analytics'))->name('vendor.products.destroy');
 });
 
 Route::get('/vendor-profile/vendor-product-edit', function () {
