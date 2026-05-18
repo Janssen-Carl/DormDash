@@ -70,7 +70,7 @@
                                         class = "w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                                         >
                                 </div>
-                                </div>
+                                
                                 
 
                                 <div>
@@ -84,6 +84,7 @@
                                         <option value="Yes">Yes</option>
                                         <option value="No">No</option>
                                     </select>
+                                </div>
                                 </div>
                                 </div>
                                 </div>
