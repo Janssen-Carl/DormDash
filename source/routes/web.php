@@ -51,8 +51,9 @@ Route::get('/test-login/{id}', function ($id) {
 Route::middleware('auth')->group(function () {
 
     Route::get('/products', [ProductController::class, 'index']);
-    Route::get('/profile', fn() => view('pages/profile'));
-    Route::get('/profile/edit', fn() => view('pages/profile-edit'));
+    Route::get('/profile', [UserController::class, 'show']);
+    Route::get('/profile/edit', [\App\Http\Controllers\UserController::class, 'edit']);
+    Route::post('/profile', [\App\Http\Controllers\UserController::class, 'update'])->name('profile.update');
     Route::get('/address-payment/add', fn() => view('pages/address-payment-add'));
 });
 
@@ -95,15 +96,15 @@ Route::middleware(['auth', 'role:vendor'])->group(function () {
 
     Route::get('/vendor-orders', fn() => view('pages.vendor-orders'))->name('vendor.orders');
 
-    Route::get('/vendor-analytics', fn() => view('pages.vendor-analytics'))->name('vendor.analytics');
+    Route::get('/vendor-analytics', [DashboardController::class, 'index'])->name('vendor.analytics');
+    Route::get('/vendor-destroy', fn() => view('pages.vendor-analytics'))->name('vendor.products.destroy');
+});
 
     Route::get('/vendor-products/{item}/edit', [VendorProductController::class, 'edit'])->name('vendor.products.edit');
     Route::post('/vendor-products/{item}/edit', [VendorProductController::class, 'update'])->name('vendor.products.update');
 });
 
-Route::get('/vendor-profile/vendor-product-add', function () {
-    return view('pages/vendor-product-add');
-})->name('vendor.products.add');
+Route::get('/vendor-profile/vendor-product-add', [VendorProductController::class, 'create'])->name('vendor.products.add');
 
 Route::get('/vendor-profile/vendor-product-add-bundle', function () {
     return view('pages/vendor-product-add-bundle');

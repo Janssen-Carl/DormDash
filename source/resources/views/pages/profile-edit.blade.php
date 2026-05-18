@@ -13,7 +13,7 @@
                     <p class="mt-2 text-gray-600">Update your personal information</p>
                 </div>
 
-                <form class="space-y-6">
+                <form class="space-y-6" action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">\n                    @csrf
                     {{-- Personal Information Section --}}
                     <div class="rounded-3xl border border-gray-100 bg-gradient-to-br from-white to-gray-50 p-8 shadow-lg">
                         <h3 class="mb-8 text-lg font-bold text-gray-900">Personal Information</h3>
@@ -23,7 +23,8 @@
                                 <label class="block text-sm font-semibold text-gray-700 mb-3">Full Name</label>
                                 <input
                                     type="text"
-                                    value="Juan Dela Cruz"
+                                    name="username"
+                                    value="{{ old('username', $user->username ?? '') }}"
                                     placeholder="Enter your full name"
                                     class="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none"
                                 />
@@ -33,7 +34,8 @@
                                 <label class="block text-sm font-semibold text-gray-700 mb-3">Email Address</label>
                                 <input
                                     type="email"
-                                    value="juan@example.com"
+                                    name="email"
+                                    value="{{ old('email', $user->email ?? '') }}"
                                     placeholder="Enter your email"
                                     class="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none"
                                 />
@@ -43,7 +45,8 @@
                                 <label class="block text-sm font-semibold text-gray-700 mb-3">Phone Number</label>
                                 <input
                                     type="tel"
-                                    value="+63 912 345 6789"
+                                    name="phone"
+                                    value="{{ old('phone', $profile->phone ?? '') }}"
                                     placeholder="Enter your phone number"
                                     class="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none"
                                 />
@@ -60,7 +63,8 @@
                                 <label class="block text-sm font-semibold text-gray-700 mb-3">Address</label>
                                 <input
                                     type="text"
-                                    value="Room 123, Dormitory A, University Campus"
+                                    name="address"
+                                    value="{{ old('address', optional($profile->primary_address)->street ?? '') }}"
                                     placeholder="Enter your address"
                                     class="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none"
                                 />
@@ -71,7 +75,8 @@
                                     <label class="block text-sm font-semibold text-gray-700 mb-3">City</label>
                                     <input
                                         type="text"
-                                        value="Metro Manila"
+                                        name="city"
+                                        value="{{ old('city', optional($profile->primary_address)->city ?? '') }}"
                                         placeholder="Enter city"
                                         class="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none"
                                     />
@@ -80,16 +85,17 @@
                                     <label class="block text-sm font-semibold text-gray-700 mb-3">Country</label>
                                     <input
                                         type="text"
-                                        value="Philippines"
+                                        name="country"
+                                        value="{{ old('country', optional($profile->primary_address)->country ?? '') }}"
                                         placeholder="Enter country"
                                         class="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none"
                                     />
                                 </div>
                             </div>
 
-                            <div>
+                            <div class="flex items-center gap-3">
                                 <label class="flex items-center gap-3 cursor-pointer p-4 rounded-xl border-2 border-green-200 bg-green-50 hover:bg-green-100 transition-all duration-200">
-                                    <input type="checkbox" checked class="rounded border-green-300 text-green-600 focus:ring-green-600" />
+                                    <input type="checkbox" name="is_default_address" {{ optional($profile->primary_address)->address_id ? 'checked' : '' }} class="rounded border-green-300 text-green-600 focus:ring-green-600" />
                                     <span class="font-semibold text-gray-700">Set as default delivery address</span>
                                 </label>
                             </div>
@@ -105,6 +111,7 @@
                                 <label class="block text-sm font-semibold text-gray-700 mb-3">Current Password</label>
                                 <input
                                     type="password"
+                                    name="current_password"
                                     placeholder="Enter current password"
                                     class="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none"
                                 />
@@ -114,6 +121,7 @@
                                 <label class="block text-sm font-semibold text-gray-700 mb-3">New Password</label>
                                 <input
                                     type="password"
+                                    name="new_password"
                                     placeholder="Enter new password"
                                     class="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none"
                                 />
@@ -123,11 +131,17 @@
                                 <label class="block text-sm font-semibold text-gray-700 mb-3">Confirm New Password</label>
                                 <input
                                     type="password"
+                                    name="new_password_confirmation"
                                     placeholder="Confirm new password"
                                     class="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none"
                                 />
                             </div>
                         </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <label class="block text-sm font-semibold text-gray-700 mb-3">Profile Image</label>
+                        <input type="file" name="profile_image" accept="image/*" class="w-full" />
                     </div>
 
                     {{-- Action Buttons --}}
