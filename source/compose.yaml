@@ -59,6 +59,12 @@ services:
             - laravel
     node:
         image: node:20-alpine
+        deploy:
+            resources:
+                limits:
+                    cpus: '0.50'
+                reservations:
+                    cpus: '0.25'
         container_name: dormdash-node
         working_dir: /var/www
         volumes:

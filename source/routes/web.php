@@ -82,28 +82,19 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
 
 Route::middleware(['auth', 'role:vendor'])->group(function () {
 
-    Route::get('/vendor/home', fn () => view('vendor-home'))
+    Route::get('/vendor-home', fn () => view('vendor-home'))
         ->name('vendor.home');
 
-    Route::get('/vendor-products', fn () => view('pages/vendor-products'));
+
 
     Route::get('/vendor-profile', fn () => view('pages/vendor-profile'));
-
     Route::get('/vendor-profile/vendor-profile-edit', fn () => view('pages/vendor-profile-edit'));
-
     Route::get('/vendor-profile/vendor-address-add', fn () => view('pages/vendor-address-add'));
-});
 
-Route::get('/vendor-profile/vendor-product-edit', function () {
-    return view('pages/vendor-product-edit');
-});
-
-Route::get('/vendor-profile/vendor-product-add', function () {
-    return view('pages/vendor-product-add');
-});
-
-Route::get('/vendor-profile/vendor-product-add-bundle', function () {
-    return view('pages/vendor-product-add-bundle');
+    Route::get('/vendor-products', fn () => view('pages/vendor-products'))->name('vendor.products');
+    Route::get('/vendor-product-edit', fn () => view('pages/vendor-product-edit'))->name('vendor.products.edit');
+    Route::get('/vendor-product-add', fn () => view('pages/vendor-product-add'))->name('vendor.products.add');
+    Route::get('/vendor-product-add-bundle', fn () => view('pages/vendor-product-add-bundle'))->name('vendor.products.bundle');
 });
 Route::prefix('vendor')->name('vendor.')->group(function () {
 
@@ -112,4 +103,49 @@ Route::prefix('vendor')->name('vendor.')->group(function () {
 
     Route::post('/items', [VendorProductController::class, 'store'])
         ->name('items.store');
+});
+
+Route::get('/check-auth', function () {
+    $userId = Auth::id(); // default guard
+    $user = Auth::user();
+
+    if ($userId) {
+        return response()->json([
+            'logged_in' => true,
+            'user_id' => $userId,
+            'user' => $user
+        ]);
+    } else {
+        return response()->json([
+            'logged_in' => false,
+            'message' => 'No user is logged in.'
+        ]);
+    }
+
+
+});
+Route::get('/test-item', function () {
+    try {
+        $item = \App\Models\Item::create([
+            'vendor_id'     => 1, // hardcoded for testing
+            'name'          => 'Test Item',
+            'description'   => 'Test description',
+            'price'         => 100,
+            'stock'         => 10,
+            'sku'           => 'TESTSKU',
+            'brand'         => 'TestBrand',
+            'barcode'       => '1234567890',
+            'unit_type'     => 'piece',
+            'unit_value'    => 1,
+            'is_bundle'     => 0,
+            'is_perishable' => 0,
+            'is_available'  => 1,
+            'has_expiry'    => 0,
+            'is_active'     => 1,
+        ]);
+
+        return 'Item created: ' . $item->item_id;
+    } catch (\Exception $e) {
+        return 'Insert failed: ' . $e->getMessage();
+    }
 });
