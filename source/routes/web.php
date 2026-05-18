@@ -28,12 +28,12 @@ Route::get('/', function () {
 
 Route::get('/dashboard', [DashboardController::class, 'index']);
 
-Route::get('/home', fn () => redirect('/'));
+Route::get('/home', fn() => redirect('/'));
 
-Route::get('/register', fn () => view('auth/register'));
+Route::get('/register', fn() => view('auth/register'));
 Route::post('/register', [UserController::class, 'register']);
 
-Route::get('/login', fn () => view('auth/login'))->name('login');
+Route::get('/login', fn() => view('auth/login'))->name('login');
 Route::post('/login', [UserController::class, 'login']);
 
 Route::post('/logout', [UserController::class, 'logout']);
@@ -51,9 +51,9 @@ Route::get('/test-login/{id}', function ($id) {
 Route::middleware('auth')->group(function () {
 
     Route::get('/products', [ProductController::class, 'index']);
-    Route::get('/profile', fn () => view('pages/profile'));
-    Route::get('/profile/edit', fn () => view('pages/profile-edit'));
-    Route::get('/address-payment/add', fn () => view('pages/address-payment-add'));
+    Route::get('/profile', fn() => view('pages/profile'));
+    Route::get('/profile/edit', fn() => view('pages/profile-edit'));
+    Route::get('/address-payment/add', fn() => view('pages/address-payment-add'));
 });
 
 /* -------------------- CUSTOMER ONLY -------------------- */
@@ -85,17 +85,17 @@ Route::middleware(['auth', 'role:vendor'])->group(function () {
     Route::get('/vendor-home', [\App\Http\Controllers\VendorHomeController::class, 'index'])
         ->name('vendor.home');
 
-    Route::get('/vendor-products', fn () => view('pages/vendor-products'))->name('vendor.products');
+    Route::get('/vendor-products', fn() => view('pages/vendor-products'))->name('vendor.products');
 
-    Route::get('/vendor-profile', fn () => view('pages/vendor-profile'))->name('vendor.profile');
+    Route::get('/vendor-profile', fn() => view('pages/vendor-profile'))->name('vendor.profile');
 
-    Route::get('/vendor-profile/vendor-profile-edit', fn () => view('pages/vendor-profile-edit'))->name('vendor.profile.edit');
+    Route::get('/vendor-profile/vendor-profile-edit', fn() => view('pages/vendor-profile-edit'))->name('vendor.profile.edit');
 
-    Route::get('/vendor-profile/vendor-address-add', fn () => view('pages/vendor-address-add'))->name('vendor.address.add');
+    Route::get('/vendor-profile/vendor-address-add', fn() => view('pages/vendor-address-add'))->name('vendor.address.add');
 
-    Route::get('/vendor-orders', fn () => view('pages.vendor-orders'))->name('vendor.orders');
-    
-    Route::get('/vendor-analytics', fn () => view('pages.vendor-analytics'))->name('vendor.analytics');
+    Route::get('/vendor-orders', fn() => view('pages.vendor-orders'))->name('vendor.orders');
+
+    Route::get('/vendor-analytics', fn() => view('pages.vendor-analytics'))->name('vendor.analytics');
 });
 
 Route::get('/vendor-profile/vendor-product-edit', function () {
@@ -116,4 +116,49 @@ Route::prefix('vendor')->name('vendor.')->group(function () {
 
     Route::post('/items', [VendorProductController::class, 'store'])
         ->name('items.store');
+});
+
+Route::get('/check-auth', function () {
+    $userId = Auth::id(); // default guard
+    $user = Auth::user();
+
+    if ($userId) {
+        return response()->json([
+            'logged_in' => true,
+            'user_id' => $userId,
+            'user' => $user
+        ]);
+    } else {
+        return response()->json([
+            'logged_in' => false,
+            'message' => 'No user is logged in.'
+        ]);
+    }
+
+
+});
+Route::get('/test-item', function () {
+    try {
+        $item = \App\Models\Item::create([
+            'vendor_id' => 1, // hardcoded for testing
+            'name' => 'Test Item',
+            'description' => 'Test description',
+            'price' => 100,
+            'stock' => 10,
+            'sku' => 'TESTSKU',
+            'brand' => 'TestBrand',
+            'barcode' => '1234567890',
+            'unit_type' => 'piece',
+            'unit_value' => 1,
+            'is_bundle' => 0,
+            'is_perishable' => 0,
+            'is_available' => 1,
+            'has_expiry' => 0,
+            'is_active' => 1,
+        ]);
+
+        return 'Item created: ' . $item->item_id;
+    } catch (\Exception $e) {
+        return 'Insert failed: ' . $e->getMessage();
+    }
 });

@@ -2,93 +2,59 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use App\Models\Vendor;
-use App\Models\Address;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Process;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     /**
      * Seed the application's database.
      */
     public function run(): void
     {
-        // Create test users
-        User::factory(5)->create();
+        $this->command->info('Starting database seeding from SQL files...');
 
-        // Create specific test users
-        User::firstOrCreate(
-            ['username' => 'johndoe'],
-            [
-                'email' => 'john@example.com',
-                'password' => bcrypt('password123'),
-                'role' => 'customer'
-            ]
-        );
+        $sqlFiles = [
+            'seed_01_base.sql',
+            'seed_02_vendor1_snackshack.sql',
+            'seed_03_vendor2_dormbites.sql',
+            'seed_04_vendor3_campuspantry.sql',
+            'seed_05_vendor4_quickmart.sql',
+            'seed_06_vendor5_freshhub.sql',
+            'seed_07_relations.sql',
+            'fix_passwords.sql',
+        ];
 
-        User::firstOrCreate(
-            ['username' => 'vendor_store'],
-            [
-                'email' => 'vendor@example.com',
-                'password' => bcrypt('password123'),
-                'role' => 'vendor'
-            ]
-        );
-        $address = Address::firstOrCreate([
-            'street' => 'Default Street',
-            'city' => 'Batangas',
-            'province_state' => 'Batangas',
-            'postal_code' => '4200',
-            'phone' => '09123456789',
-            'email' => 'default@vendor.com',
-            'country' => 'Philippines',
-            'user_id' => 1, // adjust if needed
-        ]);
+        foreach ($sqlFiles as $file) {
+            $path = base_path("database/init/{$file}");
+            if (file_exists($path)) {
+                $this->command->info("Running {$file}...");
+                $sql = file_get_contents($path);
+                DB::unprepared($sql);
+            } else {
+                $this->command->warn("File {$file} not found at {$path}");
+            }
+        }
 
-        // Vendor 1
-        $user1 = User::firstOrCreate(
-            ['username' => 'bumblebee_vendor'],
-            [
-                'email' => 'bumblebee@example.com',
-                'password' => bcrypt('password123'),
-                'role' => 'vendor',
-            ]
-        );
+        $this->command->info('Running PowerShell script for placeholder images...');
+        
+        $psScriptPath = base_path('database/init/setup_placeholders.ps1');
+        
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            $result = Process::run("powershell -ExecutionPolicy Bypass -File \"{$psScriptPath}\"");
+            
+            if ($result->successful()) {
+                $this->command->info('Placeholder images created successfully!');
+                $this->command->line($result->output());
+            } else {
+                $this->command->error('Failed to run PowerShell script:');
+                $this->command->error($result->errorOutput());
+            }
+        } else {
+            $this->command->warn('PowerShell script skipped (not on Windows OS).');
+        }
 
-        Vendor::firstOrCreate(
-            ['vendor_id' => $user1->user_id],
-            [
-                'name' => 'Bumble Bee',
-                'phone' => '09123456789',
-                'website' => 'https://bumblebee.com',
-                'address_id' => $address->address_id,
-                'active' => true,
-            ]
-        );
-
-        // Vendor 2
-        $user2 = User::firstOrCreate(
-            ['username' => 'dorm_essentials'],
-            [
-                'email' => 'dorm@example.com',
-                'password' => bcrypt('password123'),
-                'role' => 'vendor',
-            ]
-        );
-
-        Vendor::firstOrCreate(
-            ['vendor_id' => $user2->user_id],
-            [
-                'name' => 'Dorm Essentials',
-                'phone' => '09987654321',
-                'website' => 'https://dormessentials.com',
-                'address_id' => $address->address_id,
-                'active' => true,
-            ]
-        );
+        $this->command->info('Database seeding completed!');
     }
 }
