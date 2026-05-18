@@ -82,11 +82,7 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
 
 Route::middleware(['auth', 'role:vendor'])->group(function () {
 
-<<<<<<< Updated upstream
-    Route::get('/vendor/home', fn () => view('vendor-home'))
-=======
     Route::get('/vendor-home', [\App\Http\Controllers\VendorHomeController::class, 'index'])
->>>>>>> Stashed changes
         ->name('vendor.home');
 
     Route::get('/vendor-products', fn () => view('pages/vendor-products'));
@@ -100,11 +96,11 @@ Route::middleware(['auth', 'role:vendor'])->group(function () {
 
 Route::get('/vendor-profile/vendor-product-edit', function () {
     return view('pages/vendor-product-edit');
-});
+})->name('vendor.products.edit');
 
 Route::get('/vendor-profile/vendor-product-add', function () {
     return view('pages/vendor-product-add');
-});
+})->name('vendor.products.add');
 
 Route::get('/vendor-profile/vendor-product-add-bundle', function () {
     return view('pages/vendor-product-add-bundle');
