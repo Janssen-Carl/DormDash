@@ -88,6 +88,28 @@
                         >
                     </div>
 
+                    {{-- Category CHECK ROUTE/CONTROLLEER--}} 
+                        <div>
+                            <label for="category" class="mb-2 block text-sm font-semibold text-gray-700">Category</label>
+                            <select
+                                id="category"
+                                name="category"
+                                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-700 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500"
+                            >
+                                <option value="">Select a category</option>
+                                <option value="Food & Snacks">Food & Snacks</option>
+                                <option value="Beverages">Beverages</option>
+                                <option value="School Supplies">School Supplies</option>
+                                <option value="Personal Care">Personal Care</option>
+                                <option value="Dorm Essentials">Dorm Essentials</option>
+                                <option value="Instant Noodles">Instant Noodles</option>
+                                <option value="Chips & Crackers">Chips & Crackers</option>
+                                <option value="Coffee & Tea">Coffee & Tea</option>
+                                <option value="Soft Drinks">Soft Drinks</option>
+                                <option value="Writing Tools">Writing Tools</option>
+                            </select>
+                        </div>
+
                     {{-- SKU --}}
                     <div>
                         <label 
