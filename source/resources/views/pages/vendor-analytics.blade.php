@@ -3,18 +3,89 @@
 @section('title', 'Analytics - DormDash')
 
 @section('content')
-<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Analytics & Revenue</h1>
-        <p class="mt-2 text-gray-600">Track your sales performance and revenue.</p>
-    </div>
-
-    <div class="bg-white rounded-2xl p-8 border border-gray-200 shadow-md text-center">
-        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-indigo-50 mb-4 text-indigo-600">
-            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Analytics & Revenue</h1>
+            <p class="mt-2 text-gray-600">Track your sales performance and revenue.</p>
         </div>
-        <h3 class="text-lg font-semibold text-gray-900 mb-2">Not enough data</h3>
-        <p class="text-gray-500 max-w-md mx-auto">Analytics and revenue charts will be generated once you start receiving orders.</p>
+
+        <div class="rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-md">
+            <div class="p-8">
+                <h1 class="mb-8 text-4xl font-bold">DormDash AI Analytics</h1>
+
+                <div class="grid grid-cols-4 gap-6">
+                    <div class="rounded-xl bg-white p-6 shadow">
+                        <h2 class="text-gray-500">Predicted Revenue</h2>
+
+                        <p class="text-3xl font-bold text-green-600">
+                            ₱{{ number_format($forecast['predicted_revenue'] ?? 0, 2) }}
+                        </p>
+                    </div>
+
+                    <div class="rounded-xl bg-white p-6 shadow">
+                        <h2 class="text-gray-500">Low Stock Alerts</h2>
+
+                        <p class="text-3xl font-bold text-red-500">
+                            {{ is_array($inventory) ? count($inventory) : 0 }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="mt-8 rounded-xl bg-white p-6 shadow">
+                    <canvas id="salesChart"></canvas>
+                </div>
+
+                <div class="mt-8 rounded-xl bg-white p-6 shadow">
+                    <h2 class="mb-4 text-2xl font-bold">Inventory Alerts</h2>
+
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b text-left">
+                                <th>Item</th>
+                                <th>Stock</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach ($inventory as $item)
+                                <tr class="border-b">
+                                    <td class="py-2">
+                                        {{ $item['name'] }}
+                                    </td>
+
+                                    <td class="py-2 text-red-500">
+                                        {{ $item['stock'] }}
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <script>
+                const historical = @json($forecast['historical']);
+
+                const ctx = document.getElementById('salesChart');
+
+                new Chart(ctx, {
+                    type: 'line',
+
+                    data: {
+                        labels: historical.map((h) => h.order_date),
+
+                        datasets: [
+                            {
+                                label: 'Revenue',
+                                data: historical.map((h) => h.revenue),
+                                borderColor: '#2563eb',
+                                tension: 0.4,
+                            },
+                        ],
+                    },
+                });
+            </script>
+        </div>
     </div>
-</div>
 @endsection
