@@ -76,6 +76,17 @@
                         >{{ old('description') }}</textarea>
                     </div>
 
+                    {{-- Categories --}}
+                    <div>
+                        <label for="categories" class="mb-2 block text-sm font-semibold text-gray-700">Categories</label>
+                        <select id="categories" name="categories[]" multiple class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-700">
+                            @foreach($categories as $cat)
+                                <option value="{{ $cat->category_id }}" {{ (collect(old('categories', []))->contains($cat->category_id)) ? 'selected' : '' }}>{{ $cat->name }}</option>
+                            @endforeach
+                        </select>
+                        <p class="mt-1 text-sm text-gray-500">Select one or more categories the product belongs to.</p>
+                    </div>
+
                     <div class="grid gap-6 md:grid-cols-2">
                         {{-- Brand --}}
                         <div>

@@ -103,9 +103,7 @@ Route::get('/vendor-profile/vendor-product-edit', function () {
     return view('pages/vendor-product-edit');
 })->name('vendor.products.edit');
 
-Route::get('/vendor-profile/vendor-product-add', function () {
-    return view('pages/vendor-product-add');
-})->name('vendor.products.add');
+Route::get('/vendor-profile/vendor-product-add', [VendorProductController::class, 'create'])->name('vendor.products.add');
 
 Route::get('/vendor-profile/vendor-product-add-bundle', function () {
     return view('pages/vendor-product-add-bundle');
