@@ -88,9 +88,12 @@ Route::middleware(['auth', 'role:vendor'])->group(function () {
 
     Route::get('/vendor-products', [VendorProductController::class, 'index'])->name('vendor.products');
 
-    Route::get('/vendor-profile', fn() => view('pages/vendor-profile'))->name('vendor.profile');
+    Route::get('/vendor-profile', [UserController::class, 'showVendor'])->name('vendor.profile');
 
-    Route::get('/vendor-profile/vendor-profile-edit', fn() => view('pages/vendor-profile-edit'))->name('vendor.profile.edit');
+    Route::get('/vendor-profile/vendor-profile-edit', [UserController::class, 'editVendor'])->name('vendor.profile.edit');
+
+    // Support POST from vendor profile edit form
+    Route::post('/vendor-profile', [UserController::class, 'update'])->name('vendor.profile.update');
 
     Route::get('/vendor-profile/vendor-address-add', fn() => view('pages/vendor-address-add'))->name('vendor.address.add');
 

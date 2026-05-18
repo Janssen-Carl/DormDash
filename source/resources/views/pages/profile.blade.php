@@ -38,7 +38,7 @@
                                         <img src="{{ asset($profile->profile_img) }}" alt="Profile" class="h-24 w-24 rounded-full object-cover shadow-2xl" />
                                     @else
                                         <div class="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-green-500 via-green-600 to-emerald-600 text-4xl font-bold text-white shadow-2xl">
-                                            {{ strtoupper(substr($user->username ?? 'U', 0, 2)) }}
+                                            {{ strtoupper(substr($user->role === 'vendor' ? ($profile->name ?? $user->username) : ($user->username ?? 'U'), 0, 2)) }}
                                         </div>
                                     @endif
 
@@ -51,9 +51,9 @@
                                     </button>
                                 </div>
 
-                                <h2 class="mt-8 text-xl font-bold text-gray-900">{{ $user->username }}</h2>
-                                <p class="mt-1 text-sm text-green-600 font-semibold">{{ ucfirst($user->role) }} Account</p>
-                                <p class="mt-2 text-gray-600">{{ $user->email }}</p>
+                                <h2 class="mt-8 text-xl font-bold text-gray-900">{{ $user->role === 'vendor' ? ($profile->name ?? $user->username) : $user->username }}</h2>
+                                <p class="mt-1 text-sm text-green-600 font-semibold">{{ $user->role === 'vendor' ? 'Vendor Account' : ucfirst($user->role) . ' Account' }}</p>
+                                <p class="mt-2 text-gray-600">{{ $user->role === 'vendor' ? ($profile->email ?? $user->email) : $user->email }}</p>
                                 <p class="mt-1 text-xs text-gray-500">Member since {{ optional($user->created_at)->format('M Y') ?? '' }}</p>
 
                                 <div class="mt-8 w-full border-t border-gray-200 pt-6">
@@ -76,7 +76,7 @@
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
                                     <div class="flex items-center gap-2">
-                                        <div class="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-600 cursor-not-allowed">{{ $user->username }}</div>
+                                        <div class="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-600 cursor-not-allowed">{{ $user->role === 'vendor' ? ($profile->name ?? $user->username) : $user->username }}</div>
                                         <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 text-gray-400">
                                             <x-heroicon-o-user class="h-5 w-5" />
                                         </div>
@@ -86,7 +86,7 @@
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
                                     <div class="flex items-center gap-2">
-                                        <div class="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-600 cursor-not-allowed">{{ $user->email }}</div>
+                                        <div class="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-600 cursor-not-allowed">{{ $user->role === 'vendor' ? ($profile->email ?? $user->email) : $user->email }}</div>
                                         <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
                                             <x-heroicon-o-envelope class="h-5 w-5" />
                                         </div>
@@ -125,8 +125,8 @@
                                                 </div>
                                                 <p class="font-bold text-gray-900">Default Address</p>
                                             </div>
-                                            <p class="mt-3 text-sm text-gray-700 font-medium">{{ optional($profile->primary_address)->street ?? 'No default address set' }}</p>
-                                            <p class="mt-1 text-xs text-gray-600">{{ optional($profile->primary_address)->city ? (optional($profile->primary_address)->city . ', ' . optional($profile->primary_address)->country) : '' }}</p>
+                                            <p class="mt-3 text-sm text-gray-700 font-medium">{{ optional($profile->primary_address)->street ?? optional($profile->address)->street ?? 'No default address set' }}</p>
+                                            <p class="mt-1 text-xs text-gray-600">{{ optional($profile->primary_address)->city ? (optional($profile->primary_address)->city . ', ' . optional($profile->primary_address)->country) : (optional($profile->address)->city ? (optional($profile->address)->city . ', ' . optional($profile->address)->country) : '') }}</p>
                                         </div>
                                         <button type="button" class="text-gray-400 transition-all duration-200 group-hover:text-green-600 opacity-0 group-hover:opacity-100">
                                             <x-heroicon-o-pencil class="h-5 w-5" />

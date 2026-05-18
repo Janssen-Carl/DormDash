@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Vendor;
+use App\Models\Address;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
@@ -34,8 +35,9 @@ class UserController extends Controller
 
             if ($validated['role'] === 'vendor') {
                 Vendor::create([
-                    'user_id' => $user->user_id, // correct PK usage
-                    'name'    => $user->username,
+                    'vendor_id' => $user->user_id,
+                    'name'      => $user->username,
+                    'email'     => $user->email,
                 ]);
             }
         });
@@ -110,6 +112,22 @@ class UserController extends Controller
         return view('pages.profile-edit', compact('user', 'profile'));
     }
 
+    public function showVendor()
+    {
+        $user = auth()->user();
+        $profile = $user->vendor()->with('address')->first();
+
+        return view('pages.vendor-profile', compact('user', 'profile'));
+    }
+
+    public function editVendor()
+    {
+        $user = auth()->user();
+        $profile = $user->vendor()->with('address')->first();
+
+        return view('pages.vendor-profile-edit', compact('user', 'profile'));
+    }
+
     // Update profile information and optional profile image
     public function update(Request $request)
     {
@@ -119,6 +137,12 @@ class UserController extends Controller
             'username' => 'required|string|max:255|unique:users,username,' . $user->user_id . ',user_id',
             'email'    => 'required|email|max:255|unique:users,email,' . $user->user_id . ',user_id',
             'phone'    => 'nullable|string|max:50',
+            'website'  => 'nullable|string|max:255',
+            'street'   => 'nullable|string|max:150',
+            'city'     => 'nullable|string|max:100',
+            'province_state' => 'nullable|string|max:100',
+            'postal_code' => 'nullable|string|max:20',
+            'country'  => 'nullable|string|max:100',
             'profile_image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:4096',
         ];
 
@@ -128,6 +152,16 @@ class UserController extends Controller
         $user->username = $validated['username'];
         $user->email = $validated['email'];
         $user->save();
+
+        // If vendor, also sync vendor.brand/name with updated username (brand)
+        if ($user->role === 'vendor') {
+            $vendor = $user->vendor ?: new Vendor(['vendor_id' => $user->user_id]);
+            $vendor->name = $validated['username'];
+            $vendor->email = $validated['email'] ?? $vendor->email;
+            $vendor->phone = $validated['phone'] ?? null;
+            $vendor->website = $validated['website'] ?? null;
+            $vendor->save();
+        }
 
         // Handle profile image if provided
         if ($request->hasFile('profile_image')) {
@@ -150,15 +184,30 @@ class UserController extends Controller
             }
         }
 
-        // Update phone/address if provided (simple fields)
-        if ($request->filled('phone')) {
-            if ($user->role === 'vendor') {
-                $vendor = $user->vendor;
-                if ($vendor) {
-                    $vendor->phone = $validated['phone'];
-                    $vendor->save();
-                }
-            } elseif ($user->role === 'customer') {
+        if ($user->role === 'vendor') {
+            $vendor = $user->vendor;
+            $hasAddressInput = collect(['street', 'city', 'province_state', 'postal_code', 'country'])
+                ->contains(fn ($field) => $request->filled($field));
+
+            if ($vendor && $hasAddressInput) {
+                $address = $vendor->address ?: new Address(['user_id' => $user->user_id]);
+                $address->fill([
+                    'user_id' => $user->user_id,
+                    'street' => $validated['street'] ?? '',
+                    'city' => $validated['city'] ?? '',
+                    'province_state' => $validated['province_state'] ?? '',
+                    'postal_code' => $validated['postal_code'] ?? null,
+                    'phone' => $validated['phone'] ?? null,
+                    'email' => $validated['email'] ?? null,
+                    'country' => $validated['country'] ?? '',
+                ]);
+                $address->save();
+
+                $vendor->address_id = $address->address_id;
+                $vendor->save();
+            }
+        } elseif ($request->filled('phone')) {
+            if ($user->role === 'customer') {
                 $customer = $user->customer;
                 if ($customer) {
                     $customer->phone = $validated['phone'];
@@ -167,6 +216,8 @@ class UserController extends Controller
             }
         }
 
-        return redirect('/profile')->with('success', 'Profile updated successfully');
+        $redirect = $user->role === 'vendor' ? '/vendor-profile' : '/profile';
+
+        return redirect($redirect)->with('success', 'Profile updated successfully');
     }
 }
