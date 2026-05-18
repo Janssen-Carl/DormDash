@@ -92,6 +92,10 @@ Route::middleware(['auth', 'role:vendor'])->group(function () {
     Route::get('/vendor-profile/vendor-profile-edit', fn () => view('pages/vendor-profile-edit'))->name('vendor.profile.edit');
 
     Route::get('/vendor-profile/vendor-address-add', fn () => view('pages/vendor-address-add'))->name('vendor.address.add');
+
+    Route::get('/vendor-orders', fn () => view('pages.vendor-orders'))->name('vendor.orders');
+    
+    Route::get('/vendor-analytics', fn () => view('pages.vendor-analytics'))->name('vendor.analytics');
 });
 
 Route::get('/vendor-profile/vendor-product-edit', function () {
