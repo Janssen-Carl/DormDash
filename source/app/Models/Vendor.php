@@ -27,6 +27,28 @@ class Vendor extends Model
         'active' => 'boolean',
     ];
 
+    /**
+     * Fallback to the default image if the specific cover image doesn't exist on disk.
+     */
+    public function getCoverImgAttribute($value)
+    {
+        if ($value && file_exists(public_path($value))) {
+            return $value;
+        }
+        return '/images/items/1/1.jpg';
+    }
+
+    /**
+     * Fallback to the default image if the specific profile image doesn't exist on disk.
+     */
+    public function getProfileImgAttribute($value)
+    {
+        if ($value && file_exists(public_path($value))) {
+            return $value;
+        }
+        return '/images/items/1/1.jpg';
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class, 'vendor_id');
