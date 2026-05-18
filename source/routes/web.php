@@ -85,13 +85,13 @@ Route::middleware(['auth', 'role:vendor'])->group(function () {
     Route::get('/vendor-home', [\App\Http\Controllers\VendorHomeController::class, 'index'])
         ->name('vendor.home');
 
-    Route::get('/vendor-products', fn () => view('pages/vendor-products'));
+    Route::get('/vendor-products', fn () => view('pages/vendor-products'))->name('vendor.products');
 
-    Route::get('/vendor-profile', fn () => view('pages/vendor-profile'));
+    Route::get('/vendor-profile', fn () => view('pages/vendor-profile'))->name('vendor.profile');
 
-    Route::get('/vendor-profile/vendor-profile-edit', fn () => view('pages/vendor-profile-edit'));
+    Route::get('/vendor-profile/vendor-profile-edit', fn () => view('pages/vendor-profile-edit'))->name('vendor.profile.edit');
 
-    Route::get('/vendor-profile/vendor-address-add', fn () => view('pages/vendor-address-add'));
+    Route::get('/vendor-profile/vendor-address-add', fn () => view('pages/vendor-address-add'))->name('vendor.address.add');
 });
 
 Route::get('/vendor-profile/vendor-product-edit', function () {
@@ -104,7 +104,7 @@ Route::get('/vendor-profile/vendor-product-add', function () {
 
 Route::get('/vendor-profile/vendor-product-add-bundle', function () {
     return view('pages/vendor-product-add-bundle');
-});
+})->name('vendor.products.bundle');
 Route::prefix('vendor')->name('vendor.')->group(function () {
 
     Route::get('/items/create', [VendorProductController::class, 'create'])
