@@ -5,6 +5,27 @@
 @section('content')
     <div x-data="{ sidebarOpen: true }" class="relative flex min-h-[calc(100vh-80px)]">
 
+            {{-- Sidebar Filters --}}
+            <aside x-show="sidebarOpen" x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0"
+                x-transition:leave="transition ease-in duration-300" x-transition:leave-start="translate-x-0"
+                x-transition:leave-end="-translate-x-full" class="relative z-40 w-72 shrink-0 overflow-y-auto bg-white border-r border-gray-100">
+                <form action="/products" method="GET" class="p-6">
+                    @if($search !== '')
+                        <input type="hidden" name="q" value="{{ $search }}">
+                    @endif
+                    <div class="mb-6 flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-900">Filters</h3>
+                        <div class="flex items-center gap-3">
+                            @if(request()->hasAny(['q', 'vendors', 'categories']))
+                                <a href="/products" class="text-xs font-semibold text-red-600 hover:text-red-700 transition-colors">Clear All</a>
+                            @endif
+                            <button @click="sidebarOpen = false" type="button"
+                                class="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-600">
+                                <x-heroicon-o-x-mark class="h-5 w-5" />
+                            </button>
+                        </div>
+                    </div>
         {{-- Sidebar Filters --}}
         <aside x-show="sidebarOpen" x-transition:enter="transition ease-out duration-300"
             x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0"
@@ -172,25 +193,47 @@
                 </button>
             </div>
 
+                
             {{-- Header Section --}}
             @guest
                 <div class="py-8 mb-12 flex flex-col items-center">
                     <div class="text-center">
-                        <h1 class="text-4xl font-bold tracking-tight text-gray-900">Products</h1>
-                        <p class="mt-2 text-gray-500">Explore our most popular items this week!</p>
+                        <h1 class="text-4xl font-bold tracking-tight text-gray-900">
+                            {{ $search !== '' ? 'Search Results' : 'Products' }}
+                        </h1>
+                        <p class="mt-2 text-gray-500">
+                            {{ $search !== '' ? 'Showing matches for "' . $search . '"' : 'Explore our most popular items this week!' }}
+                        </p>
                     </div>
 
-                    <div class="mt-6 grid w-full max-w-sm grid-cols-2 gap-3">
-                        <a href="/products/offers"
-                            class="inline-flex h-11 items-center justify-center rounded-lg border border-green-600 bg-white text-sm font-semibold text-green-600 transition-colors hover:bg-green-50">
-                            Shop Offers
-                        </a>
+                    <form action="/products" method="GET" class="mt-6 flex w-full max-w-2xl gap-3">
+                        @foreach((array) $selectedVendors as $vendorId)
+                            <input type="hidden" name="vendors[]" value="{{ $vendorId }}">
+                        @endforeach
+                        @foreach((array) $selectedCategories as $categoryId)
+                            <input type="hidden" name="categories[]" value="{{ $categoryId }}">
+                        @endforeach
+                        <div class="relative flex-1">
+                            <x-heroicon-o-magnifying-glass class="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
+                            <input
+                                type="search"
+                                name="q"
+                                value="{{ $search }}"
+                                placeholder="Search products, brands, vendors..."
+                                class="w-full rounded-lg border border-gray-200 bg-white py-3 pl-12 pr-4 text-gray-900 placeholder-gray-500 transition-colors focus:border-green-600 focus:ring-1 focus:ring-green-600"
+                            />
+                        </div>
+                        <button type="submit"
+                            class="inline-flex h-12 items-center justify-center rounded-lg bg-green-600 px-6 text-sm font-semibold text-white transition-colors hover:bg-green-700">
+                            Search
+                        </button>
+                    </form>
 
-                        <a href="/products"
-                            class="inline-flex h-11 items-center justify-center rounded-lg bg-green-600 text-sm font-semibold text-white transition-colors hover:bg-green-700">
-                            View All Products
+                    @if($search !== '')
+                        <a href="/products" class="mt-3 text-sm font-semibold text-green-600 hover:text-green-700">
+                            Clear search
                         </a>
-                    </div>
+                    @endif
                 </div>
             @endguest
             
@@ -272,6 +315,47 @@
                                         @endif
                                     </div>
 
+                                        <div class="mt-4 flex gap-2">
+                                            <form action="{{ route('cart.store') }}" method="POST" class="flex-1 m-0">
+                                                @csrf
+                                                <input type="hidden" name="item_id" value="{{ $product->item_id }}">
+                                                <input type="hidden" name="quantity" value="1">
+                                                <button type="submit"
+                                                    class="w-full rounded-lg bg-green-50 border border-green-200 py-2 text-xs font-semibold text-green-600 transition-all duration-200 hover:bg-green-100">
+                                                    <x-heroicon-o-shopping-cart class="inline h-4 w-4 mr-1" />
+                                                    Add to Cart
+                                                </button>
+                                            </form>
+                                            <form action="{{ route('checkout.index') }}" method="GET" class="flex-1 m-0">
+                                                <input type="hidden" name="buy_item" value="{{ $product->item_id }}">
+                                                <input type="hidden" name="qty" value="1">
+                                                <button type="submit"
+                                                    class="w-full rounded-lg bg-green-600 py-2 text-xs font-semibold text-white transition-all duration-200 hover:bg-green-700 shadow-sm hover:shadow-md">
+                                                    Buy Now
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </section>
+                @empty
+                    <div class="flex flex-col items-center justify-center py-16 text-gray-400">
+                        <x-heroicon-o-inbox class="h-16 w-16 mb-4" />
+                        <p class="text-lg font-medium">
+                            {{ $search !== '' ? 'No products matched your search.' : 'No products available at the moment.' }}
+                        </p>
+                        @if($search !== '')
+                            <a href="/products" class="mt-3 text-sm font-semibold text-green-600 hover:text-green-700">
+                                View all products
+                            </a>
+                        @endif
+                    </div>
+                @endforelse
+            </main>
+        </div>
+    @endsection
                                     <div class="mt-4 flex gap-2">
                                         <form action="{{ route('cart.store') }}" method="POST" class="flex-1 m-0">
                                             @csrf
@@ -325,6 +409,11 @@
         -ms-overflow-style: none;
         scrollbar-width: none;
     }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
 
     .scrollbar-hide::-webkit-scrollbar {
         display: none;

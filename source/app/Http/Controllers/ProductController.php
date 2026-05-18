@@ -11,6 +11,7 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
+        $search = trim((string) $request->input('q', ''));
         $selectedVendors = $request->input('vendors', []);
         $selectedCategories = $request->input('categories', []);
 
@@ -36,6 +37,12 @@ class ProductController extends Controller
         foreach ($categoriesToDisplay as $category) {
             // Collect this category + its children IDs
             $categoryIds = $category->children->pluck('category_id')->push($category->category_id);
+            $categoryMatchesSearch = $search !== '' && collect([$category])
+                ->merge($category->children)
+                ->contains(function ($category) use ($search) {
+                    return str_contains(strtolower($category->name ?? ''), strtolower($search))
+                        || str_contains(strtolower($category->description ?? ''), strtolower($search));
+                });
 
             $itemsQuery = Item::where('is_active', true)
                 ->where('is_available', true)
@@ -47,6 +54,23 @@ class ProductController extends Controller
             // Apply vendor filter if any are selected
             if (!empty($selectedVendors)) {
                 $itemsQuery->whereIn('vendor_id', $selectedVendors);
+            }
+
+            if ($search !== '' && ! $categoryMatchesSearch) {
+                $itemsQuery->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('description', 'like', "%{$search}%")
+                        ->orWhere('brand', 'like', "%{$search}%")
+                        ->orWhere('sku', 'like', "%{$search}%")
+                        ->orWhere('barcode', 'like', "%{$search}%")
+                        ->orWhereHas('vendor', function ($vendorQuery) use ($search) {
+                            $vendorQuery->where('name', 'like', "%{$search}%");
+                        })
+                        ->orWhereHas('categories', function ($categoryQuery) use ($search) {
+                            $categoryQuery->where('name', 'like', "%{$search}%")
+                                ->orWhere('description', 'like', "%{$search}%");
+                        });
+                });
             }
 
             $items = $itemsQuery->limit(10)->get();
@@ -66,6 +90,6 @@ class ProductController extends Controller
             return view('pages.products', compact('items', 'parentCategories', 'vendors', 'selectedVendors', 'selectedCategories'));
         }
 
-        return view('pages.products', compact('categoryItems', 'parentCategories', 'vendors', 'selectedVendors', 'selectedCategories'));
+        return view('pages.products', compact('categoryItems', 'parentCategories', 'vendors', 'selectedVendors', 'selectedCategories', 'search'));
     }
 }
