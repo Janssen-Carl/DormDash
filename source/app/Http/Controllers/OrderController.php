@@ -15,10 +15,12 @@ class OrderController extends Controller
         $orders = Order::where('customer_id', $userId)->get();
         
         $totalOrders = $orders->count();
-        $totalSpent = $orders->whereIn('order_status', ['delivered', 'completed'])->sum('order_total');
+        $totalSpent = $orders->where('order_status', 'completed')->sum('order_total');
         
-        $pendingCount = $orders->whereIn('order_status', ['pending', 'processing', 'in transit'])->count();
-        $deliveredCount = $orders->whereIn('order_status', ['delivered', 'completed'])->count();
+        $toShipCount = $orders->where('order_status', 'to_ship')->count();
+        $shippedCount = $orders->where('order_status', 'shipped')->count();
+        $deliveredCount = $orders->where('order_status', 'delivered')->count();
+        $completedCount = $orders->where('order_status', 'completed')->count();
         
         $recentOrders = Order::where('customer_id', $userId)
             ->orderBy('created_at', 'desc')
@@ -28,22 +30,73 @@ class OrderController extends Controller
         return view('pages.orders-overview', compact(
             'totalOrders', 
             'totalSpent', 
-            'pendingCount', 
-            'deliveredCount', 
+            'toShipCount', 
+            'shippedCount', 
+            'deliveredCount',
+            'completedCount',
             'recentOrders'
         ));
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $userId = auth()->id();
         
-        $orders = Order::where('customer_id', $userId)
-            ->with(['items.images']) // Eager load items and their images
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $query = Order::where('customer_id', $userId)
+            ->with(['items.images'])
+            ->orderBy('created_at', 'desc');
+
+        if ($request->has('status') && in_array($request->status, ['to_ship', 'shipped', 'delivered', 'completed'])) {
+            $query->where('order_status', $request->status);
+        }
+
+        $orders = $query->get();
             
         return view('pages.orders', compact('orders'));
+    }
+
+    public function complete($orderId)
+    {
+        $userId = auth()->id();
+        
+        $order = Order::where('customer_id', $userId)
+            ->where('order_id', $orderId)
+            ->where('order_status', 'delivered')
+            ->firstOrFail();
+
+        $order->update(['order_status' => 'completed']);
+
+        return redirect()->back()->with('success', 'Order confirmed! You can now reorder these items.');
+    }
+
+    public function analytics()
+    {
+        $userId = auth()->id();
+        
+        // Get completed orders from the last 6 months
+        $orders = Order::where('customer_id', $userId)
+            ->where('order_status', 'completed')
+            ->where('created_at', '>=', now()->subMonths(6))
+            ->orderBy('created_at')
+            ->get();
+
+        // Group by month
+        $monthlyData = $orders->groupBy(function($order) {
+            return $order->created_at->format('M Y');
+        })->map(function($month) {
+            return $month->sum('order_total');
+        });
+
+        // Ensure last 6 months exist in array even if 0
+        $labels = [];
+        $data = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $monthStr = now()->subMonths($i)->format('M Y');
+            $labels[] = $monthStr;
+            $data[] = $monthlyData->get($monthStr, 0);
+        }
+
+        return view('pages.analytics', compact('labels', 'data'));
     }
 
 }

@@ -76,7 +76,7 @@
                         <x-heroicon-o-user class="inline h-4 w-4 mr-2" />
                         My Profile
                     </a>
-                    <a href="/orders" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
+                    <a href="/orders-overview" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
                         <x-heroicon-o-clipboard-document-list class="inline h-4 w-4 mr-2" />
                         Orders
                     </a>

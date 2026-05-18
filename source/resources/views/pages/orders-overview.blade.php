@@ -11,7 +11,7 @@
 
                 {{-- Overview Stats --}}
                 <div class="mb-12 grid grid-cols-2 gap-6 sm:grid-cols-4">
-                    <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md">
+                    <a href="/orders" class="block rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:border-green-300">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm text-gray-600">Total Orders</p>
@@ -21,9 +21,9 @@
                                 <x-heroicon-o-shopping-bag class="h-6 w-6 text-blue-600" />
                             </div>
                         </div>
-                    </div>
+                    </a>
 
-                    <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md">
+                    <a href="/analytics" class="block rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:border-green-300">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm text-gray-600">Total Spent</p>
@@ -33,31 +33,55 @@
                                 <x-heroicon-o-banknotes class="h-6 w-6 text-green-600" />
                             </div>
                         </div>
-                    </div>
+                    </a>
 
-                    <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md">
+                    <a href="/orders?status=to_ship" class="block rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:border-green-300">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-sm text-gray-600">Pending</p>
-                                <p class="mt-2 text-3xl font-bold text-gray-900">{{ $pendingCount }}</p>
+                                <p class="text-sm text-gray-600">To Ship</p>
+                                <p class="mt-2 text-3xl font-bold text-gray-900">{{ $toShipCount }}</p>
                             </div>
                             <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-amber-100">
                                 <x-heroicon-o-clock class="h-6 w-6 text-amber-600" />
                             </div>
                         </div>
-                    </div>
+                    </a>
 
-                    <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md">
+                    <a href="/orders?status=shipped" class="block rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:border-green-300">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">Shipped</p>
+                                <p class="mt-2 text-3xl font-bold text-gray-900">{{ $shippedCount }}</p>
+                            </div>
+                            <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
+                                <x-heroicon-o-truck class="h-6 w-6 text-blue-600" />
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="/orders?status=delivered" class="block rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:border-green-300">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm text-gray-600">Delivered</p>
                                 <p class="mt-2 text-3xl font-bold text-gray-900">{{ $deliveredCount }}</p>
                             </div>
+                            <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-indigo-100">
+                                <x-heroicon-o-home class="h-6 w-6 text-indigo-600" />
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="/orders?status=completed" class="block rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:border-green-300">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">Completed</p>
+                                <p class="mt-2 text-3xl font-bold text-gray-900">{{ $completedCount }}</p>
+                            </div>
                             <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
                                 <x-heroicon-o-check-circle class="h-6 w-6 text-green-600" />
                             </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
 
                 {{-- Recent Orders --}}
@@ -91,16 +115,20 @@
                                         <p class="font-semibold text-gray-900">₱{{ number_format($order->order_total, 2) }}</p>
                                         @php
                                             $status = strtolower($order->order_status);
+                                            if ($status === 'to_ship') {
+                                                $status = 'to ship';
+                                            }
                                             $color = match($status) {
-                                                'delivered', 'completed' => 'green',
-                                                'in transit', 'shipping' => 'blue',
-                                                'pending', 'processing' => 'amber',
+                                                'completed' => 'green',
+                                                'delivered' => 'indigo',
+                                                'shipped' => 'blue',
+                                                'to ship', 'pending' => 'amber',
                                                 default => 'gray'
                                             };
                                         @endphp
                                         <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold bg-{{ $color }}-100 text-{{ $color }}-700">
                                             <span class="h-1.5 w-1.5 rounded-full bg-{{ $color }}-600"></span>
-                                            {{ ucfirst($status) }}
+                                            {{ ucwords($status) }}
                                         </span>
                                     </div>
                                     <a href="/orders" class="inline-flex items-center justify-center rounded-lg border border-gray-200 p-2 text-gray-600 transition-all duration-200 hover:bg-gray-50">
