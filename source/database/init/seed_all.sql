@@ -34,3 +34,4 @@ SOURCE seed_04_vendor3_campuspantry.sql;
 SOURCE seed_05_vendor4_quickmart.sql;
 SOURCE seed_06_vendor5_freshhub.sql;
 SOURCE seed_07_relations.sql;
+SOURCE seed_08_ai_demo.sql;
