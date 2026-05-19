@@ -1,18 +1,32 @@
 @extends('layouts.vendor-main')
 
-@section('title', 'Add Product Bundle')
+@section('title', 'Edit Product Bundle')
 
 @section('content')
 <div class="mx-auto max-w-4xl px-6 py-10" x-data="{ step: 1 }">
 
     {{-- Header --}}
-    <div class="mb-10 text-center">
-        <h1 class="text-4xl font-extrabold tracking-tight text-zinc-900">
-            Create Product Bundle
-        </h1>
-        <p class="mt-2 text-sm text-zinc-500">
-            Package multiple products together into a single attractive offering.
-        </p>
+    <div class="mb-10 text-center flex flex-col sm:flex-row items-center justify-center gap-6">
+        <div class="flex h-24 w-24 shrink-0 overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-50 shadow-inner">
+            @if ($item->images->first())
+                <img src="{{ asset($item->images->first()->image) }}" alt="{{ $item->name }}" class="h-full w-full object-cover" />
+            @else
+                <div class="flex h-full w-full items-center justify-center text-zinc-300">
+                    <x-heroicon-o-photo class="h-10 w-10" />
+                </div>
+            @endif
+        </div>
+        <div class="text-center sm:text-left min-w-0">
+            <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-bold text-blue-800 uppercase tracking-wider mb-2">
+                Bundle Package
+            </span>
+            <h1 class="text-3xl font-extrabold tracking-tight text-zinc-900 truncate" title="{{ $item->name }}">
+                Edit {{ $item->name }}
+            </h1>
+            <p class="mt-1 text-sm text-zinc-500">
+                Update bundle details, adjust price, or modify the included products.
+            </p>
+        </div>
     </div>
 
     {{-- Step progress bar --}}
@@ -79,7 +93,7 @@
     @endif
 
     {{-- Form --}}
-    <form action="{{ route('vendor.products.storeBundle') }}" method="POST" class="space-y-8" enctype="multipart/form-data">
+    <form action="{{ route('vendor.products.updateBundle', $item->item_id) }}" method="POST" class="space-y-8" enctype="multipart/form-data">
         @csrf
 
         {{-- STEP 1: BASIC INFORMATION --}}
@@ -99,7 +113,7 @@
                             type="text"
                             id="bundle_name"
                             name="bundle_name"
-                            value="{{ old('bundle_name') }}"
+                            value="{{ old('bundle_name', $item->name) }}"
                             placeholder="e.g. Back to School Starter Kit"
                             class="w-full rounded-xl border @error('bundle_name') border-rose-400 @else border-zinc-200 @enderror bg-zinc-50 px-4 py-3.5 text-zinc-800 outline-none transition-all duration-200 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 font-medium"
                             required
@@ -114,7 +128,7 @@
                             rows="4"
                             placeholder="Describe what is included in this bundle..."
                             class="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3.5 text-zinc-800 outline-none transition-all duration-200 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 font-medium"
-                        >{{ old('description') }}</textarea>
+                        >{{ old('description', $item->description) }}</textarea>
                     </div>
 
                     <div class="grid gap-6 md:grid-cols-2">
@@ -131,7 +145,7 @@
                                     step="0.01"
                                     id="price"
                                     name="price"
-                                    value="{{ old('price') }}"
+                                    value="{{ old('price', $item->price) }}"
                                     placeholder="0.00"
                                     class="w-full rounded-xl border @error('price') border-rose-400 @else border-zinc-200 @enderror bg-zinc-50 pl-9 pr-4 py-3.5 text-zinc-800 outline-none transition-all duration-200 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 font-medium"
                                     required
@@ -147,7 +161,7 @@
                                 type="number"
                                 id="stock"
                                 name="stock"
-                                value="{{ old('stock') }}"
+                                value="{{ old('stock', $item->stock) }}"
                                 placeholder="0"
                                 class="w-full rounded-xl border @error('stock') border-rose-400 @else border-zinc-200 @enderror bg-zinc-50 px-4 py-3.5 text-zinc-800 outline-none transition-all duration-200 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 font-medium"
                                 required
@@ -161,7 +175,7 @@
                             type="text"
                             id="sku"
                             name="sku"
-                            value="{{ old('sku') }}"
+                            value="{{ old('sku', $item->sku) }}"
                             placeholder="Optional"
                             class="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3.5 text-zinc-800 outline-none transition-all duration-200 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 font-medium"
                         >
@@ -210,7 +224,11 @@
                         </thead>
                         <tbody class="bg-white divide-y divide-zinc-200">
                             @forelse ($products as $product)
-                            <tr class="hover:bg-zinc-50 transition-colors" x-data="{ isSelected: false }">
+                            @php
+                                $isIncluded = $bundleItems->has($product->item_id);
+                                $qty = $isIncluded ? $bundleItems[$product->item_id]->pivot->quantity : 1;
+                            @endphp
+                            <tr class="hover:bg-zinc-50 transition-colors" x-data="{ isSelected: {{ $isIncluded ? 'true' : 'false' }} }">
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <input 
                                         type="checkbox" 
@@ -240,7 +258,7 @@
                                         name="selected_products[{{ $product->item_id }}][quantity]" 
                                         min="1" 
                                         max="{{ $product->stock }}"
-                                        value="1"
+                                        value="{{ old('selected_products.' . $product->item_id . '.quantity', $qty) }}"
                                         x-bind:disabled="!isSelected"
                                         class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-800 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500 disabled:opacity-50 disabled:bg-zinc-100"
                                     >
@@ -282,17 +300,17 @@
         <div x-show="step === 3" x-transition class="space-y-8" style="display: none;">
             <div class="rounded-3xl border border-zinc-100 bg-white p-8 shadow-sm space-y-6">
                 <h2 class="text-lg font-bold text-zinc-950 flex items-center gap-2 border-b border-zinc-50 pb-4">
-                    <x-heroicon-o-camera class="h-5 w-5 text-emerald-600" />
-                    Bundle Media & Status
+                    <x-heroicon-o-eye class="h-5 w-5 text-emerald-600" />
+                    Bundle Status
                 </h2>
 
                 <div>
-                    <label class="flex items-start gap-4 rounded-2xl border border-zinc-100 bg-zinc-50/50 p-4 transition-all duration-200 hover:border-emerald-500/30 hover:bg-emerald-50/10 cursor-pointer mb-6">
+                    <label class="flex items-start gap-4 rounded-2xl border border-zinc-100 bg-zinc-50/50 p-4 transition-all duration-200 hover:border-emerald-500/30 hover:bg-emerald-50/10 cursor-pointer">
                         <input
                             type="checkbox"
                             name="is_active"
                             value="1"
-                            {{ old('is_active', '1') == '1' ? 'checked' : '' }}
+                            {{ old('is_active', $item->is_active) ? 'checked' : '' }}
                             class="h-5.5 w-5.5 rounded-lg border-zinc-300 text-emerald-600 focus:ring-emerald-500 focus:ring-offset-0 mt-0.5"
                         >
                         <div class="select-none text-left">
@@ -300,31 +318,6 @@
                             <p class="text-xs text-zinc-500 mt-0.5">Publish this bundle immediately and make it available for purchase.</p>
                         </div>
                     </label>
-
-                    <label for="images" class="mb-3 block text-sm font-semibold text-zinc-700">
-                        Upload Bundle Cover Image
-                    </label>
-                    <div class="flex items-center justify-center w-full">
-                        <label class="flex flex-col items-center justify-center w-full h-44 border-2 border-zinc-200 border-dashed rounded-2xl cursor-pointer bg-zinc-50/30 hover:bg-zinc-50 transition-all duration-200 hover:border-emerald-500/30">
-                            <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                                <x-heroicon-o-cloud-arrow-up class="w-10 h-10 mb-3 text-zinc-400" />
-                                <p class="mb-2 text-sm text-zinc-600 font-semibold">
-                                    Click to select image
-                                </p>
-                                <p class="text-xs text-zinc-400">
-                                    JPEG, PNG, JPG or GIF (Max 2MB per file)
-                                </p>
-                            </div>
-                            <input
-                                type="file"
-                                id="images"
-                                name="images[]"
-                                accept="image/*"
-                                multiple
-                                class="hidden"
-                            >
-                        </label>
-                    </div>
                 </div>
             </div>
 
@@ -342,7 +335,7 @@
                     class="flex-1 rounded-2xl bg-emerald-600 px-6 py-4 text-sm font-bold text-white transition duration-200 hover:bg-emerald-700 shadow-md shadow-emerald-600/10 hover:shadow-emerald-600/20 active:scale-[0.99] flex items-center justify-center gap-2"
                 >
                     <x-heroicon-s-check-circle class="h-5 w-5" />
-                    Create Bundle
+                    Save Bundle Changes
                 </button>
             </div>
         </div>

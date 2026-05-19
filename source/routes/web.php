@@ -110,12 +110,12 @@ Route::middleware(['auth', 'role:vendor'])->group(function () {
     Route::get('/vendor-products/{item}/edit', [VendorProductController::class, 'edit'])->name('vendor.products.edit');
     Route::post('/vendor-products/{item}/edit', [VendorProductController::class, 'update'])->name('vendor.products.update');
     Route::delete('/vendor-products/{item}', [VendorProductController::class, 'destroy'])->name('vendor.products.destroy');
+    Route::post('/vendor-products/{item}/edit-bundle', [VendorProductController::class, 'updateBundle'])->name('vendor.products.updateBundle');
     Route::post('/vendor-products/{item}/restock', [VendorProductController::class, 'restock'])->name('vendor.products.restock');
 
     Route::get('/vendor-profile/vendor-product-add', [VendorProductController::class, 'create'])->name('vendor.products.add');
-    Route::get('/vendor-profile/vendor-product-add-bundle', function () {
-        return view('pages/vendor-product-add-bundle');
-    })->name('vendor.products.bundle');
+    Route::get('/vendor-profile/vendor-product-add-bundle', [VendorProductController::class, 'createBundle'])->name('vendor.products.bundle');
+    Route::post('/vendor-profile/vendor-product-add-bundle', [VendorProductController::class, 'storeBundle'])->name('vendor.products.storeBundle');
 
     Route::prefix('vendor')->name('vendor.')->group(function () {
         Route::get('/items/create', [VendorProductController::class, 'create'])
