@@ -35,6 +35,16 @@ class Customer extends Model
         return $this->belongsTo(Address::class, 'primary_address_id');
     }
 
+    public function bankingInfos()
+    {
+        return $this->hasMany(CusBankingInfo::class, 'customer_id');
+    }
+
+    public function primaryBankingInfo()
+    {
+        return $this->belongsTo(CusBankingInfo::class, 'primary_banking_info');
+    }
+
     public function carts()
     {
         return $this->hasMany(Cart::class, 'customer_id');

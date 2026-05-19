@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Vendor;
+use App\Models\Address;
+use App\Models\CusBankingInfo;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
@@ -86,12 +88,14 @@ class UserController extends Controller
         // Load related profile
         $profile = null;
         if ($user->role === 'vendor') {
-            $profile = $user->vendor;
+            $profile = $user->vendor()->with('address')->first();
         } elseif ($user->role === 'customer') {
-            $profile = $user->customer;
+            $profile = $user->customer()->with(['primaryAddress', 'bankingInfos'])->first();
         }
 
-        return view('pages.profile', compact('user', 'profile'));
+        $addresses = $user->addresses; // list all addresses
+
+        return view('pages.profile', compact('user', 'profile', 'addresses'));
     }
 
     // Show profile edit form
@@ -102,15 +106,15 @@ class UserController extends Controller
         // Load related profile
         $profile = null;
         if ($user->role === 'vendor') {
-            $profile = $user->vendor;
+            $profile = $user->vendor()->with('address')->first();
         } elseif ($user->role === 'customer') {
-            $profile = $user->customer;
+            $profile = $user->customer()->with('primaryAddress')->first();
         }
 
         return view('pages.profile-edit', compact('user', 'profile'));
     }
 
-    // Update profile information and optional profile image
+    // Update profile information, optional profile image, password and address
     public function update(Request $request)
     {
         $user = auth()->user();
@@ -150,7 +154,7 @@ class UserController extends Controller
             }
         }
 
-        // Update phone/address if provided (simple fields)
+        // Update phone if provided
         if ($request->filled('phone')) {
             if ($user->role === 'vendor') {
                 $vendor = $user->vendor;
@@ -167,6 +171,221 @@ class UserController extends Controller
             }
         }
 
+        // Handle address fields from edit form
+        if ($request->filled('address')) {
+            $address = null;
+            if ($user->role === 'vendor') {
+                $vendor = $user->vendor;
+                if ($vendor && $vendor->address) {
+                    $address = $vendor->address;
+                }
+            } else {
+                $customer = $user->customer;
+                if ($customer && $customer->primaryAddress) {
+                    $address = $customer->primaryAddress;
+                }
+            }
+
+            if (!$address) {
+                $address = new Address();
+                $address->user_id = $user->user_id;
+            }
+
+            $address->street = $request->input('address');
+            $address->city = $request->input('city', '');
+            $address->province_state = $request->input('city', 'Batangas');
+            $address->postal_code = '4200';
+            $address->country = $request->input('country', 'Philippines');
+            $address->phone = $request->input('phone', '') ?: '';
+            $address->email = $user->email;
+            $address->save();
+
+            if ($user->role === 'vendor') {
+                $vendor = $user->vendor;
+                if ($vendor) {
+                    $vendor->address_id = $address->address_id;
+                    $vendor->save();
+                }
+            } else {
+                $customer = $user->customer;
+                if ($customer && $request->has('is_default_address')) {
+                    $customer->primary_address_id = $address->address_id;
+                    $customer->save();
+                }
+            }
+        }
+
+        // Handle password changes
+        if ($request->filled('current_password') || $request->filled('new_password')) {
+            $request->validate([
+                'current_password' => 'required',
+                'new_password' => 'required|string|min:8|confirmed',
+            ]);
+
+            if (!Hash::check($request->input('current_password'), $user->password)) {
+                return back()->withErrors(['current_password' => 'The current password you entered is incorrect.']);
+            }
+
+            $user->password = Hash::make($request->input('new_password'));
+            $user->save();
+        }
+
         return redirect('/profile')->with('success', 'Profile updated successfully');
+    }
+
+    // Direct profile image upload from view page
+    public function updatePhoto(Request $request)
+    {
+        $request->validate([
+            'profile_image' => 'required|image|mimes:jpg,jpeg,png,gif|max:4096',
+        ]);
+
+        $user = auth()->user();
+
+        if ($request->hasFile('profile_image')) {
+            $file = $request->file('profile_image');
+            $path = $file->store('profiles', 'public');
+
+            if ($user->role === 'vendor') {
+                $vendor = $user->vendor;
+                if ($vendor) {
+                    $vendor->profile_img = 'storage/' . $path;
+                    $vendor->save();
+                }
+            } elseif ($user->role === 'customer') {
+                $customer = $user->customer;
+                if ($customer) {
+                    $customer->profile_img = 'storage/' . $path;
+                    $customer->save();
+                }
+            }
+        }
+
+        return redirect('/profile')->with('success', 'Profile photo uploaded successfully!');
+    }
+
+    // Add Address
+    public function addAddress(Request $request)
+    {
+        $request->validate([
+            'street' => 'required|string|max:255',
+            'city' => 'required|string|max:100',
+            'country' => 'required|string|max:100',
+            'postal_code' => 'nullable|string|max:20',
+        ]);
+
+        $user = auth()->user();
+
+        $address = Address::create([
+            'user_id' => $user->user_id,
+            'street' => $request->street,
+            'city' => $request->city,
+            'province_state' => $request->city, // fallback
+            'postal_code' => $request->postal_code ?: '4200',
+            'phone' => $request->phone ?: $user->phone ?: '',
+            'email' => $user->email,
+            'country' => $request->country,
+        ]);
+
+        if ($request->has('is_default')) {
+            if ($user->role === 'vendor') {
+                $vendor = $user->vendor;
+                if ($vendor) {
+                    $vendor->address_id = $address->address_id;
+                    $vendor->save();
+                }
+            } else {
+                $customer = $user->customer;
+                if ($customer) {
+                    $customer->primary_address_id = $address->address_id;
+                    $customer->save();
+                }
+            }
+        }
+
+        return redirect('/profile')->with('success', 'Address added successfully.');
+    }
+
+    // Delete Address
+    public function deleteAddress($id)
+    {
+        $user = auth()->user();
+        $address = Address::where('user_id', $user->user_id)->findOrFail($id);
+
+        // If it is the default, unset default references first
+        if ($user->role === 'vendor') {
+            $vendor = $user->vendor;
+            if ($vendor && $vendor->address_id == $id) {
+                $vendor->address_id = null;
+                $vendor->save();
+            }
+        } else {
+            $customer = $user->customer;
+            if ($customer && $customer->primary_address_id == $id) {
+                $customer->primary_address_id = null;
+                $customer->save();
+            }
+        }
+
+        $address->delete();
+
+        return redirect('/profile')->with('success', 'Address removed successfully.');
+    }
+
+    // Add Payment Card
+    public function addPayment(Request $request)
+    {
+        $request->validate([
+            'account_name' => 'required|string|max:100',
+            'card_number' => 'required|string',
+            'card_type' => 'required|in:visa,mastercard,amex,discover',
+        ]);
+
+        $user = auth()->user();
+
+        if ($user->role === 'customer') {
+            $customer = $user->customer;
+            if ($customer) {
+                $accLast4 = substr(preg_replace('/\s+/', '', $request->card_number), -4);
+                
+                $banking = CusBankingInfo::create([
+                    'customer_id' => $customer->customer_id,
+                    'payment_method' => $request->card_type,
+                    'provider' => ucfirst($request->card_type),
+                    'account_name' => strtoupper($request->account_name),
+                    'acc_last4_no' => $accLast4,
+                    'token' => 'TOK_' . strtoupper(uniqid()),
+                ]);
+
+                if ($request->has('is_default')) {
+                    $customer->primary_banking_info = $banking->banking_id;
+                    $customer->save();
+                }
+            }
+        }
+
+        return redirect('/profile')->with('success', 'Payment card added successfully.');
+    }
+
+    // Delete Payment Card
+    public function deletePayment($id)
+    {
+        $user = auth()->user();
+        
+        if ($user->role === 'customer') {
+            $customer = $user->customer;
+            if ($customer) {
+                $banking = CusBankingInfo::where('customer_id', $customer->customer_id)->findOrFail($id);
+
+                if ($customer->primary_banking_info == $id) {
+                    $customer->primary_banking_info = null;
+                    $customer->save();
+                }
+
+                $banking->delete();
+            }
+        }
+
+        return redirect('/profile')->with('success', 'Payment card removed successfully.');
     }
 }
