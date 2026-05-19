@@ -16,6 +16,68 @@
         </p>
     </div>
 
+    {{-- Success Message --}}
+    @if(session('success'))
+        <div class="mb-6 rounded-2xl bg-emerald-50 border border-emerald-200 p-4 flex items-center gap-3">
+            <svg class="h-5 w-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <p class="text-sm font-medium text-emerald-800">{{ session('success') }}</p>
+        </div>
+    @endif
+
+    {{-- Low Stock Alert Banner --}}
+    @php
+        $lowStockItems = $products->where('stock', '<=', 10)->where('is_active', 1);
+    @endphp
+    @if($lowStockItems->count() > 0)
+        <div class="mb-6 rounded-2xl bg-amber-50 border border-amber-200 p-4" x-data="{ open: false }">
+            <div class="flex items-center justify-between cursor-pointer" @click="open = !open">
+                <div class="flex items-center gap-3">
+                    <svg class="h-5 w-5 text-amber-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    <p class="text-sm font-semibold text-amber-800">
+                        {{ $lowStockItems->count() }} product{{ $lowStockItems->count() > 1 ? 's' : '' }} running low on stock
+                    </p>
+                </div>
+                <svg class="h-5 w-5 text-amber-600 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg>
+            </div>
+            <div x-show="open" x-collapse class="mt-4 space-y-3">
+                @foreach($lowStockItems->sortBy('stock') as $lowItem)
+                    <div class="flex items-center justify-between rounded-xl bg-white border border-amber-100 px-4 py-3">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 overflow-hidden rounded-lg border border-zinc-200 bg-zinc-50 shrink-0">
+                                @if ($lowItem->images->first())
+                                    <img src="{{ asset($lowItem->images->first()->image) }}" alt="{{ $lowItem->name }}" class="h-full w-full object-cover" />
+                                @else
+                                    <div class="flex h-full w-full items-center justify-center text-zinc-300">
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                    </div>
+                                @endif
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-zinc-900">{{ $lowItem->name }}</p>
+                                <p class="text-xs text-{{ $lowItem->stock == 0 ? 'red' : 'amber' }}-600 font-medium">
+                                    {{ $lowItem->stock == 0 ? 'Out of stock' : $lowItem->stock . ' remaining' }}
+                                </p>
+                            </div>
+                        </div>
+                        <form method="POST" action="{{ route('vendor.products.restock', $lowItem->item_id) }}" class="flex items-center gap-2">
+                            @csrf
+                            <input type="hidden" name="search" value="{{ request('search') }}">
+                            <input type="hidden" name="status" value="{{ $status ?? 'active' }}">
+                            <input type="hidden" name="sort" value="{{ $sortBy ?? 'created_at' }}">
+                            <input type="hidden" name="dir" value="{{ $sortDir ?? 'desc' }}">
+                            <div class="flex items-center gap-1">
+                                <button type="submit" name="quantity" value="10" class="rounded-lg bg-amber-100 px-2.5 py-1.5 text-xs font-semibold text-amber-700 hover:bg-amber-200 transition">+10</button>
+                                <button type="submit" name="quantity" value="25" class="rounded-lg bg-amber-100 px-2.5 py-1.5 text-xs font-semibold text-amber-700 hover:bg-amber-200 transition">+25</button>
+                                <button type="submit" name="quantity" value="50" class="rounded-lg bg-amber-100 px-2.5 py-1.5 text-xs font-semibold text-amber-700 hover:bg-amber-200 transition">+50</button>
+                                <button type="submit" name="quantity" value="100" class="rounded-lg bg-emerald-100 px-2.5 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-200 transition">+100</button>
+                            </div>
+                        </form>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
     {{-- Action Buttons --}}
     <div class="mb-8 flex justify-center gap-4">
         <a 
@@ -36,6 +98,10 @@
     {{-- Search and Filter --}}
     <form method="GET" action="{{ route('vendor.products') }}" class="mb-6 flex flex-col sm:flex-row items-center w-full bg-white rounded-2xl shadow-sm border border-zinc-200 p-1.5 focus-within:ring-2 focus-within:ring-emerald-500/20 focus-within:border-emerald-500 transition-all duration-200">
         
+        {{-- Preserve sort state --}}
+        <input type="hidden" name="sort" value="{{ $sortBy ?? 'created_at' }}">
+        <input type="hidden" name="dir" value="{{ $sortDir ?? 'desc' }}">
+
         {{-- Search Input --}}
         <div class="flex-1 w-full relative flex items-center group">
             <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
@@ -50,9 +116,9 @@
         {{-- Status Filter --}}
         <div class="w-full sm:w-48 relative flex items-center border-t sm:border-t-0 border-zinc-100 mt-2 sm:mt-0 pt-2 sm:pt-0">
             <select name="status" class="block w-full border-0 py-3 pl-4 pr-10 text-zinc-700 font-medium focus:ring-0 sm:text-sm bg-transparent cursor-pointer hover:text-zinc-900 transition-colors">
-                <option value="">All Status</option>
-                <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Active Only</option>
-                <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Inactive Only</option>
+                <option value="active" {{ ($status ?? 'active') === 'active' ? 'selected' : '' }}>Active Only</option>
+                <option value="inactive" {{ ($status ?? '') === 'inactive' ? 'selected' : '' }}>Inactive Only</option>
+                <option value="all" {{ ($status ?? '') === 'all' ? 'selected' : '' }}>All Products</option>
             </select>
         </div>
 
@@ -61,7 +127,7 @@
             <button type="submit" class="w-full sm:w-auto rounded-xl bg-emerald-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2 transition-all">
                 Search
             </button>
-            @if(request()->hasAny(['search', 'status']) && (request('search') != '' || request('status') != ''))
+            @if(request()->hasAny(['search', 'status', 'sort', 'dir']) && (request('search') != '' || request('status') != 'active' || request('sort') != '' || request('dir') != ''))
                 <a href="{{ route('vendor.products') }}" class="flex items-center justify-center rounded-xl bg-red-50 text-red-600 px-3 py-2.5 transition hover:bg-red-100" title="Clear Filters">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </a>
@@ -69,8 +135,29 @@
         </div>
     </form>
 
+    {{-- Sort Helper --}}
+    @php
+        $currentSort = $sortBy ?? 'created_at';
+        $currentDir = $sortDir ?? 'desc';
+
+        function sortUrl($column, $currentSort, $currentDir) {
+            $newDir = ($currentSort === $column && $currentDir === 'asc') ? 'desc' : 'asc';
+            return request()->fullUrlWithQuery(['sort' => $column, 'dir' => $newDir]);
+        }
+
+        function sortIcon($column, $currentSort, $currentDir) {
+            if ($currentSort !== $column) {
+                return '<svg class="inline h-3.5 w-3.5 ml-1 text-zinc-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path></svg>';
+            }
+            if ($currentDir === 'asc') {
+                return '<svg class="inline h-3.5 w-3.5 ml-1 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"></path></svg>';
+            }
+            return '<svg class="inline h-3.5 w-3.5 ml-1 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg>';
+        }
+    @endphp
+
     {{-- Product Table --}}
-    <div class="overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-sm">
+    <div class="overflow-x-auto rounded-3xl border border-zinc-200 bg-white shadow-sm">
 
         <table class="min-w-full divide-y divide-zinc-200">
 
@@ -91,19 +178,27 @@
                     </th>
 
                     <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-zinc-500">
-                        Stock
+                        <a href="{{ sortUrl('stock', $currentSort, $currentDir) }}" class="inline-flex items-center hover:text-emerald-600 transition-colors">
+                            Stock {!! sortIcon('stock', $currentSort, $currentDir) !!}
+                        </a>
                     </th>
 
                     <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-zinc-500">
-                        Price
+                        <a href="{{ sortUrl('price', $currentSort, $currentDir) }}" class="inline-flex items-center hover:text-emerald-600 transition-colors">
+                            Price {!! sortIcon('price', $currentSort, $currentDir) !!}
+                        </a>
                     </th>
 
                     <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-zinc-500">
-                        Status
+                        <a href="{{ sortUrl('is_available', $currentSort, $currentDir) }}" class="inline-flex items-center hover:text-emerald-600 transition-colors">
+                            Status {!! sortIcon('is_available', $currentSort, $currentDir) !!}
+                        </a>
                     </th>
 
                     <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-zinc-500">
-                        Added
+                        <a href="{{ sortUrl('created_at', $currentSort, $currentDir) }}" class="inline-flex items-center hover:text-emerald-600 transition-colors">
+                            Added {!! sortIcon('created_at', $currentSort, $currentDir) !!}
+                        </a>
                     </th>
 
                     <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-zinc-500">
@@ -117,13 +212,13 @@
             <tbody class="divide-y divide-zinc-100 bg-white">
 
                 @forelse ($products as $product)
-                <tr class="transition hover:bg-zinc-50">
+                <tr class="transition hover:bg-zinc-50 {{ $product->stock <= 5 ? 'bg-red-50/40' : '' }}">
 
                     {{-- Product --}}
                     <td class="whitespace-nowrap px-6 py-4">
                         <div class="flex items-center gap-4">
 
-                            <div class="flex h-14 w-14 overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-50">
+                            <div class="flex h-14 w-14 overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-50 shrink-0">
                                 @if ($product->images->first())
                                     <img src="{{ asset($product->images->first()->image) }}" alt="{{ $product->name }}" class="h-full w-full object-cover" />
                                 @else
@@ -156,18 +251,47 @@
                         {{ $product->unit_value ? (intval($product->unit_value) . ' ' . $product->unit_type) : ($product->unit_type ?? 'N/A') }}
                     </td>
 
-                    {{-- Stock --}}
-                    <td class="whitespace-nowrap px-6 py-4">
+                    {{-- Stock with inline restock --}}
+                    <td class="whitespace-nowrap px-6 py-4" x-data="{ showRestock: false }">
 
                         @if ($product->stock <= 5)
-                            <span class="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
-                                Low Stock ({{ $product->stock }})
-                            </span>
+                            <div class="flex items-center gap-2">
+                                <span class="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
+                                    {{ $product->stock == 0 ? 'Out of Stock' : 'Low (' . $product->stock . ')' }}
+                                </span>
+                                <button @click="showRestock = !showRestock" class="rounded-full bg-amber-100 p-1 text-amber-600 hover:bg-amber-200 transition" title="Quick restock">
+                                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+                                </button>
+                            </div>
+                        @elseif ($product->stock <= 10)
+                            <div class="flex items-center gap-2">
+                                <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
+                                    {{ $product->stock }} in stock
+                                </span>
+                                <button @click="showRestock = !showRestock" class="rounded-full bg-zinc-100 p-1 text-zinc-400 hover:bg-zinc-200 hover:text-zinc-600 transition" title="Quick restock">
+                                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+                                </button>
+                            </div>
                         @else
                             <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
                                 {{ $product->stock }} in stock
                             </span>
                         @endif
+
+                        {{-- Inline Restock Popover --}}
+                        <div x-show="showRestock" x-transition @click.away="showRestock = false" class="mt-2">
+                            <form method="POST" action="{{ route('vendor.products.restock', $product->item_id) }}" class="flex items-center gap-1.5">
+                                @csrf
+                                <input type="hidden" name="search" value="{{ request('search') }}">
+                                <input type="hidden" name="status" value="{{ $status ?? 'active' }}">
+                                <input type="hidden" name="sort" value="{{ $sortBy ?? 'created_at' }}">
+                                <input type="hidden" name="dir" value="{{ $sortDir ?? 'desc' }}">
+                                <input type="number" name="quantity" min="1" max="10000" value="10" class="w-16 rounded-lg border border-zinc-200 px-2 py-1 text-xs text-center focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500">
+                                <button type="submit" class="rounded-lg bg-emerald-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-emerald-700 transition">
+                                    Restock
+                                </button>
+                            </form>
+                        </div>
 
                     </td>
 
@@ -210,11 +334,21 @@
                             </a>
 
                             {{-- Delete --}}
-                            <button
-                                class="inline-flex items-center rounded-lg border border-red-200 px-3 py-2 text-red-600 transition hover:bg-red-50"
+                            <form 
+                                action="{{ route('vendor.products.destroy', $product->item_id) }}" 
+                                method="POST" 
+                                onsubmit="return confirm('Are you sure you want to remove this product? It will be deactivated and hidden from customers.')"
+                                class="inline"
                             >
-                                <x-heroicon-o-trash class="h-4 w-4" />
-                            </button>
+                                @csrf
+                                @method('DELETE')
+                                <button
+                                    type="submit"
+                                    class="inline-flex items-center rounded-lg border border-red-200 px-3 py-2 text-red-600 transition hover:bg-red-50"
+                                >
+                                    <x-heroicon-o-trash class="h-4 w-4" />
+                                </button>
+                            </form>
 
                         </div>
 

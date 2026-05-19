@@ -29,19 +29,52 @@ class VendorProductController extends Controller
                 });
             }
 
-            // Handle Filter
-            if ($request->filled('status')) {
-                if ($request->input('status') === 'active') {
-                    $query->where('is_active', 1);
-                } elseif ($request->input('status') === 'inactive') {
-                    $query->where('is_active', 0);
-                }
+            // Handle Filter — default to active only (so "deleted" items vanish)
+            $status = $request->input('status', 'active');
+            if ($status === 'active') {
+                $query->where('is_active', 1);
+            } elseif ($status === 'inactive') {
+                $query->where('is_active', 0);
             }
+            // 'all' shows everything
 
-            $products = $query->orderBy('created_at', 'desc')->get();
+            // Handle Sorting
+            $sortBy = $request->input('sort', 'created_at');
+            $sortDir = $request->input('dir', 'desc');
+
+            $allowedSorts = ['stock', 'price', 'is_available', 'created_at'];
+            if (!in_array($sortBy, $allowedSorts)) {
+                $sortBy = 'created_at';
+            }
+            $sortDir = $sortDir === 'asc' ? 'asc' : 'desc';
+
+            $products = $query->orderBy($sortBy, $sortDir)->get();
         }
 
-        return view('pages.vendor-products', compact('products'));
+        return view('pages.vendor-products', compact('products', 'sortBy', 'sortDir', 'status'));
+    }
+
+    public function restock(Request $request, Item $item)
+    {
+        // Ensure the item belongs to the authenticated vendor
+        if ($item->vendor_id !== Auth::user()->vendor->vendor_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $request->validate([
+            'quantity' => 'required|integer|min:1|max:10000',
+        ]);
+
+        $item->increment('stock', $request->quantity);
+
+        // Auto-reactivate if it was marked unavailable due to low stock
+        if (!$item->is_available) {
+            $item->update(['is_available' => 1]);
+        }
+
+        return redirect()
+            ->route('vendor.products', $request->only(['search', 'status', 'sort', 'dir']))
+            ->with('success', "Restocked '{$item->name}' with +{$request->quantity} units.");
     }
 
     public function edit(Item $item)
@@ -147,9 +180,32 @@ class VendorProductController extends Controller
             ]);
         }
 
-        return redirect() // add popup or whatever
+        // Attach categories if provided
+        $categories = $request->input('categories', []);
+        if (!empty($categories)) {
+            $item->categories()->sync($categories);
+        }
 
+        return redirect()
             ->route('vendor.products')
             ->with('success', 'Item and images uploaded successfully!');
+    }
+
+    public function destroy(Item $item)
+    {
+        // Ensure the item belongs to the authenticated vendor
+        if ($item->vendor_id !== Auth::user()->vendor->vendor_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        // Soft-deactivate instead of hard delete (order_items FK references items)
+        $item->update([
+            'is_active' => 0,
+            'is_available' => 0,
+        ]);
+
+        return redirect()
+            ->route('vendor.products')
+            ->with('success', 'Product has been removed successfully.');
     }
 }

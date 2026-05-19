@@ -100,24 +100,23 @@ Route::middleware(['auth', 'role:vendor'])->group(function () {
     Route::post('/vendor-orders/{order}/deliver', [VendorOrderController::class, 'deliver'])->name('vendor.orders.deliver');
 
     Route::get('/vendor-analytics', [DashboardController::class, 'index'])->name('vendor.analytics');
-    Route::get('/vendor-destroy', fn() => view('pages.vendor-analytics'))->name('vendor.products.destroy');
 
     Route::get('/vendor-products/{item}/edit', [VendorProductController::class, 'edit'])->name('vendor.products.edit');
     Route::post('/vendor-products/{item}/edit', [VendorProductController::class, 'update'])->name('vendor.products.update');
-});
+    Route::delete('/vendor-products/{item}', [VendorProductController::class, 'destroy'])->name('vendor.products.destroy');
+    Route::post('/vendor-products/{item}/restock', [VendorProductController::class, 'restock'])->name('vendor.products.restock');
 
-Route::get('/vendor-profile/vendor-product-add', [VendorProductController::class, 'create'])->name('vendor.products.add');
+    Route::get('/vendor-profile/vendor-product-add', [VendorProductController::class, 'create'])->name('vendor.products.add');
+    Route::get('/vendor-profile/vendor-product-add-bundle', function () {
+        return view('pages/vendor-product-add-bundle');
+    })->name('vendor.products.bundle');
 
-Route::get('/vendor-profile/vendor-product-add-bundle', function () {
-    return view('pages/vendor-product-add-bundle');
-})->name('vendor.products.bundle');
-Route::prefix('vendor')->name('vendor.')->group(function () {
-
-    Route::get('/items/create', [VendorProductController::class, 'create'])
-        ->name('items.create');
-
-    Route::post('/items', [VendorProductController::class, 'store'])
-        ->name('items.store');
+    Route::prefix('vendor')->name('vendor.')->group(function () {
+        Route::get('/items/create', [VendorProductController::class, 'create'])
+            ->name('items.create');
+        Route::post('/items', [VendorProductController::class, 'store'])
+            ->name('items.store');
+    });
 });
 
 Route::get('/check-auth', function () {
