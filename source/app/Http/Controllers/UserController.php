@@ -312,18 +312,22 @@ class UserController extends Controller
         $user = auth()->user();
         $address = Address::where('user_id', $user->user_id)->findOrFail($id);
 
-        // If it is the default, unset default references first
+        // Prevent deleting if it is the only address left
+        $addressCount = Address::where('user_id', $user->user_id)->count();
+        if ($addressCount <= 1) {
+            return back()->withErrors(['address' => 'You must have at least one address on your profile.']);
+        }
+
+        // Prevent deleting the primary/default address
         if ($user->role === 'vendor') {
             $vendor = $user->vendor;
             if ($vendor && $vendor->address_id == $id) {
-                $vendor->address_id = null;
-                $vendor->save();
+                return back()->withErrors(['address' => 'You cannot delete your default delivery address. Please set another address as default first.']);
             }
         } else {
             $customer = $user->customer;
             if ($customer && $customer->primary_address_id == $id) {
-                $customer->primary_address_id = null;
-                $customer->save();
+                return back()->withErrors(['address' => 'You cannot delete your default delivery address. Please set another address as default first.']);
             }
         }
 

@@ -145,13 +145,15 @@
                                                  <p class="mt-1 text-xs text-gray-600">{{ $address->city }}, {{ $address->country }}</p>
                                              </div>
                                              <div class="flex items-center gap-2">
-                                                 <form action="{{ route('address.delete', $address->address_id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this address?')">
-                                                     @csrf
-                                                     @method('DELETE')
-                                                     <button type="submit" class="text-gray-400 transition-all duration-200 hover:text-red-600 opacity-0 group-hover:opacity-100">
-                                                         <x-heroicon-o-trash class="h-5 w-5" />
-                                                     </button>
-                                                 </form>
+                                                 @if(!$isDefault)
+                                                     <form action="{{ route('address.delete', $address->address_id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this address?')">
+                                                         @csrf
+                                                         @method('DELETE')
+                                                         <button type="submit" class="text-gray-400 transition-all duration-200 hover:text-red-600 opacity-0 group-hover:opacity-100">
+                                                             <x-heroicon-o-trash class="h-5 w-5" />
+                                                         </button>
+                                                     </form>
+                                                 @endif
                                              </div>
                                          </div>
                                      </div>
