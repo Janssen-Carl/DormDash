@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Item;
 use App\Models\ItemImage;
-use App\Models\Category;
 use Illuminate\Support\Facades\Auth;
 
 class VendorProductController extends Controller
@@ -28,8 +27,7 @@ class VendorProductController extends Controller
 
     public function create()
     {
-        $categories = Category::where('is_active', true)->get();
-        return view('pages.vendor-product-add', compact('categories'));
+        return view('pages.vendor.add-item');
     }
 
     public function store(Request $request)
@@ -50,8 +48,6 @@ class VendorProductController extends Controller
             'is_available'  => 'nullable|boolean',
             'is_active'     => 'nullable|boolean',
             'has_expiry'    => 'nullable|boolean',
-            'categories'    => 'nullable|array',
-            'categories.*'  => 'nullable|integer|exists:categories,category_id',
             'images.*'      => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
@@ -86,12 +82,6 @@ class VendorProductController extends Controller
                     'image'   => 'items/' . $imageName,
                 ]);
             }
-        }
-
-        // Attach categories if provided
-        $categories = $request->input('categories', []);
-        if (!empty($categories)) {
-            $item->categories()->sync($categories);
         }
 
         return redirect() // add popup or whatever

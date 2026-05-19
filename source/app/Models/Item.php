@@ -42,16 +42,9 @@ class Item extends Model
         return $this->belongsTo(Vendor::class, 'vendor_id');
     }
 
-    // Return all images for this item
     public function images()
     {
         return $this->hasMany(ItemImage::class, 'item_id');
-    }
-
-    // Shortcut to get the first image (with fallback)
-    public function firstImage()
-    {
-        return $this->images()->first()?->image ?? '/images/items/1/1.jpg';
     }
 
     public function stockLogs()

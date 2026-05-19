@@ -7,8 +7,6 @@ services:
         depends_on:
             db:
                 condition: service_healthy
-        extra_hosts:
-            - "host.docker.internal:host-gateway"
         healthcheck:
             test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
             interval: 5s

@@ -40,7 +40,10 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 # Copy project files
 COPY . .
 
-# Ensure storage and cache directories exist (required by artisan/package discovery)
+# Install Laravel dependencies
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+
+# Laravel permissions
 RUN mkdir -p storage/framework/cache \
     storage/framework/sessions \
     storage/framework/views \
@@ -51,11 +54,7 @@ RUN mkdir -p storage/framework/cache \
 
 # Ensure temp dir works
 RUN chmod 1777 /tmp
-
-# Install Laravel dependencies
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-progress --no-suggest
-
-# Final permissions
+# Permissions
 RUN chown -R www-data:www-data /var/www
 
 EXPOSE 9000

@@ -3,18 +3,6 @@
 @section('title', 'My Profile')
 
 @section('content')
-@php
-    // Ensure $user and $profile are always available to the view (fallbacks for callers that don't pass them)
-    $user = $user ?? auth()->user();
-    $profile = $profile ?? null;
-    if (!$profile && $user) {
-        if ($user->role === 'vendor') {
-            $profile = $user->vendor;
-        } elseif ($user->role === 'customer') {
-            $profile = $user->customer;
-        }
-    }
-@endphp
             <div class="mx-auto max-w-6xl px-8 py-12" x-data="{ showPhotoModal: false }">
                 <div class="mb-12 flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
                     <div>
@@ -34,14 +22,9 @@
                             <div class="flex flex-col items-center text-center">
                                 {{-- Profile Picture with Edit Button --}}
                                 <div class="relative group">
-                                    @if(!empty($profile->profile_img))
-                                        <img src="{{ asset($profile->profile_img) }}" alt="Profile" class="h-24 w-24 rounded-full object-cover shadow-2xl" />
-                                    @else
-                                        <div class="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-green-500 via-green-600 to-emerald-600 text-4xl font-bold text-white shadow-2xl">
-                                            {{ strtoupper(substr($user->username ?? 'U', 0, 2)) }}
-                                        </div>
-                                    @endif
-
+                                    <div class="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-green-500 via-green-600 to-emerald-600 text-4xl font-bold text-white shadow-2xl">
+                                        JD
+                                    </div>
                                     <button 
                                         @click="showPhotoModal = true"
                                         type="button" 
@@ -51,10 +34,10 @@
                                     </button>
                                 </div>
 
-                                <h2 class="mt-8 text-xl font-bold text-gray-900">{{ $user->username }}</h2>
-                                <p class="mt-1 text-sm text-green-600 font-semibold">{{ ucfirst($user->role) }} Account</p>
-                                <p class="mt-2 text-gray-600">{{ $user->email }}</p>
-                                <p class="mt-1 text-xs text-gray-500">Member since {{ optional($user->created_at)->format('M Y') ?? '' }}</p>
+                                <h2 class="mt-8 text-xl font-bold text-gray-900">Juan Dela Cruz</h2>
+                                <p class="mt-1 text-sm text-green-600 font-semibold">Premium Member</p>
+                                <p class="mt-2 text-gray-600">juan@example.com</p>
+                                <p class="mt-1 text-xs text-gray-500">Member since Jan 2024</p>
 
                                 <div class="mt-8 w-full border-t border-gray-200 pt-6">
                                     <button type="button" class="w-full rounded-xl border border-red-200 bg-gradient-to-r from-red-50 to-pink-50 py-3 text-sm font-semibold text-red-600 transition-all duration-200 hover:from-red-100 hover:to-pink-100 hover:border-red-300 hover:shadow-md">
@@ -76,7 +59,7 @@
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
                                     <div class="flex items-center gap-2">
-                                        <div class="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-600 cursor-not-allowed">{{ $user->username }}</div>
+                                        <div class="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-600 cursor-not-allowed">Juan Dela Cruz</div>
                                         <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 text-gray-400">
                                             <x-heroicon-o-user class="h-5 w-5" />
                                         </div>
@@ -86,7 +69,7 @@
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
                                     <div class="flex items-center gap-2">
-                                        <div class="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-600 cursor-not-allowed">{{ $user->email }}</div>
+                                        <div class="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-600 cursor-not-allowed">juan@example.com</div>
                                         <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
                                             <x-heroicon-o-envelope class="h-5 w-5" />
                                         </div>
@@ -96,7 +79,7 @@
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">Phone Number</label>
                                     <div class="flex items-center gap-2">
-                                        <div class="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-600 cursor-not-allowed">{{ $profile->phone ?? '-' }}</div>
+                                        <div class="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-600 cursor-not-allowed">+63 912 345 6789</div>
                                         <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100 text-green-600">
                                             <x-heroicon-o-phone class="h-5 w-5" />
                                         </div>
@@ -125,8 +108,8 @@
                                                 </div>
                                                 <p class="font-bold text-gray-900">Default Address</p>
                                             </div>
-                                            <p class="mt-3 text-sm text-gray-700 font-medium">{{ optional($profile->primary_address)->street ?? 'No default address set' }}</p>
-                                            <p class="mt-1 text-xs text-gray-600">{{ optional($profile->primary_address)->city ? (optional($profile->primary_address)->city . ', ' . optional($profile->primary_address)->country) : '' }}</p>
+                                            <p class="mt-3 text-sm text-gray-700 font-medium">Room 123, Dormitory A, University Campus</p>
+                                            <p class="mt-1 text-xs text-gray-600">Metro Manila, Philippines</p>
                                         </div>
                                         <button type="button" class="text-gray-400 transition-all duration-200 group-hover:text-green-600 opacity-0 group-hover:opacity-100">
                                             <x-heroicon-o-pencil class="h-5 w-5" />

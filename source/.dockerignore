@@ -32,13 +32,3 @@
 **/values.dev.yaml
 LICENSE
 README.md
-
-# Exclude runtime/private storage paths that may be permission-restricted on host
-storage/app/private
-storage/app/private/**
-
-# Exclude local build artifacts that shouldn't be sent to docker build context
-storage/logs
-storage/framework
-npm-debug.log
-

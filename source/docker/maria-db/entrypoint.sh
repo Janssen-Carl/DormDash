@@ -39,15 +39,7 @@ try {
 echo "Running migrations..."
 
 php artisan migrate --force
-
-# Seed only when SEED_DB=true in the environment (safe default: do not seed in CI/containers)
-if [ "${SEED_DB}" = "true" ]; then
-  echo "Seeding database (SEED_DB=true)..."
-  php artisan db:seed --force
-else
-  echo "Skipping database seeding (SEED_DB not true)"
-fi
-
+php artisan db:seed --force
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache

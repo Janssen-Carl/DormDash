@@ -11,18 +11,13 @@
                         <p class="mt-4 text-lg text-gray-600">Your one-stop shop for all your grocery needs with amazing
                             deals.</p>
 
-                        <form action="/products" method="GET" class="mt-8">
+                        <div class="mt-8">
                             <div class="relative mb-6">
                                 <x-heroicon-o-magnifying-glass class="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
-                                <input type="search" name="q" placeholder="Search for groceries..."
-                                    class="w-full rounded-lg border border-gray-200 bg-white py-3 pl-12 pr-14 text-gray-900 placeholder-gray-500 transition-colors focus:border-green-600 focus:ring-1 focus:ring-green-600" />
-                                <button type="submit"
-                                    class="absolute right-1.5 top-1.5 flex h-9 w-9 items-center justify-center rounded-md bg-green-600 text-white transition-colors hover:bg-green-700"
-                                    aria-label="Search products">
-                                    <x-heroicon-o-arrow-right class="h-4 w-4" />
-                                </button>
+                                <input type="text" placeholder="Search for groceries..."
+                                    class="w-full rounded-lg border border-gray-200 bg-white py-3 pl-12 pr-4 text-gray-900 placeholder-gray-500 transition-colors focus:border-green-600 focus:ring-1 focus:ring-green-600" />
                             </div>
-                        </form>
+                        </div>
 
                         <div class="flex gap-3 w-full">
                             <a href="/products/offers"
