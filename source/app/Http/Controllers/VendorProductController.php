@@ -9,20 +9,74 @@ use Illuminate\Support\Facades\Auth;
 
 class VendorProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
         $vendor = $user->vendor;
         
         $products = collect();
         if ($vendor) {
-            $products = Item::where('vendor_id', $vendor->vendor_id)
-                ->with(['images'])
-                ->orderBy('created_at', 'desc')
-                ->get();
+            $query = Item::where('vendor_id', $vendor->vendor_id)
+                ->with(['images']);
+
+            // Handle Search
+            if ($request->filled('search')) {
+                $search = $request->input('search');
+                $query->where(function($q) use ($search) {
+                    $q->where('name', 'like', '%' . $search . '%')
+                      ->orWhere('sku', 'like', '%' . $search . '%')
+                      ->orWhere('brand', 'like', '%' . $search . '%');
+                });
+            }
+
+            // Handle Filter
+            if ($request->filled('status')) {
+                if ($request->input('status') === 'active') {
+                    $query->where('is_active', 1);
+                } elseif ($request->input('status') === 'inactive') {
+                    $query->where('is_active', 0);
+                }
+            }
+
+            $products = $query->orderBy('created_at', 'desc')->get();
         }
 
         return view('pages.vendor-products', compact('products'));
+    }
+
+    public function edit(Item $item)
+    {
+        // Ensure the item belongs to the authenticated vendor
+        if ($item->vendor_id !== Auth::user()->vendor->vendor_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        return view('pages.vendor-product-edit', compact('item'));
+    }
+
+    public function update(Request $request, Item $item)
+    {
+        // Ensure the item belongs to the authenticated vendor
+        if ($item->vendor_id !== Auth::user()->vendor->vendor_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $validated = $request->validate([
+            'unit_type'    => 'nullable|string|max:50',
+            'unit_value'   => 'nullable|numeric|min:0',
+            'stock'        => 'required|integer|min:0',
+            'price'        => 'required|numeric|min:0',
+            'is_available' => 'nullable|boolean',
+        ]);
+
+        $validated['is_available'] = $request->has('is_available') ? 1 : 0;
+        $validated['unit_value'] = $validated['unit_value'] ?? null;
+
+        $item->update($validated);
+
+        return redirect()
+            ->route('vendor.products')
+            ->with('success', 'Product updated successfully!');
     }
 
     public function create()
@@ -71,17 +125,26 @@ class VendorProductController extends Controller
         }
 
         // Handle images
+        $slug = \Illuminate\Support\Str::slug($item->name);
+        
         if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                $imageName = time() . '_' . $image->getClientOriginalName();
+            $images = $request->file('images');
+            foreach ($images as $index => $image) {
+                $ext = $image->getClientOriginalExtension();
+                $imageName = $slug . ($index > 0 ? '-' . ($index + 1) : '') . '.' . $ext;
                 $destination = storage_path('app/public/items/' . $imageName);
                 $image->move(dirname($destination), basename($destination));
 
                 ItemImage::create([
                     'item_id' => $item->item_id,
-                    'image'   => 'items/' . $imageName,
+                    'image'   => '/images/items/' . $imageName,
                 ]);
             }
+        } else {
+            ItemImage::create([
+                'item_id' => $item->item_id,
+                'image'   => '/images/items/' . $slug . '.jpg',
+            ]);
         }
 
         return redirect() // add popup or whatever

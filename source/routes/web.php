@@ -8,6 +8,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\VendorProductController;
+use App\Http\Controllers\VendorOrderController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -93,18 +94,19 @@ Route::middleware(['auth', 'role:vendor'])->group(function () {
 
     Route::get('/vendor-profile/vendor-address-add', fn() => view('pages/vendor-address-add'))->name('vendor.address.add');
 
-    Route::get('/vendor-orders', fn() => view('pages.vendor-orders'))->name('vendor.orders');
+    Route::get('/vendor-orders', [VendorOrderController::class, 'index'])->name('vendor.orders');
+    Route::post('/vendor-orders/{order}/confirm', [VendorOrderController::class, 'confirm'])->name('vendor.orders.confirm');
+    Route::post('/vendor-orders/{order}/ship', [VendorOrderController::class, 'ship'])->name('vendor.orders.ship');
+    Route::post('/vendor-orders/{order}/deliver', [VendorOrderController::class, 'deliver'])->name('vendor.orders.deliver');
 
-    Route::get('/vendor-analytics', fn() => view('pages.vendor-analytics'))->name('vendor.analytics');
+    Route::get('/vendor-analytics', [DashboardController::class, 'index'])->name('vendor.analytics');
+    Route::get('/vendor-destroy', fn() => view('pages.vendor-analytics'))->name('vendor.products.destroy');
+
+    Route::get('/vendor-products/{item}/edit', [VendorProductController::class, 'edit'])->name('vendor.products.edit');
+    Route::post('/vendor-products/{item}/edit', [VendorProductController::class, 'update'])->name('vendor.products.update');
 });
 
-Route::get('/vendor-profile/vendor-product-edit', function () {
-    return view('pages/vendor-product-edit');
-})->name('vendor.products.edit');
-
-Route::get('/vendor-profile/vendor-product-add', function () {
-    return view('pages/vendor-product-add');
-})->name('vendor.products.add');
+Route::get('/vendor-profile/vendor-product-add', [VendorProductController::class, 'create'])->name('vendor.products.add');
 
 Route::get('/vendor-profile/vendor-product-add-bundle', function () {
     return view('pages/vendor-product-add-bundle');

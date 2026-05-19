@@ -17,16 +17,16 @@ INSERT INTO items (vendor_id, price, name, description, is_active, stock, sku, i
 SET @v5_start = (SELECT MIN(item_id) FROM items WHERE vendor_id = 5);
 
 INSERT INTO item_images (item_id, image, created_at, updated_at) VALUES
-(@v5_start + 0, '/images/items/41/1.jpg', NOW(), NOW()),
-(@v5_start + 1, '/images/items/42/1.jpg', NOW(), NOW()),
-(@v5_start + 2, '/images/items/43/1.jpg', NOW(), NOW()),
-(@v5_start + 3, '/images/items/44/1.jpg', NOW(), NOW()),
-(@v5_start + 4, '/images/items/45/1.jpg', NOW(), NOW()),
-(@v5_start + 5, '/images/items/46/1.jpg', NOW(), NOW()),
-(@v5_start + 6, '/images/items/47/1.jpg', NOW(), NOW()),
-(@v5_start + 7, '/images/items/48/1.jpg', NOW(), NOW()),
-(@v5_start + 8, '/images/items/49/1.jpg', NOW(), NOW()),
-(@v5_start + 9, '/images/items/50/1.jpg', NOW(), NOW());
+(@v5_start + 0, '/images/items/extension-cord-3-gang-2m.jpg', NOW(), NOW()),
+(@v5_start + 1, '/images/items/led-desk-lamp-usb.jpg', NOW(), NOW()),
+(@v5_start + 2, '/images/items/plastic-hangers-10s.jpg', NOW(), NOW()),
+(@v5_start + 3, '/images/items/mini-electric-fan-usb.jpg', NOW(), NOW()),
+(@v5_start + 4, '/images/items/clothespin-plastic-24s.jpg', NOW(), NOW()),
+(@v5_start + 5, '/images/items/microfiber-towel-large.jpg', NOW(), NOW()),
+(@v5_start + 6, '/images/items/trash-bags-10s-medium.jpg', NOW(), NOW()),
+(@v5_start + 7, '/images/items/tumbler-stainless-500ml.jpg', NOW(), NOW()),
+(@v5_start + 8, '/images/items/laundry-detergent-500g.jpg', NOW(), NOW()),
+(@v5_start + 9, '/images/items/broom-and-dustpan-set-mini.jpg', NOW(), NOW());
 
 INSERT INTO stock_logs (item_id, old_stock, new_stock, quantity_changed, remarks, created_at) VALUES
 (@v5_start + 0, 0,  60,  60, 'Initial stock', NOW()),

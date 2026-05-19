@@ -58,7 +58,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-zinc-500 mb-1 group-hover:text-emerald-600 transition-colors">Active Orders</p>
-                    <p class="text-3xl font-bold text-zinc-900">0</p>
+                    <p class="text-3xl font-bold text-zinc-900">{{ $activeOrders ?? 0 }}</p>
                 </div>
                 <div class="w-12 h-12 rounded-xl bg-fuchsia-50 flex items-center justify-center text-fuchsia-600 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
@@ -78,7 +78,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-zinc-500 mb-1 group-hover:text-emerald-600 transition-colors">Total Revenue</p>
-                    <p class="text-3xl font-bold text-zinc-900">₱0.00</p>
+                    <p class="text-3xl font-bold text-zinc-900">₱{{ number_format($totalRevenue ?? 0, 2) }}</p>
                 </div>
                 <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-100 transition-colors">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -90,19 +90,55 @@
         </a>
     </div>
 
-    <!-- Recent Activity Placeholder -->
+    <!-- Recent Activity Section -->
     <div class="bg-white rounded-3xl p-8 border border-gray-200 shadow-md">
         <div class="flex items-center justify-between mb-6">
             <h2 class="text-xl font-bold text-zinc-900">Recent Activity</h2>
-            <a href="#" class="text-sm font-medium text-indigo-600 hover:text-indigo-800 transition-colors">View all</a>
+            @if(isset($activities) && $activities->isNotEmpty())
+                <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">Live</span>
+            @endif
         </div>
-        <div class="flex flex-col items-center justify-center py-12 text-center">
-            <div class="w-24 h-24 bg-zinc-50 rounded-full flex items-center justify-center mb-4">
-                <svg class="w-12 h-12 text-zinc-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
+        
+        @if(isset($activities) && $activities->isNotEmpty())
+            <div class="divide-y divide-gray-100">
+                @foreach($activities as $activity)
+                    <div class="py-4 first:pt-0 last:pb-0 flex items-start justify-between gap-4 group">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 rounded-xl flex-shrink-0 flex items-center justify-center transition-all duration-200 {{ $activity->color }}">
+                                {!! $activity->icon !!}
+                            </div>
+                            <div>
+                                <h3 class="text-base font-semibold text-zinc-900 group-hover:text-emerald-600 transition-colors">
+                                    @if($activity->url)
+                                        <a href="{{ $activity->url }}">{{ $activity->title }}</a>
+                                    @else
+                                        {{ $activity->title }}
+                                    @endif
+                                </h3>
+                                <p class="text-sm text-zinc-500 mt-0.5 leading-relaxed">{{ $activity->description }}</p>
+                                <span class="text-xs text-zinc-400 mt-1 inline-block">
+                                    {{ $activity->time instanceof \Carbon\Carbon ? $activity->time->diffForHumans() : \Carbon\Carbon::parse($activity->time)->diffForHumans() }}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        @if($activity->amount)
+                            <div class="text-right flex-shrink-0">
+                                <span class="text-base font-bold text-zinc-900">{{ $activity->amount }}</span>
+                            </div>
+                        @endif
+                    </div>
+                @endforeach
             </div>
-            <h3 class="text-lg font-medium text-zinc-900 mb-1">No recent activity</h3>
-            <p class="text-zinc-500 max-w-sm">When you receive new orders or updates, they will appear here.</p>
-        </div>
+        @else
+            <div class="flex flex-col items-center justify-center py-12 text-center">
+                <div class="w-24 h-24 bg-zinc-50 rounded-full flex items-center justify-center mb-4">
+                    <svg class="w-12 h-12 text-zinc-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
+                </div>
+                <h3 class="text-lg font-medium text-zinc-900 mb-1">No recent activity</h3>
+                <p class="text-zinc-500 max-w-sm">When you receive new orders or updates, they will appear here.</p>
+            </div>
+        @endif
     </div>
 </div>
 

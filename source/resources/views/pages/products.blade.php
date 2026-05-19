@@ -237,7 +237,7 @@
                                         <div class="mt-4 flex items-baseline gap-2">
                                             <span class="text-xl font-bold text-gray-900">₱{{ number_format($product->price, 2) }}</span>
                                             @if ($product->unit_type)
-                                                <span class="text-xs text-gray-500">/{{ $product->unit_type }}</span>
+                                                <span class="text-xs text-gray-500 ">/{{ (int) $product->unit_value }} {{ $product->unit_type }}</span>
                                             @endif
                                         </div>
 

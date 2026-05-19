@@ -1,9 +1,7 @@
 <header class="flex h-15 items-center justify-between border-b border-gray-200 bg-white px-8">
     {{-- Logo --}}
     <a href="/vendor-home" class="flex items-center gap-2.5 transition-opacity hover:opacity-80">
-        <div class="flex h-8.5 w-8.5 items-center justify-center rounded-full bg-green-600">
-            <x-heroicon-o-home class="h-4 w-4 text-white" />
-        </div>
+        <img src="{{ asset('images/logo.png') }}" alt="DormDash Logo" class="h-8 w-8 object-contain rounded-md" />
         <span class="text-lg font-bold tracking-tight text-gray-900">DormDash</span>
     </a>
 

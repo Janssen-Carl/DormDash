@@ -17,16 +17,16 @@ INSERT INTO items (vendor_id, price, name, description, is_active, stock, sku, i
 SET @v2_start = (SELECT MIN(item_id) FROM items WHERE vendor_id = 2);
 
 INSERT INTO item_images (item_id, image, created_at, updated_at) VALUES
-(@v2_start + 0, '/images/items/11/1.jpg', NOW(), NOW()),
-(@v2_start + 1, '/images/items/12/1.jpg', NOW(), NOW()),
-(@v2_start + 2, '/images/items/13/1.jpg', NOW(), NOW()),
-(@v2_start + 3, '/images/items/14/1.jpg', NOW(), NOW()),
-(@v2_start + 4, '/images/items/15/1.jpg', NOW(), NOW()),
-(@v2_start + 5, '/images/items/16/1.jpg', NOW(), NOW()),
-(@v2_start + 6, '/images/items/17/1.jpg', NOW(), NOW()),
-(@v2_start + 7, '/images/items/18/1.jpg', NOW(), NOW()),
-(@v2_start + 8, '/images/items/19/1.jpg', NOW(), NOW()),
-(@v2_start + 9, '/images/items/20/1.jpg', NOW(), NOW());
+(@v2_start + 0, '/images/items/argentina-corned-beef-150g.jpg', NOW(), NOW()),
+(@v2_start + 1, '/images/items/century-tuna-flakes-in-oil.jpg', NOW(), NOW()),
+(@v2_start + 2, '/images/items/spam-luncheon-meat-115g.jpg', NOW(), NOW()),
+(@v2_start + 3, '/images/items/delimondo-corned-beef-380g.jpg', NOW(), NOW()),
+(@v2_start + 4, '/images/items/mega-sardines-in-tomato-sauce.jpg', NOW(), NOW()),
+(@v2_start + 5, '/images/items/bear-brand-fortified-milk-33g.jpg', NOW(), NOW()),
+(@v2_start + 6, '/images/items/milo-300g-powder.jpg', NOW(), NOW()),
+(@v2_start + 7, '/images/items/tang-orange-juice-25g.jpg', NOW(), NOW()),
+(@v2_start + 8, '/images/items/energen-chocolate-10s.jpg', NOW(), NOW()),
+(@v2_start + 9, '/images/items/gardenia-white-bread.jpg', NOW(), NOW());
 
 INSERT INTO stock_logs (item_id, old_stock, new_stock, quantity_changed, remarks, created_at) VALUES
 (@v2_start + 0, 0, 100, 100, 'Initial stock', NOW()),

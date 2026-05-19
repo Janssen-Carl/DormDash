@@ -3,42 +3,77 @@
 @section('title', 'Home - DormDash')
 
 @section('content')
-        <section class="px-8 py-16">
-            <div class="mx-auto max-w-6xl">
-                <div class="grid grid-cols-2 gap-16 items-center">
+        <section class="px-8 py-16 lg:py-24 overflow-hidden relative bg-white">
+            <!-- Background Decorative Blob -->
+            <div class="absolute -top-24 -right-24 w-96 h-96 bg-green-50 rounded-full mix-blend-multiply filter blur-3xl opacity-70"></div>
+            
+            <div class="mx-auto max-w-6xl relative z-10">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                    
+                    {{-- Left Content --}}
                     <div class="flex flex-col justify-center">
-                        <h1 class="text-5xl font-bold tracking-tight text-gray-900">Welcome to DormDash!</h1>
-                        <p class="mt-4 text-lg text-gray-600">Your one-stop shop for all your grocery needs with amazing
-                            deals.</p>
-
-                        <div class="mt-8">
-                            <div class="relative mb-6">
-                                <x-heroicon-o-magnifying-glass class="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
-                                <input type="text" placeholder="Search for groceries..."
-                                    class="w-full rounded-lg border border-gray-200 bg-white py-3 pl-12 pr-4 text-gray-900 placeholder-gray-500 transition-colors focus:border-green-600 focus:ring-1 focus:ring-green-600" />
-                            </div>
+                        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-50 border border-green-100 text-green-700 text-sm font-semibold w-fit mb-6 shadow-sm">
+                            <span class="relative flex h-2.5 w-2.5">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                            </span>
+                            Lightning Fast Delivery to Your Dorm
                         </div>
+                        
+                        <h1 class="text-5xl md:text-6xl font-extrabold tracking-tight text-gray-900 leading-[1.15]">
+                            Craving a snack? <br/>
+                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-400">We've got you.</span>
+                        </h1>
+                        
+                        <p class="mt-6 text-lg text-gray-600 leading-relaxed max-w-lg">
+                            Your ultimate one-stop shop for late-night cravings, essential groceries, and amazing student deals. Delivered straight to your door.
+                        </p>
 
-                        <div class="flex gap-3 w-full">
-                            <a href="/products/offers"
-                                class="flex flex-1 h-12 items-center justify-center rounded-lg border border-green-600 bg-white font-semibold text-green-600 transition-colors hover:bg-green-50">
-                                See Deals
-                            </a>
+                        <form action="/products" method="GET" class="mt-8 relative max-w-md group">
+                            <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                                <svg class="h-5 w-5 text-gray-400 group-focus-within:text-green-600 transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            </div>
+                            <input type="search" name="q" placeholder="Search for groceries, chips, drinks..."
+                                class="w-full rounded-2xl border-0 bg-white py-4 pl-12 pr-16 text-gray-900 shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all focus:ring-2 focus:ring-green-500 focus:shadow-[0_8px_30px_rgb(22,163,74,0.15)] placeholder-gray-400 font-medium" />
+                            <button type="submit"
+                                class="absolute right-2 top-2 bottom-2 flex w-12 items-center justify-center rounded-xl bg-green-600 text-white transition-all hover:bg-green-700 hover:scale-105 active:scale-95 shadow-md hover:shadow-lg"
+                                aria-label="Search products">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path></svg>
+                            </button>
+                        </form>
 
+                        <div class="mt-8 flex flex-wrap items-center gap-4">
                             <a href="/products"
-                                class="flex flex-1 h-12 items-center justify-center rounded-lg bg-green-600 font-semibold text-white transition-colors hover:bg-green-700">
+                                class="inline-flex h-12 items-center justify-center rounded-xl bg-gray-900 px-8 font-semibold text-white transition-all hover:bg-gray-800 hover:shadow-lg hover:-translate-y-0.5">
                                 Browse Products
                             </a>
+                            <a href="/products/offers"
+                                class="inline-flex h-12 items-center justify-center rounded-xl border-2 border-gray-200 bg-white px-8 font-semibold text-gray-700 transition-all hover:border-gray-300 hover:bg-gray-50 hover:-translate-y-0.5">
+                                See Deals
+                            </a>
                         </div>
                     </div>
 
-                    <div class="flex items-center justify-center">
-                        <div class="h-80 w-full rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200">
-                            <div class="flex h-full w-full items-center justify-center text-gray-300">
-                                <x-heroicon-o-photo class="h-24 w-24" />
+                    {{-- Right Content: Image --}}
+                    <div class="relative mt-8 lg:mt-0 flex justify-center lg:justify-end">
+                        <!-- Decorative background element -->
+                        <div class="absolute inset-4 bg-gradient-to-tr from-green-100 to-emerald-50 rounded-[3rem] rotate-3 scale-105 -z-10 transition-transform hover:rotate-6 duration-500"></div>
+                        
+                        <!-- Hero Image -->
+                        <img src="{{ asset('images/home_hero_groceries.png') }}" alt="Fresh groceries and snacks" class="w-full max-w-[500px] rounded-[2.5rem] shadow-2xl object-cover aspect-square ring-1 ring-black/5 hover:-translate-y-2 transition-transform duration-500 bg-white" />
+                        
+                        <!-- Floating Badge -->
+                        <div class="absolute -bottom-4 -left-4 md:-left-8 bg-white p-4 rounded-2xl shadow-xl border border-gray-100 flex items-center gap-4 transition-transform hover:-translate-y-1 z-20">
+                            <div class="bg-yellow-50 p-2.5 rounded-xl">
+                                <svg class="w-6 h-6 text-yellow-500" fill="currentColor" viewBox="0 0 24 24"><path d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"></path></svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-gray-900">Top Rated</p>
+                                <p class="text-xs text-gray-500">Loved by Students</p>
                             </div>
                         </div>
                     </div>
+                    
                 </div>
             </div>
         </section>
