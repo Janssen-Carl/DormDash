@@ -13,7 +13,7 @@
                     <p class="mt-2 text-gray-600">Update your personal information</p>
                 </div>
 
-                <form class="space-y-6" action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">               @csrf
+                <form class="space-y-6" action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">                  @csrf
                     {{-- Personal Information Section --}}
                     <div class="rounded-3xl border border-gray-100 bg-gradient-to-br from-white to-gray-50 p-8 shadow-lg">
                         <h3 class="mb-8 text-lg font-bold text-gray-900">Personal Information</h3>
