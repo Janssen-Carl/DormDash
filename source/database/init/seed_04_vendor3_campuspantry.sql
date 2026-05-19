@@ -17,16 +17,16 @@ INSERT INTO items (vendor_id, price, name, description, is_active, stock, sku, i
 SET @v3_start = (SELECT MIN(item_id) FROM items WHERE vendor_id = 3);
 
 INSERT INTO item_images (item_id, image, created_at, updated_at) VALUES
-(@v3_start + 0, '/images/items/21/1.jpg', NOW(), NOW()),
-(@v3_start + 1, '/images/items/22/1.jpg', NOW(), NOW()),
-(@v3_start + 2, '/images/items/23/1.jpg', NOW(), NOW()),
-(@v3_start + 3, '/images/items/24/1.jpg', NOW(), NOW()),
-(@v3_start + 4, '/images/items/25/1.jpg', NOW(), NOW()),
-(@v3_start + 5, '/images/items/26/1.jpg', NOW(), NOW()),
-(@v3_start + 6, '/images/items/27/1.jpg', NOW(), NOW()),
-(@v3_start + 7, '/images/items/28/1.jpg', NOW(), NOW()),
-(@v3_start + 8, '/images/items/29/1.jpg', NOW(), NOW()),
-(@v3_start + 9, '/images/items/30/1.jpg', NOW(), NOW());
+(@v3_start + 0, '/images/items/mongol-no-2-pencil-12s.jpg', NOW(), NOW()),
+(@v3_start + 1, '/images/items/hbw-ballpen-black.jpg', NOW(), NOW()),
+(@v3_start + 2, '/images/items/campus-notebook-80-leaves.jpg', NOW(), NOW()),
+(@v3_start + 3, '/images/items/yellow-pad-paper-80-leaves.jpg', NOW(), NOW()),
+(@v3_start + 4, '/images/items/scotch-tape-24mm.jpg', NOW(), NOW()),
+(@v3_start + 5, '/images/items/crayola-sharpener.jpg', NOW(), NOW()),
+(@v3_start + 6, '/images/items/elmer.jpg', NOW(), NOW()),
+(@v3_start + 7, '/images/items/stabilo-highlighter-yellow.jpg', NOW(), NOW()),
+(@v3_start + 8, '/images/items/plastic-folder-a4-clear.jpg', NOW(), NOW()),
+(@v3_start + 9, '/images/items/scientific-calculator-fx-82.jpg', NOW(), NOW());
 
 INSERT INTO stock_logs (item_id, old_stock, new_stock, quantity_changed, remarks, created_at) VALUES
 (@v3_start + 0, 0, 200, 200, 'Initial stock', NOW()),

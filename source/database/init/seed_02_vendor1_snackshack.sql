@@ -19,16 +19,16 @@ SET @v1_start = (SELECT MIN(item_id) FROM items WHERE vendor_id = 1);
 
 -- Item images (path template: /images/items/{item_id}/{n}.jpg)
 INSERT INTO item_images (item_id, image, created_at, updated_at) VALUES
-(@v1_start + 0, '/images/items/1/1.jpg', NOW(), NOW()),
-(@v1_start + 1, '/images/items/2/1.jpg', NOW(), NOW()),
-(@v1_start + 2, '/images/items/3/1.jpg', NOW(), NOW()),
-(@v1_start + 3, '/images/items/4/1.jpg', NOW(), NOW()),
-(@v1_start + 4, '/images/items/5/1.jpg', NOW(), NOW()),
-(@v1_start + 5, '/images/items/6/1.jpg', NOW(), NOW()),
-(@v1_start + 6, '/images/items/7/1.jpg', NOW(), NOW()),
-(@v1_start + 7, '/images/items/8/1.jpg', NOW(), NOW()),
-(@v1_start + 8, '/images/items/9/1.jpg', NOW(), NOW()),
-(@v1_start + 9, '/images/items/10/1.jpg', NOW(), NOW());
+(@v1_start + 0, '/images/items/lucky-me-pancit-canton-original.jpg', NOW(), NOW()),
+(@v1_start + 1, '/images/items/lucky-me-pancit-canton-chilimansi.jpg', NOW(), NOW()),
+(@v1_start + 2, '/images/items/nissin-cup-noodles-seafood.jpg', NOW(), NOW()),
+(@v1_start + 3, '/images/items/piattos-cheese.jpg', NOW(), NOW()),
+(@v1_start + 4, '/images/items/nova-cheddar-cheese.jpg', NOW(), NOW()),
+(@v1_start + 5, '/images/items/skyflakes-crackers.jpg', NOW(), NOW()),
+(@v1_start + 6, '/images/items/kopiko-brown-coffee-3in1.jpg', NOW(), NOW()),
+(@v1_start + 7, '/images/items/great-taste-white-3in1.jpg', NOW(), NOW()),
+(@v1_start + 8, '/images/items/oishi-prawn-crackers.jpg', NOW(), NOW()),
+(@v1_start + 9, '/images/items/c2-green-tea-apple.jpg', NOW(), NOW());
 
 -- Stock logs (initial stock entry)
 INSERT INTO stock_logs (item_id, old_stock, new_stock, quantity_changed, remarks, created_at) VALUES

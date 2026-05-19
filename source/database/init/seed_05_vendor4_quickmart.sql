@@ -17,16 +17,16 @@ INSERT INTO items (vendor_id, price, name, description, is_active, stock, sku, i
 SET @v4_start = (SELECT MIN(item_id) FROM items WHERE vendor_id = 4);
 
 INSERT INTO item_images (item_id, image, created_at, updated_at) VALUES
-(@v4_start + 0, '/images/items/31/1.jpg', NOW(), NOW()),
-(@v4_start + 1, '/images/items/32/1.jpg', NOW(), NOW()),
-(@v4_start + 2, '/images/items/33/1.jpg', NOW(), NOW()),
-(@v4_start + 3, '/images/items/34/1.jpg', NOW(), NOW()),
-(@v4_start + 4, '/images/items/35/1.jpg', NOW(), NOW()),
-(@v4_start + 5, '/images/items/36/1.jpg', NOW(), NOW()),
-(@v4_start + 6, '/images/items/37/1.jpg', NOW(), NOW()),
-(@v4_start + 7, '/images/items/38/1.jpg', NOW(), NOW()),
-(@v4_start + 8, '/images/items/39/1.jpg', NOW(), NOW()),
-(@v4_start + 9, '/images/items/40/1.jpg', NOW(), NOW());
+(@v4_start + 0, '/images/items/safeguard-soap-ivory-130g.jpg', NOW(), NOW()),
+(@v4_start + 1, '/images/items/head-shoulders-shampoo-180ml.jpg', NOW(), NOW()),
+(@v4_start + 2, '/images/items/colgate-triple-action-100ml.jpg', NOW(), NOW()),
+(@v4_start + 3, '/images/items/rexona-deo-roll-on-40ml.jpg', NOW(), NOW()),
+(@v4_start + 4, '/images/items/dove-conditioner-180ml.jpg', NOW(), NOW()),
+(@v4_start + 5, '/images/items/palmolive-shampoo-sachet-15ml.jpg', NOW(), NOW()),
+(@v4_start + 6, '/images/items/lux-body-wash-250ml.jpg', NOW(), NOW()),
+(@v4_start + 7, '/images/items/oral-b-toothbrush-medium.jpg', NOW(), NOW()),
+(@v4_start + 8, '/images/items/johnson.jpg', NOW(), NOW()),
+(@v4_start + 9, '/images/items/nivea-lotion-200ml.jpg', NOW(), NOW());
 
 INSERT INTO stock_logs (item_id, old_stock, new_stock, quantity_changed, remarks, created_at) VALUES
 (@v4_start + 0, 0, 200, 200, 'Initial stock', NOW()),
