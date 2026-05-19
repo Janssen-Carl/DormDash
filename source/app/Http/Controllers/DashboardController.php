@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Item;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -66,6 +67,16 @@ class DashboardController extends Controller
 
                 $itemsForecast = $itemsResp->successful() ? $itemsResp->json() : [];
 
+                // Enrich item forecasts with product names from the database
+                if (!empty($itemsForecast)) {
+                    $itemIds = array_column($itemsForecast, 'item_id');
+                    $itemNames = Item::whereIn('item_id', $itemIds)->pluck('name', 'item_id')->toArray();
+                    foreach ($itemsForecast as &$itm) {
+                        $itm['name'] = $itemNames[$itm['item_id']] ?? ('Item ' . $itm['item_id']);
+                    }
+                    unset($itm);
+                }
+
                 $summaryResp = Http::timeout(5)
                     ->get($base . '/forecast/summary', [
                         'vendor_id' => $vendorId,
@@ -97,6 +108,25 @@ class DashboardController extends Controller
             Log::warning('Dashboard: no forecast data available from any AI endpoints');
         }
 
-        return view('pages.vendor-analytics', compact('forecast', 'itemsForecast', 'summary', 'inventory'));
+        // Calculate 7-day insights
+        $past7Total = 0;
+        $next7Total = 0;
+        $growth = 0;
+        
+        if (!empty($forecast['historical'])) {
+            $last7 = array_slice($forecast['historical'], -7);
+            $past7Total = array_sum(array_column($last7, 'revenue'));
+        }
+        if (!empty($forecast['predicted'])) {
+            $next7Total = array_sum($forecast['predicted']);
+        }
+        if ($past7Total > 0) {
+            $growth = (($next7Total - $past7Total) / $past7Total) * 100;
+        }
+
+        return view('pages.vendor-analytics', compact(
+            'forecast', 'itemsForecast', 'summary', 'inventory',
+            'past7Total', 'next7Total', 'growth'
+        ));
     }
 }
