@@ -148,6 +148,14 @@
 
                 <div class="mt-5 flex flex-col gap-4">
                     @php
+                        if (isset($itemsForecast) && is_array($itemsForecast)) {
+                            usort($itemsForecast, function($a, $b) {
+                                $totalA = $a['total_predicted'] ?? array_sum($a['predicted'] ?? []);
+                                $totalB = $b['total_predicted'] ?? array_sum($b['predicted'] ?? []);
+                                return $totalB <=> $totalA; // Descending order
+                            });
+                        }
+
                         $maxPredicted = 0;
                         if (isset($itemsForecast) && count($itemsForecast) > 0) {
                             $maxPredicted = max(array_map(function ($it) {

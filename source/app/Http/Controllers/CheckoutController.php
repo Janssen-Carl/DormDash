@@ -170,7 +170,7 @@ class CheckoutController extends Controller
                 'address_id' => $request->address_id,
                 'shipping_method' => 'Standard',
                 'order_total' => $total,
-                'order_status' => 'to_ship'
+                'order_status' => 'pending'
             ]);
 
             // 2. Attach Items

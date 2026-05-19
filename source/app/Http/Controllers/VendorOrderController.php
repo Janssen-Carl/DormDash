@@ -85,15 +85,33 @@ class VendorOrderController extends Controller
         }
 
         // Find the order that has this vendor's items and is currently pending
-        $order = Order::whereHas('items', function ($query) use ($vendor) {
+        $order = Order::with('items')->whereHas('items', function ($query) use ($vendor) {
                 $query->where('items.vendor_id', $vendor->vendor_id);
             })
             ->where('order_id', $orderId)
             ->where('order_status', 'pending')
             ->firstOrFail();
 
-        // Transition: pending -> to_ship
-        $order->update(['order_status' => 'to_ship']);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($order, $vendor) {
+            // Deduct stock for items belonging to this vendor in this order
+            foreach ($order->items as $item) {
+                if ($item->vendor_id === $vendor->vendor_id) {
+                    $quantityOrdered = $item->pivot->quantity;
+                    
+                    // Deduct stock
+                    if ($item->stock >= $quantityOrdered) {
+                        $item->decrement('stock', $quantityOrdered);
+                    } else {
+                        // Not enough stock, decrement to 0 at worst
+                        $item->stock = max(0, $item->stock - $quantityOrdered);
+                        $item->save();
+                    }
+                }
+            }
+
+            // Transition: pending -> to_ship
+            $order->update(['order_status' => 'to_ship']);
+        });
 
         return redirect()->back()->with('success', "Order #{$orderId} has been confirmed successfully!");
     }
