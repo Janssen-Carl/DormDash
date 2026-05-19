@@ -121,13 +121,22 @@
 
                     {{-- Categories --}}
                     <div>
-                        <label for="categories" class="mb-2 block text-sm font-semibold text-gray-700">Categories</label>
-                        <select id="categories" name="categories[]" multiple class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-700">
+                        <label class="mb-3 block text-sm font-semibold text-gray-700">Categories</label>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
                             @foreach($categories as $cat)
-                                <option value="{{ $cat->category_id }}" {{ (collect(old('categories', []))->contains($cat->category_id)) ? 'selected' : '' }}>{{ $cat->name }}</option>
+                                <label class="flex items-center gap-2.5 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 cursor-pointer transition-all duration-200 hover:border-emerald-300 hover:bg-emerald-50/50 has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50 has-[:checked]:ring-1 has-[:checked]:ring-emerald-500/20">
+                                    <input
+                                        type="checkbox"
+                                        name="categories[]"
+                                        value="{{ $cat->category_id }}"
+                                        {{ (collect(old('categories', []))->contains($cat->category_id)) ? 'checked' : '' }}
+                                        class="h-4 w-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500/30 transition"
+                                    >
+                                    <span class="text-sm font-medium text-zinc-700">{{ $cat->name }}</span>
+                                </label>
                             @endforeach
-                        </select>
-                        <p class="mt-1 text-sm text-gray-500">Select one or more categories the product belongs to.</p>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">Select one or more categories the product belongs to.</p>
                     </div>
 
                     <div class="grid gap-6 md:grid-cols-2">
