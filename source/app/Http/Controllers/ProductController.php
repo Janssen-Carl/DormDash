@@ -83,6 +83,6 @@ class ProductController extends Controller
             }
         }
 
-        return view('pages.products', compact('categoryItems', 'parentCategories', 'vendors', 'selectedVendors', 'selectedCategories', 'search'));
+        return view('pages.products', compact('categoryItems', 'parentCategories', 'vendors', 'selectedVendors', 'selectedCategories'));
     }
 }

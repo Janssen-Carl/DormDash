@@ -173,34 +173,17 @@
                         </p>
                     </div>
 
-                    <form action="/products" method="GET" class="mt-6 flex w-full max-w-2xl gap-3">
-                        @foreach((array) $selectedVendors as $vendorId)
-                            <input type="hidden" name="vendors[]" value="{{ $vendorId }}">
-                        @endforeach
-                        @foreach((array) $selectedCategories as $categoryId)
-                            <input type="hidden" name="categories[]" value="{{ $categoryId }}">
-                        @endforeach
-                        <div class="relative flex-1">
-                            <x-heroicon-o-magnifying-glass class="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
-                            <input
-                                type="search"
-                                name="q"
-                                value="{{ $search }}"
-                                placeholder="Search products, brands, vendors..."
-                                class="w-full rounded-lg border border-gray-200 bg-white py-3 pl-12 pr-4 text-gray-900 placeholder-gray-500 transition-colors focus:border-green-600 focus:ring-1 focus:ring-green-600"
-                            />
-                        </div>
-                        <button type="submit"
-                            class="inline-flex h-12 items-center justify-center rounded-lg bg-green-600 px-6 text-sm font-semibold text-white transition-colors hover:bg-green-700">
-                            Search
-                        </button>
-                    </form>
-
-                    @if($search !== '')
-                        <a href="/products" class="mt-3 text-sm font-semibold text-green-600 hover:text-green-700">
-                            Clear search
+                    <div class="mt-6 grid w-full max-w-sm grid-cols-2 gap-3">
+                        <a href="/products/offers"
+                            class="inline-flex h-11 items-center justify-center rounded-lg border border-green-600 bg-white text-sm font-semibold text-green-600 transition-colors hover:bg-green-50">
+                            Shop Offers
                         </a>
-                    @endif
+
+                        <a href="/products"
+                            class="inline-flex h-11 items-center justify-center rounded-lg bg-green-600 text-sm font-semibold text-white transition-colors hover:bg-green-700">
+                            View All Products
+                        </a>
+                    </div>
                 </div>
                 @endguest
 
