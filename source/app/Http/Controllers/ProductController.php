@@ -11,6 +11,11 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
+        /* Added this para ma define search
+         if this breaks your code comment it,
+          para sakin lang ito - diego*/
+        $search = $request->input('search', '');
+
         $selectedVendors = $request->input('vendors', []);
         $selectedCategories = $request->input('categories', []);
 
