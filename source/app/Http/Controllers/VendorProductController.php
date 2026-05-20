@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Item;
 use App\Models\ItemImage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class VendorProductController extends Controller
 {
@@ -84,6 +85,16 @@ class VendorProductController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
+        if ($item->is_bundle) {
+            $products = Item::where('vendor_id', Auth::user()->vendor->vendor_id)
+                ->where('is_bundle', 0)
+                ->where('is_active', 1)
+                ->get();
+                
+            $bundleItems = $item->bundles->keyBy('item_id');
+            return view('pages.vendor-product-edit-bundle', compact('item', 'products', 'bundleItems'));
+        }
+
         return view('pages.vendor-product-edit', compact('item'));
     }
 
@@ -110,6 +121,72 @@ class VendorProductController extends Controller
         return redirect()
             ->route('vendor.products')
             ->with('success', 'Product updated successfully!');
+    }
+
+    public function updateBundle(Request $request, Item $item)
+    {
+        if ($item->vendor_id !== Auth::user()->vendor->vendor_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $validated = $request->validate([
+            'bundle_name'   => 'required|string|max:255',
+            'description'   => 'nullable|string',
+            'price'         => 'required|numeric|min:0',
+            'stock'         => 'required|integer|min:0',
+            'sku'           => 'nullable|string|max:100',
+            'is_active'     => 'nullable|boolean',
+            'selected_products' => 'required|array|min:1',
+        ]);
+
+        $isActive = $request->has('is_active') ? 1 : 0;
+
+        try {
+            DB::beginTransaction();
+
+            $item->update([
+                'name' => $validated['bundle_name'],
+                'description' => $validated['description'] ?? null,
+                'price' => $validated['price'],
+                'stock' => $validated['stock'],
+                'sku' => $validated['sku'] ?? null,
+                'is_active' => $isActive,
+            ]);
+
+            DB::table('bundle_items')->where('bundle_id', $item->item_id)->delete();
+
+            $selectedProducts = $request->input('selected_products');
+            $bundleItemsData = [];
+            
+            foreach ($selectedProducts as $productId => $data) {
+                if (isset($data['selected']) && $data['selected'] == '1') {
+                    $quantity = isset($data['quantity']) && $data['quantity'] > 0 ? $data['quantity'] : 1;
+                    $bundleItemsData[] = [
+                        'item_id' => $productId,
+                        'bundle_id' => $item->item_id,
+                        'quantity' => $quantity,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
+            }
+
+            if (empty($bundleItemsData)) {
+                throw new \Exception('You must select at least one product for the bundle.');
+            }
+
+            DB::table('bundle_items')->insert($bundleItemsData);
+            
+            DB::commit();
+
+            return redirect()
+                ->route('vendor.products')
+                ->with('success', 'Bundle updated successfully!');
+                
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Failed to update bundle: ' . $e->getMessage()])->withInput();
+        }
     }
 
     public function create()
@@ -207,5 +284,102 @@ class VendorProductController extends Controller
         return redirect()
             ->route('vendor.products')
             ->with('success', 'Product has been removed successfully.');
+    }
+
+    public function createBundle()
+    {
+        $products = Item::where('vendor_id', Auth::user()->vendor->vendor_id)
+            ->where('is_bundle', 0)
+            ->where('is_active', 1)
+            ->get();
+            
+        return view('pages.vendor-product-add-bundle', compact('products'));
+    }
+
+    public function storeBundle(Request $request)
+    {
+        $validated = $request->validate([
+            'bundle_name'   => 'required|string|max:255',
+            'description'   => 'nullable|string',
+            'price'         => 'required|numeric|min:0',
+            'stock'         => 'required|integer|min:0',
+            'sku'           => 'nullable|string|max:100',
+            'is_active'     => 'nullable|boolean',
+            'images.*'      => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'selected_products' => 'required|array|min:1',
+        ]);
+
+        $isActive = $request->has('is_active') ? 1 : 0;
+
+        try {
+            DB::beginTransaction();
+
+            $bundleItem = Item::create([
+                'vendor_id' => Auth::user()->vendor->vendor_id,
+                'name' => $validated['bundle_name'],
+                'description' => $validated['description'] ?? null,
+                'price' => $validated['price'],
+                'stock' => $validated['stock'],
+                'sku' => $validated['sku'] ?? null,
+                'is_bundle' => 1,
+                'is_active' => $isActive,
+                'is_available' => 1,
+                'is_perishable' => 0,
+                'has_expiry' => 0,
+            ]);
+
+            $slug = \Illuminate\Support\Str::slug($bundleItem->name);
+            if ($request->hasFile('images')) {
+                $images = $request->file('images');
+                foreach ($images as $index => $image) {
+                    $ext = $image->getClientOriginalExtension();
+                    $imageName = 'bundle-' . $slug . ($index > 0 ? '-' . ($index + 1) : '') . '-' . time() . '.' . $ext;
+                    $destination = storage_path('app/public/items/' . $imageName);
+                    $image->move(dirname($destination), basename($destination));
+
+                    ItemImage::create([
+                        'item_id' => $bundleItem->item_id,
+                        'image'   => '/images/items/' . $imageName,
+                    ]);
+                }
+            } else {
+                ItemImage::create([
+                    'item_id' => $bundleItem->item_id,
+                    'image'   => '/images/items/' . $slug . '.jpg',
+                ]);
+            }
+
+            $selectedProducts = $request->input('selected_products');
+            $bundleItemsData = [];
+            
+            foreach ($selectedProducts as $productId => $data) {
+                if (isset($data['selected']) && $data['selected'] == '1') {
+                    $quantity = isset($data['quantity']) && $data['quantity'] > 0 ? $data['quantity'] : 1;
+                    $bundleItemsData[] = [
+                        'item_id' => $productId,
+                        'bundle_id' => $bundleItem->item_id,
+                        'quantity' => $quantity,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
+            }
+
+            if (empty($bundleItemsData)) {
+                throw new \Exception('You must select at least one product for the bundle.');
+            }
+
+            DB::table('bundle_items')->insert($bundleItemsData);
+            
+            DB::commit();
+
+            return redirect()
+                ->route('vendor.products')
+                ->with('success', 'Bundle created successfully!');
+                
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Failed to create bundle: ' . $e->getMessage()])->withInput();
+        }
     }
 }

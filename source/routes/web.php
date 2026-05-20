@@ -52,9 +52,15 @@ Route::get('/test-login/{id}', function ($id) {
 Route::middleware('auth')->group(function () {
 
     Route::get('/products', [ProductController::class, 'index']);
-    Route::get('/profile', fn() => view('pages/profile'));
-    Route::get('/profile/edit', fn() => view('pages/profile-edit'));
+    Route::get('/profile', [UserController::class, 'show']);
+    Route::get('/profile/edit', [\App\Http\Controllers\UserController::class, 'edit']);
+    Route::post('/profile', [\App\Http\Controllers\UserController::class, 'update'])->name('profile.update');
+    Route::post('/profile/photo', [\App\Http\Controllers\UserController::class, 'updatePhoto'])->name('profile.photo');
     Route::get('/address-payment/add', fn() => view('pages/address-payment-add'));
+    Route::post('/address/add', [\App\Http\Controllers\UserController::class, 'addAddress'])->name('address.add');
+    Route::post('/payment/add', [\App\Http\Controllers\UserController::class, 'addPayment'])->name('payment.add');
+    Route::delete('/address/{id}/delete', [\App\Http\Controllers\UserController::class, 'deleteAddress'])->name('address.delete');
+    Route::delete('/payment/{id}/delete', [\App\Http\Controllers\UserController::class, 'deletePayment'])->name('payment.delete');
 });
 
 /* -------------------- CUSTOMER ONLY -------------------- */
@@ -104,12 +110,12 @@ Route::middleware(['auth', 'role:vendor'])->group(function () {
     Route::get('/vendor-products/{item}/edit', [VendorProductController::class, 'edit'])->name('vendor.products.edit');
     Route::post('/vendor-products/{item}/edit', [VendorProductController::class, 'update'])->name('vendor.products.update');
     Route::delete('/vendor-products/{item}', [VendorProductController::class, 'destroy'])->name('vendor.products.destroy');
+    Route::post('/vendor-products/{item}/edit-bundle', [VendorProductController::class, 'updateBundle'])->name('vendor.products.updateBundle');
     Route::post('/vendor-products/{item}/restock', [VendorProductController::class, 'restock'])->name('vendor.products.restock');
 
     Route::get('/vendor-profile/vendor-product-add', [VendorProductController::class, 'create'])->name('vendor.products.add');
-    Route::get('/vendor-profile/vendor-product-add-bundle', function () {
-        return view('pages/vendor-product-add-bundle');
-    })->name('vendor.products.bundle');
+    Route::get('/vendor-profile/vendor-product-add-bundle', [VendorProductController::class, 'createBundle'])->name('vendor.products.bundle');
+    Route::post('/vendor-profile/vendor-product-add-bundle', [VendorProductController::class, 'storeBundle'])->name('vendor.products.storeBundle');
 
     Route::prefix('vendor')->name('vendor.')->group(function () {
         Route::get('/items/create', [VendorProductController::class, 'create'])

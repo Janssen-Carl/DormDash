@@ -229,9 +229,14 @@
                             </div>
 
                             <div>
-                                <p class="text-sm font-semibold text-zinc-900">
-                                    {{ $product->name }}
-                                </p>
+                                <div class="flex items-center gap-2">
+                                    <p class="text-sm font-semibold text-zinc-900">
+                                        {{ $product->name }}
+                                    </p>
+                                    @if($product->is_bundle)
+                                        <span class="rounded bg-blue-100 px-1.5 py-0.5 text-[10px] font-bold text-blue-700 uppercase tracking-wider">Bundle</span>
+                                    @endif
+                                </div>
 
                                 <p class="text-xs text-zinc-500">
                                     SKU: {{ $product->sku ?? 'N/A' }}
@@ -248,7 +253,11 @@
 
                     {{-- Unit --}}
                     <td class="whitespace-nowrap px-6 py-4 text-sm text-zinc-700">
-                        {{ $product->unit_value ? (intval($product->unit_value) . ' ' . $product->unit_type) : ($product->unit_type ?? 'N/A') }}
+                        @if($product->is_bundle)
+                            <span class="text-zinc-400 italic font-medium">Bundle Package</span>
+                        @else
+                            {{ $product->unit_value ? ($product->unit_value . ' ' . $product->unit_type) : ($product->unit_type ?? 'N/A') }}
+                        @endif
                     </td>
 
                     {{-- Stock with inline restock --}}

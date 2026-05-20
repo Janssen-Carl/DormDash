@@ -25,37 +25,102 @@ class ProductController extends Controller
         // Get all vendors for sidebar filter
         $vendors = Vendor::where('active', true)->get();
 
+        $isBundle = $request->input('is_bundle') == '1';
+
         // Group items by parent category
         $categoryItems = [];
         
-        // Filter which categories to display based on selection
-        $categoriesToDisplay = empty($selectedCategories) 
-            ? $parentCategories 
-            : $parentCategories->whereIn('category_id', $selectedCategories);
-
-        foreach ($categoriesToDisplay as $category) {
-            // Collect this category + its children IDs
-            $categoryIds = $category->children->pluck('category_id')->push($category->category_id);
-
-            $itemsQuery = Item::where('is_active', true)
+        // 1. Fetch Bundles
+        if ($isBundle || (empty($selectedCategories) && !$request->has('is_bundle'))) {
+            $bundleQuery = Item::where('is_active', true)
                 ->where('is_available', true)
-                ->whereHas('categories', function ($q) use ($categoryIds) {
-                    $q->whereIn('categories.category_id', $categoryIds);
-                })
+                ->where('is_bundle', true)
                 ->with(['images', 'vendor']);
                 
-            // Apply vendor filter if any are selected
             if (!empty($selectedVendors)) {
-                $itemsQuery->whereIn('vendor_id', $selectedVendors);
+                $bundleQuery->whereIn('vendor_id', $selectedVendors);
             }
 
-            $items = $itemsQuery->limit(10)->get();
-
-            if ($items->isNotEmpty()) {
+            if ($search !== '') {
+                $bundleQuery->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('description', 'like', "%{$search}%")
+                        ->orWhere('brand', 'like', "%{$search}%")
+                        ->orWhere('sku', 'like', "%{$search}%")
+                        ->orWhere('barcode', 'like', "%{$search}%")
+                        ->orWhereHas('vendor', function ($vendorQuery) use ($search) {
+                            $vendorQuery->where('name', 'like', "%{$search}%");
+                        });
+                });
+            }
+            
+            $bundles = $bundleQuery->limit(20)->get();
+            if ($bundles->isNotEmpty()) {
                 $categoryItems[] = [
-                    'category' => $category,
-                    'items' => $items,
+                    'category' => (object) ['name' => 'Featured Bundles', 'category_id' => 'bundles'],
+                    'items' => $bundles,
                 ];
+            }
+        }
+
+        // 2. Fetch standard Categories
+        $shouldFetchCategories = true;
+        if ($isBundle && empty($selectedCategories)) {
+            $shouldFetchCategories = false;
+        }
+
+        if ($shouldFetchCategories) {
+            $categoriesToDisplay = empty($selectedCategories) 
+                ? $parentCategories 
+                : $parentCategories->whereIn('category_id', $selectedCategories);
+
+            foreach ($categoriesToDisplay as $category) {
+                // Collect this category + its children IDs
+                $categoryIds = $category->children->pluck('category_id')->push($category->category_id);
+                $categoryMatchesSearch = $search !== '' && collect([$category])
+                    ->merge($category->children)
+                    ->contains(function ($category) use ($search) {
+                        return str_contains(strtolower($category->name ?? ''), strtolower($search))
+                            || str_contains(strtolower($category->description ?? ''), strtolower($search));
+                    });
+
+                $itemsQuery = Item::where('is_active', true)
+                    ->where('is_available', true)
+                    ->where('is_bundle', false) // Exclude bundles from standard categories
+                    ->whereHas('categories', function ($q) use ($categoryIds) {
+                        $q->whereIn('categories.category_id', $categoryIds);
+                    })
+                    ->with(['images', 'vendor']);
+                    
+                if (!empty($selectedVendors)) {
+                    $itemsQuery->whereIn('vendor_id', $selectedVendors);
+                }
+
+                if ($search !== '' && ! $categoryMatchesSearch) {
+                    $itemsQuery->where(function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%")
+                            ->orWhere('description', 'like', "%{$search}%")
+                            ->orWhere('brand', 'like', "%{$search}%")
+                            ->orWhere('sku', 'like', "%{$search}%")
+                            ->orWhere('barcode', 'like', "%{$search}%")
+                            ->orWhereHas('vendor', function ($vendorQuery) use ($search) {
+                                $vendorQuery->where('name', 'like', "%{$search}%");
+                            })
+                            ->orWhereHas('categories', function ($categoryQuery) use ($search) {
+                                $categoryQuery->where('name', 'like', "%{$search}%")
+                                    ->orWhere('description', 'like', "%{$search}%");
+                            });
+                    });
+                }
+
+                $items = $itemsQuery->limit(10)->get();
+
+                if ($items->isNotEmpty()) {
+                    $categoryItems[] = [
+                        'category' => $category,
+                        'items' => $items,
+                    ];
+                }
             }
         }
 

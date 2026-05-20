@@ -98,13 +98,28 @@ class VendorOrderController extends Controller
                 if ($item->vendor_id === $vendor->vendor_id) {
                     $quantityOrdered = $item->pivot->quantity;
                     
-                    // Deduct stock
+                    // 1. Deduct stock for the main item (standard product or the bundle itself)
                     if ($item->stock >= $quantityOrdered) {
                         $item->decrement('stock', $quantityOrdered);
                     } else {
                         // Not enough stock, decrement to 0 at worst
                         $item->stock = max(0, $item->stock - $quantityOrdered);
                         $item->save();
+                    }
+
+                    // 2. If the item is a bundle, proportionally deduct stock from its included sub-products
+                    if ($item->is_bundle) {
+                        foreach ($item->bundles as $childItem) {
+                            // Calculate total needed: (quantity of child per bundle) * (number of bundles ordered)
+                            $totalChildDeduction = $childItem->pivot->quantity * $quantityOrdered;
+                            
+                            if ($childItem->stock >= $totalChildDeduction) {
+                                $childItem->decrement('stock', $totalChildDeduction);
+                            } else {
+                                $childItem->stock = max(0, $childItem->stock - $totalChildDeduction);
+                                $childItem->save();
+                            }
+                        }
                     }
                 }
             }

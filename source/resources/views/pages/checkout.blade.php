@@ -54,11 +54,20 @@
                                     <input type="radio" name="address_id" value="{{ $address->address_id }}" class="h-4 w-4 border-gray-300 text-green-600 focus:ring-green-600" {{ $loop->first ? 'checked' : '' }}>
                                 </div>
                                 <div>
-                                    <p class="font-semibold text-gray-900">{{ $address->full_name ?? auth()->user()->name ?? 'Primary Address' }}</p>
+                                    @php
+                                        $user = auth()->user();
+                                        $isDefault = false;
+                                        if ($user->role === 'vendor') {
+                                            $isDefault = ($user->vendor->address_id ?? null) == $address->address_id;
+                                        } else {
+                                            $isDefault = ($user->customer->primary_address_id ?? null) == $address->address_id;
+                                        }
+                                    @endphp
+                                    <p class="font-semibold text-gray-900">{{ $isDefault ? 'Primary Address' : 'Secondary Address' }}</p>
                                     <p class="mt-1 text-sm text-gray-600">
-                                        {{ current(array_filter([$address->street, $address->city, $address->province])) ? implode(', ', array_filter([$address->street, $address->city, $address->province])) : 'No address details provided' }}
+                                        {{ current(array_filter([$address->street, $address->city, $address->province_state])) ? implode(', ', array_filter([$address->street, $address->city, $address->province_state])) : 'No address details provided' }}
                                     </p>
-                                    <p class="mt-1 text-sm text-gray-500">{{ $address->contact_number ?? 'No contact number' }}</p>
+                                    <p class="mt-1 text-sm text-gray-500">{{ $address->phone ?: 'No contact number' }}</p>
                                 </div>
                             </label>
                         @endforeach
