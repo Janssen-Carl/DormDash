@@ -15,7 +15,7 @@ class EDPDemo extends Seeder
 
     public function run(): void
     {
-        $file = "seed_00_edp_demo.sql";
+        $file = "seed_00_order_data.sql";
         $path = base_path("database/init/{$file}");
         if (file_exists($path)) {
             $this->command->info("Running {$file}...");
