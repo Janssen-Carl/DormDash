@@ -46,7 +46,7 @@ class OrderController extends Controller
             ->with(['items.images', 'address', 'paymentTransaction'])
             ->orderBy('created_at', 'desc');
 
-        if ($request->has('status') && in_array($request->status, ['to_ship', 'shipped', 'delivered', 'completed'])) {
+        if ($request->has('status') && in_array($request->status, ['pending', 'to_ship', 'shipped', 'delivered', 'completed'])) {
             $query->where('order_status', $request->status);
         }
 

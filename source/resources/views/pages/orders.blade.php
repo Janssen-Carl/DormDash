@@ -19,6 +19,9 @@
         <a href="/orders" class="{{ !request('status') ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }} rounded-full px-4 py-2 text-sm font-semibold transition-colors">
             All
         </a>
+        <a href="/orders?status=pending" class="{{ request('status') === 'pending' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }} rounded-full px-4 py-2 text-sm font-semibold transition-colors">
+            Pending
+        </a>
         <a href="/orders?status=to_ship" class="{{ request('status') === 'to_ship' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }} rounded-full px-4 py-2 text-sm font-semibold transition-colors">
             To Ship
         </a>

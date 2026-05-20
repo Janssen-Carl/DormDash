@@ -137,6 +137,9 @@ def item_forecasts(vendor_id: int = Query(...), days: int = Query(90), horizon: 
             'total_predicted': round(float(sum(pred)), 2)
         })
 
+    # Sort results by total_predicted descending to match the UI description
+    results.sort(key=lambda x: x['total_predicted'], reverse=True)
+
     return results
 
 

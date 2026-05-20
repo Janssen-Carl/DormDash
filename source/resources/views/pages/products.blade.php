@@ -127,11 +127,11 @@
 
                     {{-- Bundles --}}
                     <div class="mb-6">
-                        <button type="button"
-                            class="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-100">
+                        <label class="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-100 cursor-pointer select-none">
+                            <input type="checkbox" name="is_bundle" value="1" {{ request('is_bundle') == '1' ? 'checked' : '' }} onchange="this.form.submit()" class="rounded border-gray-300 text-green-600 focus:ring-green-600">
                             <x-heroicon-o-shopping-bag class="h-4 w-4" />
-                            <span>Bundles</span>
-                        </button>
+                            <span>Show Featured Bundles</span>
+                        </label>
                     </div>
 
                     {{-- Discounts --}}
@@ -250,16 +250,23 @@
                                         <p class="text-xs font-semibold text-green-600 uppercase tracking-wide">
                                             {{ $product->vendor->name ?? 'DormDash' }}
                                         </p>
-                                        <h3 class="mt-2 text-base font-bold text-gray-900 truncate" title="{{ $product->name }}">
-                                            {{ $product->name }}
-                                        </h3>
+                                        <div class="mt-2 flex items-center gap-2">
+                                            <h3 class="text-base font-bold text-gray-900 truncate" title="{{ $product->name }}">
+                                                {{ $product->name }}
+                                            </h3>
+                                            @if($product->is_bundle)
+                                                <span class="rounded bg-blue-100 px-1.5 py-0.5 text-[10px] font-bold text-blue-700 uppercase tracking-wider shrink-0">Bundle</span>
+                                            @endif
+                                        </div>
 
                                         <p class="mt-2 text-xs text-gray-600">Stock: {{ $product->stock }} available</p>
 
                                         <div class="mt-4 flex items-baseline gap-2">
                                             <span class="text-xl font-bold text-gray-900">₱{{ number_format($product->price, 2) }}</span>
-                                            @if ($product->unit_type)
-                                                <span class="text-xs text-gray-500">/{{ $product->unit_type }}</span>
+                                            @if ($product->is_bundle)
+                                                <span class="text-xs text-gray-500 italic">Bundle Set</span>
+                                            @elseif ($product->unit_type)
+                                                <span class="text-xs text-gray-500 ">/{{ (int) $product->unit_value }} {{ $product->unit_type }}</span>
                                             @endif
                                         </div>
 

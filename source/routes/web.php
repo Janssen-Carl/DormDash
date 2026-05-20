@@ -8,6 +8,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\VendorProductController;
+use App\Http\Controllers\VendorOrderController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -54,7 +55,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [UserController::class, 'show']);
     Route::get('/profile/edit', [\App\Http\Controllers\UserController::class, 'edit']);
     Route::post('/profile', [\App\Http\Controllers\UserController::class, 'update'])->name('profile.update');
+    Route::post('/profile/photo', [\App\Http\Controllers\UserController::class, 'updatePhoto'])->name('profile.photo');
     Route::get('/address-payment/add', fn() => view('pages/address-payment-add'));
+    Route::post('/address/add', [\App\Http\Controllers\UserController::class, 'addAddress'])->name('address.add');
+    Route::post('/payment/add', [\App\Http\Controllers\UserController::class, 'addPayment'])->name('payment.add');
+    Route::delete('/address/{id}/delete', [\App\Http\Controllers\UserController::class, 'deleteAddress'])->name('address.delete');
+    Route::delete('/payment/{id}/delete', [\App\Http\Controllers\UserController::class, 'deletePayment'])->name('payment.delete');
 });
 
 /* -------------------- CUSTOMER ONLY -------------------- */
@@ -97,28 +103,29 @@ Route::middleware(['auth', 'role:vendor'])->group(function () {
 
     Route::get('/vendor-profile/vendor-address-add', fn() => view('pages/vendor-address-add'))->name('vendor.address.add');
 
-    Route::get('/vendor-orders', fn() => view('pages.vendor-orders'))->name('vendor.orders');
+    Route::get('/vendor-orders', [VendorOrderController::class, 'index'])->name('vendor.orders');
+    Route::post('/vendor-orders/{order}/confirm', [VendorOrderController::class, 'confirm'])->name('vendor.orders.confirm');
+    Route::post('/vendor-orders/{order}/ship', [VendorOrderController::class, 'ship'])->name('vendor.orders.ship');
+    Route::post('/vendor-orders/{order}/deliver', [VendorOrderController::class, 'deliver'])->name('vendor.orders.deliver');
 
     Route::get('/vendor-analytics', [DashboardController::class, 'index'])->name('vendor.analytics');
-    Route::get('/vendor-destroy', fn() => view('pages.vendor-analytics'))->name('vendor.products.destroy');
-});
 
-Route::get('/vendor-profile/vendor-product-edit', function () {
-    return view('pages/vendor-product-edit');
-})->name('vendor.products.edit');
+    Route::get('/vendor-products/{item}/edit', [VendorProductController::class, 'edit'])->name('vendor.products.edit');
+    Route::post('/vendor-products/{item}/edit', [VendorProductController::class, 'update'])->name('vendor.products.update');
+    Route::delete('/vendor-products/{item}', [VendorProductController::class, 'destroy'])->name('vendor.products.destroy');
+    Route::post('/vendor-products/{item}/edit-bundle', [VendorProductController::class, 'updateBundle'])->name('vendor.products.updateBundle');
+    Route::post('/vendor-products/{item}/restock', [VendorProductController::class, 'restock'])->name('vendor.products.restock');
 
-Route::get('/vendor-profile/vendor-product-add', [VendorProductController::class, 'create'])->name('vendor.products.add');
+    Route::get('/vendor-profile/vendor-product-add', [VendorProductController::class, 'create'])->name('vendor.products.add');
+    Route::get('/vendor-profile/vendor-product-add-bundle', [VendorProductController::class, 'createBundle'])->name('vendor.products.bundle');
+    Route::post('/vendor-profile/vendor-product-add-bundle', [VendorProductController::class, 'storeBundle'])->name('vendor.products.storeBundle');
 
-Route::get('/vendor-profile/vendor-product-add-bundle', function () {
-    return view('pages/vendor-product-add-bundle');
-})->name('vendor.products.bundle');
-Route::prefix('vendor')->name('vendor.')->group(function () {
-
-    Route::get('/items/create', [VendorProductController::class, 'create'])
-        ->name('items.create');
-
-    Route::post('/items', [VendorProductController::class, 'store'])
-        ->name('items.store');
+    Route::prefix('vendor')->name('vendor.')->group(function () {
+        Route::get('/items/create', [VendorProductController::class, 'create'])
+            ->name('items.create');
+        Route::post('/items', [VendorProductController::class, 'store'])
+            ->name('items.store');
+    });
 });
 
 Route::get('/check-auth', function () {

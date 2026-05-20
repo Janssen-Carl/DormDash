@@ -3,7 +3,7 @@
 @section('title', 'Add Address & Payment')
 
 @section('content')
-            <div class="mx-auto max-w-3xl px-8 py-12" x-data="{ activeTab: 'address' }">
+            <div class="mx-auto max-w-3xl px-8 py-12" x-data="{ activeTab: (new URLSearchParams(window.location.search)).get('tab') || 'address' }">
                 <div class="mb-8">
                     <a href="/profile" class="inline-flex items-center gap-2 text-green-600 font-semibold text-sm hover:text-green-700 transition-colors mb-4">
                         <x-heroicon-o-arrow-left class="h-4 w-4" />
@@ -34,7 +34,8 @@
                 </div>
 
                 {{-- Address Tab --}}
-                <form x-show="activeTab === 'address'" class="space-y-6">
+                <form x-show="activeTab === 'address'" action="{{ route('address.add') }}" method="POST" class="space-y-6">
+                    @csrf
                     <div class="rounded-3xl border border-gray-100 bg-gradient-to-br from-white to-gray-50 p-8 shadow-lg">
                         <h3 class="mb-8 text-lg font-bold text-gray-900">Delivery Address Details</h3>
 
@@ -43,6 +44,8 @@
                                 <label class="block text-sm font-semibold text-gray-700 mb-3">Full Address</label>
                                 <input
                                     type="text"
+                                    name="street"
+                                    required
                                     placeholder="e.g., Room 123, Dormitory A, University Campus"
                                     class="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none"
                                 />
@@ -53,6 +56,8 @@
                                     <label class="block text-sm font-semibold text-gray-700 mb-3">City</label>
                                     <input
                                         type="text"
+                                        name="city"
+                                        required
                                         placeholder="e.g., Metro Manila"
                                         class="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none"
                                     />
@@ -61,6 +66,8 @@
                                     <label class="block text-sm font-semibold text-gray-700 mb-3">Country</label>
                                     <input
                                         type="text"
+                                        name="country"
+                                        required
                                         placeholder="e.g., Philippines"
                                         class="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none"
                                     />
@@ -71,6 +78,7 @@
                                 <label class="block text-sm font-semibold text-gray-700 mb-3">Postal Code</label>
                                 <input
                                     type="text"
+                                    name="postal_code"
                                     placeholder="e.g., 1000"
                                     class="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none"
                                 />
@@ -96,7 +104,7 @@
 
                             <div>
                                 <label class="flex items-center gap-3 cursor-pointer p-4 rounded-xl border-2 border-green-200 bg-green-50 hover:bg-green-100 transition-all duration-200">
-                                    <input type="checkbox" checked class="rounded border-green-300 text-green-600 focus:ring-green-600" />
+                                    <input type="checkbox" name="is_default" value="1" checked class="rounded border-green-300 text-green-600 focus:ring-green-600" />
                                     <span class="font-semibold text-gray-700">Set as default delivery address</span>
                                 </label>
                             </div>
@@ -115,7 +123,8 @@
                 </form>
 
                 {{-- Payment Tab --}}
-                <form x-show="activeTab === 'payment'" class="space-y-6">
+                <form x-show="activeTab === 'payment'" action="{{ route('payment.add') }}" method="POST" class="space-y-6">
+                    @csrf
                     <div class="rounded-3xl border border-gray-100 bg-gradient-to-br from-white to-gray-50 p-8 shadow-lg">
                         <h3 class="mb-8 text-lg font-bold text-gray-900">Payment Card Details</h3>
 
@@ -124,6 +133,8 @@
                                 <label class="block text-sm font-semibold text-gray-700 mb-3">Cardholder Name</label>
                                 <input
                                     type="text"
+                                    name="account_name"
+                                    required
                                     placeholder="e.g., Juan Dela Cruz"
                                     class="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none uppercase"
                                 />
@@ -133,6 +144,8 @@
                                 <label class="block text-sm font-semibold text-gray-700 mb-3">Card Number</label>
                                 <input
                                     type="text"
+                                    name="card_number"
+                                    required
                                     placeholder="1234 5678 9012 3456"
                                     maxlength="19"
                                     class="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none font-mono"
@@ -144,6 +157,8 @@
                                     <label class="block text-sm font-semibold text-gray-700 mb-3">Expiry Date</label>
                                     <input
                                         type="text"
+                                        name="expiry_date"
+                                        required
                                         placeholder="MM/YY"
                                         maxlength="5"
                                         class="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none font-mono"
@@ -153,6 +168,8 @@
                                     <label class="block text-sm font-semibold text-gray-700 mb-3">CVV</label>
                                     <input
                                         type="text"
+                                        name="cvv"
+                                        required
                                         placeholder="123"
                                         maxlength="3"
                                         class="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none font-mono"
@@ -184,7 +201,7 @@
 
                             <div>
                                 <label class="flex items-center gap-3 cursor-pointer p-4 rounded-xl border-2 border-green-200 bg-green-50 hover:bg-green-100 transition-all duration-200">
-                                    <input type="checkbox" checked class="rounded border-green-300 text-green-600 focus:ring-green-600" />
+                                    <input type="checkbox" name="is_default" value="1" checked class="rounded border-green-300 text-green-600 focus:ring-green-600" />
                                     <span class="font-semibold text-gray-700">Set as default payment method</span>
                                 </label>
                             </div>
@@ -212,4 +229,4 @@
                     </div>
                 </form>
             </div>
-        @endsection
+@endsection

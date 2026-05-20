@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('item_images', function (Blueprint $table) {
             $table->increments('item_image_id');
             $table->unsignedInteger('item_id');
-            $table->string('image', 255);
+            $table->string('image', 255)->default('/images/items/1/1.jpg');
             $table->timestamps();
 
             $table->foreign('item_id')
