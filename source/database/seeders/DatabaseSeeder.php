@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
         $this->command->info('Starting database seeding from SQL files...');
 
         $sqlFiles = [
+            'seed_00_edp_demo.sql',
             'seed_01_base.sql',
             'seed_02_vendor1_snackshack.sql',
             'seed_03_vendor2_dormbites.sql',
