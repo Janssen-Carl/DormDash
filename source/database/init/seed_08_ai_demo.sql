@@ -64,7 +64,6 @@ SET @next_order_id = (SELECT COALESCE(MAX(order_id), 199) + 1 FROM orders);
 
 -- Create a stored procedure to insert demo orders
 DROP PROCEDURE IF EXISTS create_demo_orders;
-DELIMITER $$
 CREATE PROCEDURE create_demo_orders()
 BEGIN
   DECLARE v INT DEFAULT 1;
@@ -144,8 +143,7 @@ BEGIN
 
     SET v = v + 1;
   END WHILE;
-END$$
-DELIMITER ;
+END;
 
 CALL create_demo_orders();
 DROP PROCEDURE IF EXISTS create_demo_orders;
