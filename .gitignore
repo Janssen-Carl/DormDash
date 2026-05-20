@@ -34,3 +34,10 @@ yarn.lock
 # PHPUnit / test cache
 .phpunit.result.cache
 ./.ddvenv
+
+# Python & Pytest
+/.pytest_cache/
+__pycache__/
+*.pyc
+tests/automated/.pytest_cache/
+tests/automated/__pycache__/
