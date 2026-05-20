@@ -10,7 +10,53 @@ use Illuminate\Support\Facades\DB;
 
 class VendorProductController extends Controller
 {
-    public function index(Request $request)
+    /* This specific block if for me only, replace with code block below if it breaks yours - diego */
+    public function index(Request $request){
+    // 1. Initialize variables outside the 'if' block to ensure they exist
+    $sortBy = $request->input('sort', 'created_at');
+    $sortDir = $request->input('dir', 'desc');
+    $status = $request->input('status', 'active');
+    $products = collect(); // Default to an empty collection
+    
+    $user = Auth::user();
+    $vendor = $user ? $user->vendor : null;
+    
+    if ($vendor) {
+        $query = Item::where('vendor_id', $vendor->vendor_id)
+            ->with(['images']);
+
+        // Handle Search
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('sku', 'like', '%' . $search . '%')
+                  ->orWhere('brand', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Handle Filter
+        if ($status === 'active') {
+            $query->where('is_active', 1);
+        } elseif ($status === 'inactive') {
+            $query->where('is_active', 0);
+        }
+
+        // Handle Sorting logic
+        $allowedSorts = ['stock', 'price', 'is_available', 'created_at'];
+        if (!in_array($sortBy, $allowedSorts)) {
+            $sortBy = 'created_at';
+        }
+        $sortDir = $sortDir === 'asc' ? 'asc' : 'desc';
+
+        $products = $query->orderBy($sortBy, $sortDir)->get();
+    }
+
+    return view('pages.vendor-products', compact('products', 'sortBy', 'sortDir', 'status'));
+}
+
+/* Uncomment and replace above code if it breaks in yours - diego */
+/*     public function index(Request $request)
     {
         $user = Auth::user();
         $vendor = $user->vendor;
@@ -53,7 +99,7 @@ class VendorProductController extends Controller
         }
 
         return view('pages.vendor-products', compact('products', 'sortBy', 'sortDir', 'status'));
-    }
+    } */
 
     public function restock(Request $request, Item $item)
     {
