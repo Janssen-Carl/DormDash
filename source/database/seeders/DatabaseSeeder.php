@@ -16,7 +16,6 @@ class DatabaseSeeder extends Seeder
         $this->command->info('Starting database seeding from SQL files...');
 
         $sqlFiles = [
-            'seed_00_order_data.sql',
             'seed_01_base.sql',
             'seed_02_vendor1_snackshack.sql',
             'seed_03_vendor2_dormbites.sql',
@@ -25,6 +24,8 @@ class DatabaseSeeder extends Seeder
             'seed_06_vendor5_freshhub.sql',
             'seed_07_relations.sql',
             'fix_passwords.sql',
+            'seed_00_order_data.sql',
+            'seed_08_ai_demo.sql',
         ];
 
         foreach ($sqlFiles as $file) {
