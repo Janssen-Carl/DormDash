@@ -128,7 +128,7 @@
                     {{-- Bundles --}}
                     <div class="mb-6">
                         <label class="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-100 cursor-pointer select-none">
-                            <input type="checkbox" name="is_bundle" value="1" {{ request('is_bundle') == '1' ? 'checked' : '' }} onchange="this.form.submit()" class="rounded border-gray-300 text-green-600 focus:ring-green-600">
+                            <!-- <input type="checkbox" name="is_bundle" value="1" {{ request('is_bundle') == '1' ? 'checked' : '' }} onchange="this.form.submit()" class="rounded border-gray-300 text-green-600 focus:ring-green-600"> -->
                             <x-heroicon-o-shopping-bag class="h-4 w-4" />
                             <span>Show Featured Bundles</span>
                         </label>
