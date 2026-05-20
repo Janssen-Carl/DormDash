@@ -4,6 +4,7 @@ services:
             context: .
         container_name: dormdash-app
         image: dormdash-app:latest
+        user: "${UID}:${GID}"
         depends_on:
             db:
                 condition: service_healthy
