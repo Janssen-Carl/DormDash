@@ -49,8 +49,68 @@
         </a>
     </div>
 
-    {{-- Orders List --}}
-    @if($orders->isNotEmpty())
+    <!-- Search & Filter Bar -->
+    <div class="mb-8 space-y-4">
+        <!-- Search (styled like vendor-products search) -->
+        <form action="{{ route('vendor.orders') }}" method="GET" id="searchForm" class="flex flex-col sm:flex-row items-center w-full bg-white rounded-2xl shadow-sm border border-zinc-200 p-1.5 focus-within:ring-2 focus-within:ring-emerald-500/20 focus-within:border-emerald-500 transition-all duration-200">
+            <input type="hidden" name="status" value="{{ $status ?? '' }}">
+            <div class="flex-1 w-full relative flex items-center group">
+                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+                    <svg class="h-5 w-5 text-zinc-400 group-focus-within:text-emerald-500 transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+                <input type="text" name="search" value="{{ $search ?? '' }}"
+                       placeholder="Search orders by ID, customer, tracking, or product..."
+                       onchange="this.form.submit()"
+                       class="block w-full border-0 py-3 pl-11 pr-4 text-zinc-900 placeholder:text-zinc-400 focus:ring-0 sm:text-sm bg-transparent">
+            </div>
+            <div class="hidden sm:block w-px h-8 bg-zinc-200 mx-2"></div>
+            <div class="w-full sm:w-auto flex items-center gap-2 pt-3 pb-1 px-1 sm:p-0 border-t sm:border-t-0 border-zinc-100 mt-2 sm:mt-0">
+                <button type="submit" class="w-full sm:w-auto rounded-xl bg-emerald-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2 transition-all">
+                    Search
+                </button>
+                @if($search || ($status && $status !== 'all'))
+                    <a href="{{ route('vendor.orders') }}" class="flex items-center justify-center rounded-xl bg-red-50 text-red-600 px-3 py-2.5 transition hover:bg-red-100" title="Clear Filters">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </a>
+                @endif
+            </div>
+        </form>
+
+        <!-- Status Filter Pills (instant refresh, like customer orders) -->
+        <div class="flex gap-2 overflow-x-auto">
+            <a href="{{ route('vendor.orders') }}{{ $search ? '?search=' . $search : '' }}" 
+               class="{{ (!$status || $status === 'all') ? 'bg-emerald-600 text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200' }} rounded-full px-4 py-2 text-sm font-semibold transition-colors whitespace-nowrap">
+                All
+            </a>
+            <a href="{{ route('vendor.orders') }}?status=pending{{ $search ? '&search=' . $search : '' }}" 
+               class="{{ ($status ?? '') === 'pending' ? 'bg-emerald-600 text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200' }} rounded-full px-4 py-2 text-sm font-semibold transition-colors whitespace-nowrap">
+                Not Confirmed
+            </a>
+            <a href="{{ route('vendor.orders') }}?status=confirmed{{ $search ? '&search=' . $search : '' }}" 
+               class="{{ ($status ?? '') === 'confirmed' ? 'bg-emerald-600 text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200' }} rounded-full px-4 py-2 text-sm font-semibold transition-colors whitespace-nowrap">
+                Confirmed
+            </a>
+            <a href="{{ route('vendor.orders') }}?status=to_ship{{ $search ? '&search=' . $search : '' }}" 
+               class="{{ ($status ?? '') === 'to_ship' ? 'bg-emerald-600 text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200' }} rounded-full px-4 py-2 text-sm font-semibold transition-colors whitespace-nowrap">
+                To Ship
+            </a>
+            <a href="{{ route('vendor.orders') }}?status=shipped{{ $search ? '&search=' . $search : '' }}" 
+               class="{{ ($status ?? '') === 'shipped' ? 'bg-emerald-600 text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200' }} rounded-full px-4 py-2 text-sm font-semibold transition-colors whitespace-nowrap">
+                Shipped
+            </a>
+            <a href="{{ route('vendor.orders') }}?status=delivered{{ $search ? '&search=' . $search : '' }}" 
+               class="{{ ($status ?? '') === 'delivered' ? 'bg-emerald-600 text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200' }} rounded-full px-4 py-2 text-sm font-semibold transition-colors whitespace-nowrap">
+                Delivered
+            </a>
+            <a href="{{ route('vendor.orders') }}?status=completed{{ $search ? '&search=' . $search : '' }}" 
+               class="{{ ($status ?? '') === 'completed' ? 'bg-emerald-600 text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200' }} rounded-full px-4 py-2 text-sm font-semibold transition-colors whitespace-nowrap">
+                Completed
+            </a>
+        </div>
+    </div>
+
+    <!-- Active Orders List -->
+    @if(isset($orders) && $orders->isNotEmpty())
         <div class="space-y-6">
             @foreach($orders as $order)
                 @php

@@ -18,9 +18,134 @@
             <p class="mt-2 text-gray-600">Update your brand and vendor contact information</p>
         </div>
 
-        @if($errors->any())
-            <div class="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                <p class="font-semibold">Please fix the highlighted fields.</p>
+                <form class="space-y-6">
+                    {{-- Personal Information Section --}}
+                    <div class="rounded-3xl border border-gray-100 bg-gradient-to-br from-white to-gray-50 p-8 shadow-lg">
+                        <h3 class="mb-8 text-lg font-bold text-gray-900">Personal Information</h3>
+
+                        <div class="space-y-5">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-3">Full Name</label>
+                                <input
+                                    type="text"
+                                    value="Juan Dela Cruz"
+                                    placeholder="Enter your full name"
+                                    class="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none"
+                                />
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-3">Email Address</label>
+                                <input
+                                    type="email"
+                                    value="juan@example.com"
+                                    placeholder="Enter your email"
+                                    class="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none"
+                                />
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-3">Phone Number</label>
+                                <input
+                                    type="tel"
+                                    value="+63 912 345 6789"
+                                    placeholder="Enter your phone number"
+                                    class="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Default Delivery Address Section --}}
+                    <div class="rounded-3xl border border-gray-100 bg-gradient-to-br from-white to-gray-50 p-8 shadow-lg">
+                        <h3 class="mb-8 text-lg font-bold text-gray-900">Default Delivery Address</h3>
+
+                        <div class="space-y-5">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-3">Address</label>
+                                <input
+                                    type="text"
+                                    value="Room 123, Dormitory A, University Campus"
+                                    placeholder="Enter your address"
+                                    class="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none"
+                                />
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-5">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-3">City</label>
+                                    <input
+                                        type="text"
+                                        value="Metro Manila"
+                                        placeholder="Enter city"
+                                        class="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none"
+                                    />
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-3">Country</label>
+                                    <input
+                                        type="text"
+                                        value="Philippines"
+                                        placeholder="Enter country"
+                                        class="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="flex items-center gap-3 cursor-pointer p-4 rounded-xl border-2 border-green-200 bg-green-50 hover:bg-green-100 transition-all duration-200">
+                                    <input type="checkbox" checked class="rounded border-green-300 text-green-600 focus:ring-green-600" />
+                                    <span class="font-semibold text-gray-700">Set as default delivery address</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Password Change Section --}}
+                    <div class="rounded-3xl border border-gray-100 bg-gradient-to-br from-white to-gray-50 p-8 shadow-lg">
+                        <h3 class="mb-8 text-lg font-bold text-gray-900">Change Password</h3>
+
+                        <div class="space-y-5">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-3">Current Password</label>
+                                <input
+                                    type="password"
+                                    placeholder="Enter current password"
+                                    class="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none"
+                                />
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-3">New Password</label>
+                                <input
+                                    type="password"
+                                    placeholder="Enter new password"
+                                    class="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none"
+                                />
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-3">Confirm New Password</label>
+                                <input
+                                    type="password"
+                                    placeholder="Confirm new password"
+                                    class="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Action Buttons --}}
+                    <div class="flex gap-3 pt-6">
+                        <a href="/vendor-profile" class="flex-1 inline-flex items-center justify-center rounded-xl border border-zinc-200 px-6 py-2.5 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-100">
+                            Cancel
+                        </a>
+                        <button type="submit" class="flex-1 inline-flex items-center justify-center rounded-xl bg-emerald-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2 transition-all">
+                            <x-heroicon-o-check class="h-4 w-4 mr-2" />
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
             </div>
         @endif
 
