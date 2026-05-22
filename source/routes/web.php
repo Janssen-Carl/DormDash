@@ -52,6 +52,7 @@ Route::get('/test-login/{id}', function ($id) {
 Route::middleware('auth')->group(function () {
 
     Route::get('/products', [ProductController::class, 'index']);
+    Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.show');
     Route::get('/profile', [UserController::class, 'show']);
     Route::get('/profile/edit', [\App\Http\Controllers\UserController::class, 'edit']);
     Route::post('/profile', [\App\Http\Controllers\UserController::class, 'update'])->name('profile.update');
