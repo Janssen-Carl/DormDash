@@ -132,10 +132,10 @@
 
                     {{-- Action Buttons --}}
                     <div class="flex gap-3 pt-6">
-                        <a href="/vendor-profile" class="flex-1 inline-flex items-center justify-center rounded-xl border-2 border-gray-200 px-6 py-3 text-sm font-semibold text-gray-900 transition-all duration-200 hover:bg-gray-50 hover:border-gray-300">
+                        <a href="/vendor-profile" class="flex-1 inline-flex items-center justify-center rounded-xl border border-zinc-200 px-6 py-2.5 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-100">
                             Cancel
                         </a>
-                        <button type="submit" class="flex-1 inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-green-600 to-green-500 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:shadow-lg hover:from-green-700 hover:to-green-600 shadow-md">
+                        <button type="submit" class="flex-1 inline-flex items-center justify-center rounded-xl bg-emerald-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2 transition-all">
                             <x-heroicon-o-check class="h-4 w-4 mr-2" />
                             Save Changes
                         </button>

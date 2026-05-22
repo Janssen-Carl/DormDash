@@ -9,8 +9,8 @@
                         <h1 class="text-4xl font-bold tracking-tight text-gray-900">Vendor Profile</h1>
                         <p class="mt-2 text-gray-600">View and manage your account information</p>
                     </div>
-                    <a href="/vendor-profile/vendor-profile-edit" class="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-green-600 to-green-500 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:shadow-lg hover:from-green-700 hover:to-green-600 shadow-md">
-                        <x-heroicon-o-pencil class="h-4 w-4" />
+                    <a href="/vendor-profile/vendor-profile-edit" class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2 transition-all">
+                        <x-heroicon-o-pencil class="h-5 w-5" />
                         Edit Profile
                     </a>
                 </div>
@@ -151,6 +151,7 @@
                 {{-- Upload Photo Modal --}}
                 <div 
                     x-show="showPhotoModal" 
+                    x-cloak
                     class="fixed inset-0 z-50 flex items-center justify-center bg-black/10"
                     x-transition:enter="transition ease-out duration-300"
                     x-transition:enter-start="opacity-0"
