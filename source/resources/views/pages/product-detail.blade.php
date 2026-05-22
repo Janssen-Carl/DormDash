@@ -151,7 +151,7 @@
                                     <x-heroicon-o-minus class="h-4 w-4" />
                                 </button>
                                 <input type="number" name="quantity" x-model.number="qty" min="1" max="{{ $item->stock }}"
-                                       class="w-14 text-center bg-transparent border-none p-0 text-sm font-semibold text-gray-900 focus:ring-0" />
+                                       class="w-14 text-center bg-transparent border-none p-0 text-sm font-semibold text-gray-900 focus:ring-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
                                 <button type="button" @click="qty = Math.min(maxQty, qty + 1)" 
                                         class="px-3 py-2 text-gray-400 hover:text-green-600 hover:bg-gray-50 transition-colors"
                                         :disabled="qty >= maxQty">
