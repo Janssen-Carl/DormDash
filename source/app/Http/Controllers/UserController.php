@@ -85,17 +85,35 @@ class UserController extends Controller
     {
         $user = auth()->user();
 
-        // Load related profile
-        $profile = null;
         if ($user->role === 'vendor') {
-            $profile = $user->vendor()->with('address')->first();
-        } elseif ($user->role === 'customer') {
-            $profile = $user->customer()->with(['primaryAddress', 'bankingInfos'])->first();
+            return redirect('/vendor-profile');
         }
 
-        $addresses = $user->addresses; // list all addresses
+        // Load related profile
+        $profile = $user->customer()->with(['primaryAddress', 'bankingInfos'])->first();
+        $addresses = $user->addresses;
 
         return view('pages.profile', compact('user', 'profile', 'addresses'));
+    }
+
+    // Show vendor profile page
+    public function showVendor()
+    {
+        $user = auth()->user();
+        $vendor = $user->vendor()->with('address')->first();
+        $addresses = Address::where('user_id', $user->user_id)->get();
+
+        return view('pages.vendor-profile', compact('user', 'vendor', 'addresses'));
+    }
+
+    // Show vendor profile edit form
+    public function editVendor()
+    {
+        $user = auth()->user();
+        $vendor = $user->vendor()->with('address')->first();
+        $addresses = Address::where('user_id', $user->user_id)->get();
+
+        return view('pages.vendor-profile-edit', compact('user', 'vendor', 'addresses'));
     }
 
     // Show profile edit form
@@ -103,13 +121,12 @@ class UserController extends Controller
     {
         $user = auth()->user();
 
-        // Load related profile
-        $profile = null;
         if ($user->role === 'vendor') {
-            $profile = $user->vendor()->with('address')->first();
-        } elseif ($user->role === 'customer') {
-            $profile = $user->customer()->with('primaryAddress')->first();
+            return redirect('/vendor-profile/vendor-profile-edit');
         }
+
+        // Load related profile
+        $profile = $user->customer()->with('primaryAddress')->first();
 
         return view('pages.profile-edit', compact('user', 'profile'));
     }
@@ -132,6 +149,16 @@ class UserController extends Controller
         $user->username = $validated['username'];
         $user->email = $validated['email'];
         $user->save();
+
+        // Sync vendor name & email with user fields for vendor accounts
+        if ($user->role === 'vendor') {
+            $vendor = $user->vendor;
+            if ($vendor) {
+                $vendor->name = $user->username;
+                $vendor->email = $user->email;
+                $vendor->save();
+            }
+        }
 
         // Handle profile image if provided
         if ($request->hasFile('profile_image')) {
@@ -167,6 +194,26 @@ class UserController extends Controller
                 if ($customer) {
                     $customer->phone = $validated['phone'];
                     $customer->save();
+                }
+            }
+        }
+
+        // Handle vendor-specific fields (website)
+        if ($user->role === 'vendor' && $request->filled('website')) {
+            $vendor = $user->vendor;
+            if ($vendor) {
+                $vendor->website = $request->input('website');
+                $vendor->save();
+            }
+        }
+
+        // Handle address_id (set default address from vendor profile page or edit form)
+        if ($request->filled('address_id')) {
+            if ($user->role === 'vendor') {
+                $vendor = $user->vendor;
+                if ($vendor) {
+                    $vendor->address_id = $request->input('address_id');
+                    $vendor->save();
                 }
             }
         }
@@ -230,7 +277,8 @@ class UserController extends Controller
             $user->save();
         }
 
-        return redirect('/profile')->with('success', 'Profile updated successfully');
+        $redirect = $user->role === 'vendor' ? '/vendor-profile' : '/profile';
+        return redirect($redirect)->with('success', 'Profile updated successfully');
     }
 
     // Direct profile image upload from view page
@@ -261,7 +309,8 @@ class UserController extends Controller
             }
         }
 
-        return redirect('/profile')->with('success', 'Profile photo uploaded successfully!');
+        $redirect = $user->role === 'vendor' ? '/vendor-profile' : '/profile';
+        return redirect($redirect)->with('success', 'Profile photo uploaded successfully!');
     }
 
     // Add Address
@@ -303,7 +352,8 @@ class UserController extends Controller
             }
         }
 
-        return redirect('/profile')->with('success', 'Address added successfully.');
+        $redirect = $user->role === 'vendor' ? '/vendor-profile' : '/profile';
+        return redirect($redirect)->with('success', 'Address added successfully.');
     }
 
     // Delete Address
@@ -333,7 +383,8 @@ class UserController extends Controller
 
         $address->delete();
 
-        return redirect('/profile')->with('success', 'Address removed successfully.');
+        $redirect = $user->role === 'vendor' ? '/vendor-profile' : '/profile';
+        return redirect($redirect)->with('success', 'Address removed successfully.');
     }
 
     // Add Payment Card
@@ -368,7 +419,8 @@ class UserController extends Controller
             }
         }
 
-        return redirect('/profile')->with('success', 'Payment card added successfully.');
+        $redirect = $user->role === 'vendor' ? '/vendor-profile' : '/profile';
+        return redirect($redirect)->with('success', 'Payment card added successfully.');
     }
 
     // Delete Payment Card
@@ -390,6 +442,7 @@ class UserController extends Controller
             }
         }
 
-        return redirect('/profile')->with('success', 'Payment card removed successfully.');
+        $redirect = $user->role === 'vendor' ? '/vendor-profile' : '/profile';
+        return redirect($redirect)->with('success', 'Payment card removed successfully.');
     }
 }

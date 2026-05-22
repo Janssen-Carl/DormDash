@@ -101,7 +101,8 @@ Route::middleware(['auth', 'role:vendor'])->group(function () {
     // Support POST from vendor profile edit form
     Route::post('/vendor-profile', [UserController::class, 'update'])->name('vendor.profile.update');
 
-    Route::get('/vendor-profile/vendor-address-add', fn() => view('pages/vendor-address-add'))->name('vendor.address.add');
+    Route::get('/vendor-profile/vendor-address-add', fn() => view('pages.vendor-address-add'))->name('vendor.address.add');
+    Route::post('/vendor-profile/vendor-address-add', [UserController::class, 'addAddress'])->name('vendor.address.add.store');
 
     Route::get('/vendor-orders', [VendorOrderController::class, 'index'])->name('vendor.orders');
     Route::post('/vendor-orders/{order}/confirm', [VendorOrderController::class, 'confirm'])->name('vendor.orders.confirm');

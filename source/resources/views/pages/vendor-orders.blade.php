@@ -27,28 +27,6 @@
         </div>
     @endif
 
-    {{-- Filter Buttons --}}
-    <div class="mb-8 flex gap-2 border-b border-gray-200 pb-4 overflow-x-auto">
-        <a href="{{ route('vendor.orders') }}" class="{{ !request('status') || request('status') === 'all' ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }} rounded-full px-4 py-2 text-sm font-semibold transition-colors whitespace-nowrap">
-            All
-        </a>
-        <a href="{{ route('vendor.orders', ['status' => 'pending']) }}" class="{{ request('status') === 'pending' ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }} rounded-full px-4 py-2 text-sm font-semibold transition-colors whitespace-nowrap">
-            Not Confirmed
-        </a>
-        <a href="{{ route('vendor.orders', ['status' => 'to_ship']) }}" class="{{ request('status') === 'to_ship' ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }} rounded-full px-4 py-2 text-sm font-semibold transition-colors whitespace-nowrap">
-            To Ship
-        </a>
-        <a href="{{ route('vendor.orders', ['status' => 'shipped']) }}" class="{{ request('status') === 'shipped' ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }} rounded-full px-4 py-2 text-sm font-semibold transition-colors whitespace-nowrap">
-            Shipped
-        </a>
-        <a href="{{ route('vendor.orders', ['status' => 'delivered']) }}" class="{{ request('status') === 'delivered' ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }} rounded-full px-4 py-2 text-sm font-semibold transition-colors whitespace-nowrap">
-            Delivered
-        </a>
-        <a href="{{ route('vendor.orders', ['status' => 'completed']) }}" class="{{ request('status') === 'completed' ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }} rounded-full px-4 py-2 text-sm font-semibold transition-colors whitespace-nowrap">
-            Completed
-        </a>
-    </div>
-
     <!-- Search & Filter Bar -->
     <div class="mb-8 space-y-4">
         <!-- Search (styled like vendor-products search) -->
