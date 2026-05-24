@@ -184,11 +184,17 @@ class CheckoutController extends Controller
             $order->items()->attach($syncData);
 
             // 3. Create Payment Transaction
+            // FR-18: record the payment method chosen at checkout
+            // FR-19: COD starts as 'pending' (cash collected on delivery); card starts as 'success'
+            $paymentMethod = $request->payment_method; // 'cod' or 'card'
+            $paymentStatus = ($paymentMethod === 'cod') ? 'pending' : 'success';
+
             PaymentTransaction::create([
-                'order_id' => $order->order_id,
-                'amount' => $total,
-                'status' => 'success',
-                'reference_no' => 'REF' . strtoupper(uniqid()),
+                'order_id'       => $order->order_id,
+                'amount'         => $total,
+                'status'         => $paymentStatus,
+                'payment_method' => $paymentMethod,
+                'reference_no'   => 'REF' . strtoupper(uniqid()),
             ]);
 
             // 4. Cleanup Cart

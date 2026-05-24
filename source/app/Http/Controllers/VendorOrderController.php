@@ -168,7 +168,7 @@ class VendorOrderController extends Controller
         }
 
         // Find the order that has this vendor's items and is currently shipped
-        $order = Order::whereHas('items', function ($query) use ($vendor) {
+        $order = Order::with('paymentTransaction')->whereHas('items', function ($query) use ($vendor) {
                 $query->where('items.vendor_id', $vendor->vendor_id);
             })
             ->where('order_id', $orderId)
@@ -180,6 +180,11 @@ class VendorOrderController extends Controller
             'order_status' => 'delivered',
             'receive_date' => now()
         ]);
+
+        // FR-19: For COD orders, cash is collected on delivery → mark payment as 'paid'
+        if ($order->paymentTransaction && $order->paymentTransaction->payment_method === 'cod') {
+            $order->paymentTransaction->update(['status' => 'paid']);
+        }
 
         return redirect()->back()->with('success', "Order #{$orderId} has been delivered successfully!");
     }

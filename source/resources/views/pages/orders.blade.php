@@ -140,7 +140,34 @@
                                     <div class="flex justify-between">
                                         <dt class="text-gray-500">Payment Method</dt>
                                         <dd class="font-medium text-gray-900">
-                                            {{ $order->paymentTransaction ? ucfirst($order->paymentTransaction->status) : 'Cash on Delivery' }}
+                                            @if($order->paymentTransaction)
+                                                {{ $order->paymentTransaction->payment_method === 'cod' ? 'Cash on Delivery' : 'Credit / Debit Card' }}
+                                            @else
+                                                Cash on Delivery
+                                            @endif
+                                        </dd>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <dt class="text-gray-500">Payment Status</dt>
+                                        <dd>
+                                            @php
+                                                $ptStatus = $order->paymentTransaction->status ?? 'pending';
+                                                $ptColor = match($ptStatus) {
+                                                    'paid', 'success' => 'green',
+                                                    'pending'         => 'amber',
+                                                    default           => 'gray',
+                                                };
+                                                $ptLabel = match($ptStatus) {
+                                                    'paid'    => 'Paid',
+                                                    'success' => 'Paid',
+                                                    'pending' => 'Pending (COD)',
+                                                    default   => ucfirst($ptStatus),
+                                                };
+                                            @endphp
+                                            <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-{{ $ptColor }}-100 text-{{ $ptColor }}-700">
+                                                <span class="h-1.5 w-1.5 rounded-full bg-{{ $ptColor }}-500"></span>
+                                                {{ $ptLabel }}
+                                            </span>
                                         </dd>
                                     </div>
                                     <div class="flex justify-between">

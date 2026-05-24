@@ -16,6 +16,7 @@ class PaymentTransaction extends Model
         'order_id',
         'amount',
         'status',
+        'payment_method',
         'reference_no',
         'token',
         'acc_last4_no',
