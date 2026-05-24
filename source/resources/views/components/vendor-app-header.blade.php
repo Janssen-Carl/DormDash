@@ -28,7 +28,7 @@
             class="{{ request()->routeIs('vendor.orders') || request()->path() === 'vendor-orders' ? 'border border-green-200 bg-green-50 text-green-600' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' }} flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-sm transition-colors"
         >
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
-            Active Orders
+            Orders
         </a>
 
         <a

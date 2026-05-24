@@ -1,6 +1,6 @@
 @extends('layouts.vendor-main')
 
-@section('title', 'Vendor Product Stock')
+@section('title', 'Products - DormDash')
 
 @section('content')
 <div class="mx-auto max-w-7xl px-6 py-10">
