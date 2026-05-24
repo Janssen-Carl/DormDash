@@ -65,6 +65,22 @@
                     @csrf
                     {{-- Email Field --}}
                     <div>
+                        @if(session('success'))
+                            <div class="mb-4 rounded-xl bg-emerald-50 border border-emerald-200 p-3.5 flex items-start gap-2.5 shadow-sm animate-fade-in">
+                                <svg class="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <p class="text-sm font-medium text-emerald-800 leading-snug">{{ session('success') }}</p>
+                            </div>
+                        @endif
+
+                        @error('email')
+                            <div class="mb-4 rounded-xl bg-red-50 border border-red-200 p-3.5 flex items-start gap-2.5 shadow-sm animate-fade-in">
+                                <x-heroicon-o-exclamation-circle class="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
+                                <p class="text-sm font-medium text-red-800 leading-snug">{{ $message }}</p>
+                            </div>
+                        @enderror
+
                         <label class="mb-4 block text-sm font-semibold text-gray-800">Email Address</label>
                         <div class="relative group">
                             <div
@@ -75,12 +91,6 @@
                                 value="{{ old('email') }}"
                                 class="pl-12 pr-4 w-full rounded-xl border-2 border-gray-300 bg-white py-4 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-emerald-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-100 hover:border-gray-400" />
                         </div>
-                        @error('email')
-                            <p class="mt-2 text-sm font-medium text-red-600 flex items-center gap-1">
-                                <x-heroicon-o-exclamation-circle class="h-4 w-4" />
-                                {{ $message }}
-                            </p>
-                        @enderror
                     </div>
 
                     {{-- Password Field --}}

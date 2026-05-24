@@ -67,6 +67,46 @@ class DatabaseSeeder extends Seeder
             );
         }
 
+        $this->command->info('Seeding pending vendor accounts under approval...');
+        $pendingVendors = [
+            [
+                'username' => 'baker_delight',
+                'email'    => 'bakerdelight@example.com',
+                'name'     => 'Bakers Delight',
+                'phone'    => '09172220001',
+                'website'  => 'https://bakersdelight.ph',
+            ],
+            [
+                'username' => 'mega_bites',
+                'email'    => 'megabites@example.com',
+                'name'     => 'Mega Bites',
+                'phone'    => '09172220002',
+                'website'  => 'https://megabites.ph',
+            ],
+        ];
+
+        foreach ($pendingVendors as $p) {
+            $user = \App\Models\User::firstOrCreate(
+                ['email' => $p['email']],
+                [
+                    'username' => $p['username'],
+                    'role'     => 'vendor',
+                    'password' => \Illuminate\Support\Facades\Hash::make('password123'),
+                ]
+            );
+
+            \App\Models\Vendor::updateOrCreate(
+                ['vendor_id' => $user->user_id],
+                [
+                    'name'    => $p['name'],
+                    'email'   => $p['email'],
+                    'phone'   => $p['phone'],
+                    'website' => $p['website'],
+                    'active'  => false, // under approval
+                ]
+            );
+        }
+
         $this->command->info('Database seeding completed!');
     }
 }

@@ -5,7 +5,21 @@
 @section('page-subtitle', 'Manage vendor and customer accounts')
 
 @section('content')
-<div class="space-y-5">
+<div class="space-y-5" x-data="{ 
+    openReview: false, 
+    selectedUser: { 
+        id: '', 
+        username: '', 
+        email: '', 
+        role: '', 
+        joined: '', 
+        vendor: { 
+            name: '', 
+            phone: '', 
+            website: '' 
+        } 
+    } 
+}">
 
     {{-- ── Filter Bar ── --}}
     <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-4">
@@ -193,20 +207,28 @@
                             {{-- Actions --}}
                             <td class="px-6 py-4">
                                 <div class="flex items-center justify-end gap-2">
-                                    {{-- Approve button (vendors only, when not active) --}}
+                                    {{-- Review & Approve button (vendors only, when not active) --}}
                                     @if($user->role === 'vendor' && (!$user->vendor || !$user->vendor->active))
-                                        <form method="POST"
-                                              action="{{ route('admin.accounts.approve', $user->user_id) }}"
-                                              onsubmit="return confirm('Approve vendor account for {{ addslashes($user->username) }}?')">
-                                            @csrf
-                                            <button type="submit"
-                                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors">
-                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                                </svg>
-                                                Approve
-                                            </button>
-                                        </form>
+                                        <button type="button"
+                                                @click="selectedUser = {
+                                                    id: '{{ $user->user_id }}',
+                                                    username: '{{ addslashes($user->username) }}',
+                                                    email: '{{ addslashes($user->email) }}',
+                                                    role: '{{ $user->role }}',
+                                                    joined: '{{ $user->created_at->format('M d, Y') }} ({{ $user->created_at->diffForHumans() }})',
+                                                    vendor: {
+                                                        name: '{{ addslashes($user->vendor->name ?? '') }}',
+                                                        phone: '{{ addslashes($user->vendor->phone ?? 'N/A') }}',
+                                                        website: '{{ addslashes($user->vendor->website ?? 'N/A') }}'
+                                                    }
+                                                }; openReview = true;"
+                                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 hover:bg-amber-600 text-white transition-colors">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                            </svg>
+                                            Review
+                                        </button>
                                     @endif
 
                                     {{-- Delete button --}}
@@ -251,6 +273,124 @@
                 {{ $users->links() }}
             </div>
         @endif
+    </div>
+
+    {{-- ── Review Modal (Glassmorphism & Vibrant Theme) ── --}}
+    <div x-show="openReview" 
+         class="fixed inset-0 z-50 overflow-y-auto" 
+         style="display: none;"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0">
+        
+        {{-- Backdrop --}}
+        <div class="fixed inset-0 bg-zinc-900/60 backdrop-blur-sm transition-opacity" @click="openReview = false"></div>
+
+        {{-- Modal Wrapper --}}
+        <div class="flex min-h-screen items-center justify-center p-4 text-center sm:p-0">
+            <div x-show="openReview"
+                 class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-zinc-100"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+                
+                {{-- Decorative top border bar --}}
+                <div class="h-1.5 w-full bg-gradient-to-r from-emerald-500 to-teal-600"></div>
+
+                {{-- Close Button --}}
+                <button type="button" 
+                        @click="openReview = false" 
+                        class="absolute right-4 top-4 rounded-lg p-1.5 text-zinc-400 hover:text-zinc-600 hover:bg-zinc-50 transition-colors">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+
+                <div class="px-6 pb-6 pt-8">
+                    <div class="flex items-start gap-4">
+                        {{-- Icon --}}
+                        <div class="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 flex-shrink-0">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-zinc-900 leading-6">Review Vendor Registration</h3>
+                            <p class="mt-1 text-xs text-zinc-500">Please review the details before approving this merchant.</p>
+                        </div>
+                    </div>
+
+                    {{-- Profile Card Details --}}
+                    <div class="mt-6 space-y-4 bg-zinc-50/50 rounded-xl border border-zinc-100 p-4">
+                        <div class="grid grid-cols-3 gap-y-3 gap-x-2 text-sm">
+                            <span class="font-medium text-zinc-400">Username</span>
+                            <span class="col-span-2 font-semibold text-zinc-800" x-text="selectedUser.username"></span>
+                            
+                            <span class="font-medium text-zinc-400">Email</span>
+                            <span class="col-span-2 text-zinc-800 break-all select-all font-medium" x-text="selectedUser.email"></span>
+
+                            <span class="font-medium text-zinc-400">Role</span>
+                            <span class="col-span-2">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-emerald-100 text-emerald-700 capitalize" x-text="selectedUser.role"></span>
+                            </span>
+
+                            <span class="font-medium text-zinc-400">Joined</span>
+                            <span class="col-span-2 text-zinc-600 text-xs" x-text="selectedUser.joined"></span>
+                        </div>
+                    </div>
+
+                    {{-- Business Details --}}
+                    <div class="mt-5 space-y-4">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-zinc-400">Business Profile</h4>
+                        <div class="bg-white rounded-xl border border-zinc-200/80 p-4 space-y-3.5 shadow-sm">
+                            <div class="flex flex-col gap-1">
+                                <span class="text-xs font-medium text-zinc-400">Store Name</span>
+                                <span class="text-sm font-semibold text-zinc-800" x-text="selectedUser.vendor.name"></span>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="flex flex-col gap-1">
+                                    <span class="text-xs font-medium text-zinc-400">Contact Number</span>
+                                    <span class="text-sm font-semibold text-zinc-800 select-all" x-text="selectedUser.vendor.phone"></span>
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <span class="text-xs font-medium text-zinc-400">Website URL</span>
+                                    <a :href="selectedUser.vendor.website" target="_blank" class="text-sm font-semibold text-emerald-600 hover:text-emerald-700 hover:underline inline-flex items-center gap-1 select-all">
+                                        <span x-text="selectedUser.vendor.website"></span>
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Action Footer --}}
+                    <div class="mt-7 flex flex-col sm:flex-row-reverse gap-3 border-t border-zinc-100 pt-5">
+                        <form :action="'/admin/accounts/' + selectedUser.id + '/approve'" method="POST" class="flex-1 w-full">
+                            @csrf
+                            <button type="submit" 
+                                    class="w-full inline-flex justify-center items-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-sm font-bold text-white shadow-md hover:bg-emerald-700 focus:outline-none transition-all active:scale-98">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                Approve Account
+                            </button>
+                        </form>
+                        <button type="button" 
+                                @click="openReview = false" 
+                                class="flex-1 w-full rounded-xl bg-zinc-100 px-4 py-3 text-sm font-bold text-zinc-700 hover:bg-zinc-200 focus:outline-none transition-colors">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
 </div>

@@ -234,18 +234,26 @@
     const selects  = form.querySelectorAll('select');
     let timer      = null;
 
+    // Keep search focused after refresh and place cursor at end
+    if (input) {
+        input.focus();
+        var val = input.value;
+        input.value = '';
+        input.value = val;
+    }
+
     function showSpinner() {
         icon.classList.add('hidden');
         spinner.classList.remove('hidden');
     }
 
-    // Live search with 300ms debounce
+    // Live search with 600ms debounce
     input.addEventListener('input', function() {
         clearTimeout(timer);
         showSpinner();
         timer = setTimeout(function() {
             form.submit();
-        }, 300);
+        }, 600);
     });
 
     // Auto-submit on dropdown change
