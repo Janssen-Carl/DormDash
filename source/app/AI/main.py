@@ -19,7 +19,7 @@ app.add_middleware(
 )
 
 # Use env var if provided, fallback to previous value
-DB_URL = os.environ.get('AI_DB_URL') or "mysql+pymysql://root:pass@localhost:3307/dormdash_db_v4"
+DB_URL = os.environ.get('AI_DB_URL') or "mysql+pymysql://root:pass@localhost:3306/dormdash_db_v4"
 engine = create_engine(DB_URL)
 
 
