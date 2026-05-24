@@ -43,8 +43,8 @@ This report maps the functional requirements against the current codebase state.
 | # | Requirement | Status | Details |
 |---|-------------|--------|---------|
 | FR-17 | Cash on Delivery | ✅ Done | Checkout validates `payment_method` as 'cod' |
-| FR-18 | Record payment methods | ❌ Missing | Validated but not saved to database |
-| FR-19 | Mark order as paid/unpaid | ⚠️ Partial | Defaults to 'success', no COD pending status |
+| FR-18 | Record payment methods | ✅ Done | `payment_method` column added to `payment_transactions`; saved from `CheckoutController` |
+| FR-19 | Mark order as paid/unpaid | ✅ Done | COD → `pending` at checkout, `paid` when vendor marks delivered; Card → `success` immediately |
 
 ## 3.6 Order Tracking
 
@@ -69,11 +69,8 @@ This report maps the functional requirements against the current codebase state.
 
 | Status | Count | Items |
 |--------|-------|-------|
-| ✅ Done | 22 | FR-01 to FR-17, FR-20 to FR-26, FR-08 |
-| ⚠️ Partial | 1 | FR-19 |
-| ❌ Missing | 1 | FR-18 |
+| ✅ Done | 24 | All FR-01 to FR-26 |
+| ⚠️ Partial | 0 | — |
+| ❌ Missing | 0 | — |
 
-### Items Needing Attention:
-
-1. **FR-18: Record payment methods** - Need to add `payment_method` column to orders or payment_transactions table
-2. **FR-19: Mark order as paid/unpaid** - Need payment status workflow for COD orders
+### All requirements are now implemented. ✅
