@@ -245,5 +245,4 @@
     @endif
 </div>
 
-@vite(['resources/js/alpine.js'])
 @endsection

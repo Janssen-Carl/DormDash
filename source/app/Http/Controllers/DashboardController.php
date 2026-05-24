@@ -11,7 +11,7 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $aiBase = env('AI_API_URL');;
+        $aiBase = env('AI_API_URL');
 
         // Determine vendor id if available
         $vendorId = null;
@@ -30,6 +30,7 @@ class DashboardController extends Controller
         $candidates = array_filter([
             $aiBase,
             env('AI_API_URL_ALT', null),
+            'http://ai:5000',
             'http://host.docker.internal:5000',
             'http://127.0.0.1:5000',
         ]);
@@ -124,9 +125,22 @@ class DashboardController extends Controller
             $growth = (($next7Total - $past7Total) / $past7Total) * 100;
         }
 
+        $hasData = !empty($forecast['historical']) || !empty($itemsForecast);
+        $totalRevenue = $past7Total;
+        $statusBreakdown = [];
+        $labels = [];
+        $data = [];
+        if (!empty($forecast['historical'])) {
+            foreach ($forecast['historical'] as $row) {
+                $labels[] = $row['order_date'] ?? '';
+                $data[] = $row['revenue'] ?? 0;
+            }
+        }
+
         return view('pages.vendor-analytics', compact(
             'forecast', 'itemsForecast', 'summary', 'inventory',
-            'past7Total', 'next7Total', 'growth'
+            'past7Total', 'next7Total', 'growth', 'hasData',
+            'totalRevenue', 'statusBreakdown', 'labels', 'data'
         ));
     }
 }
