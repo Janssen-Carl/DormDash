@@ -3,6 +3,13 @@
 @section('title', 'Home - DormDash')
 
 @section('content')
+        @if(session('success'))
+            <div class="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 rounded-2xl bg-green-600 px-6 py-3 text-sm font-bold text-white shadow-2xl border border-green-500" x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 -translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-4">
+                <x-heroicon-s-check-circle class="h-5 w-5 text-green-200" />
+                {{ session('success') }}
+            </div>
+        @endif
+
         <section class="px-8 py-16 lg:py-24 overflow-hidden relative bg-white">
             <!-- Background Decorative Blob -->
             <div class="absolute -top-24 -right-24 w-96 h-96 bg-green-50 rounded-full mix-blend-multiply filter blur-3xl opacity-70"></div>
@@ -87,57 +94,66 @@
                 </div>
 
                 <div class="grid grid-cols-4 gap-6">
-                    @forelse ($featuredProducts as $product)
-                        <div
-                            class="group overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:shadow-lg hover:border-gray-200">
-                            <div class="relative aspect-square bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
-                                @if ($product->images->first())
-                                    <img src="{{ asset($product->images->first()->image) }}"
-                                         alt="{{ $product->name }}"
-                                         class="h-full w-full object-cover group-hover:scale-110 transition-transform duration-300" />
-                                @else
-                                    <div
-                                        class="flex h-full w-full items-center justify-center text-gray-300 group-hover:scale-110 transition-transform duration-300">
-                                        <x-heroicon-o-photo class="h-16 w-16" />
-                                    </div>
-                                @endif
+                     @forelse ($featuredProducts as $product)
+                         <div
+                             class="group overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:shadow-lg hover:border-gray-200">
+                             <a href="{{ route('products.show', ['id' => $product->item_id]) }}" class="block relative aspect-square bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
+                                 @if ($product->images->first())
+                                     <img src="{{ asset($product->images->first()->image) }}"
+                                          alt="{{ $product->name }}"
+                                          class="h-full w-full object-cover group-hover:scale-110 transition-transform duration-300" />
+                                 @else
+                                     <div
+                                         class="flex h-full w-full items-center justify-center text-gray-300 group-hover:scale-110 transition-transform duration-300">
+                                         <x-heroicon-o-photo class="h-16 w-16" />
+                                     </div>
+                                 @endif
 
-                                @if ($product->is_perishable)
-                                    <div
-                                        class="absolute top-3 right-3 bg-green-600 text-white text-xs font-bold px-2.5 py-1 rounded-full">
-                                        Fresh
-                                    </div>
-                                @endif
-                            </div>
-                            <div class="p-4">
-                                <p class="text-xs font-semibold text-green-600 uppercase tracking-wide">
-                                    {{ $product->vendor->name ?? 'DormDash' }}
-                                </p>
-                                <h3 class="mt-2 text-base font-bold text-gray-900">{{ $product->name }}</h3>
+                                 @if ($product->is_perishable)
+                                     <div
+                                         class="absolute top-3 right-3 bg-green-600 text-white text-xs font-bold px-2.5 py-1 rounded-full">
+                                         Fresh
+                                     </div>
+                                 @endif
+                             </a>
+                             <div class="p-4">
+                                 <p class="text-xs font-semibold text-green-600 uppercase tracking-wide">
+                                     {{ $product->vendor->name ?? 'DormDash' }}
+                                 </p>
+                                 <a href="{{ route('products.show', ['id' => $product->item_id]) }}" class="mt-2 block text-base font-bold text-gray-900 hover:text-green-600 transition-colors truncate">{{ $product->name }}</a>
 
-                                <p class="mt-2 text-xs text-gray-600">Stock: {{ $product->stock }} available</p>
+                                 <p class="mt-2 text-xs text-gray-600">Stock: {{ $product->stock }} available</p>
 
-                                <div class="mt-4 flex items-baseline gap-2">
-                                    <span class="text-xl font-bold text-gray-900">₱{{ number_format($product->price, 2) }}</span>
-                                    @if ($product->unit_type)
-                                        <span class="text-xs text-gray-500">/{{ $product->unit_type }}</span>
-                                    @endif
-                                </div>
+                                 <div class="mt-4 flex items-baseline gap-2">
+                                     <span class="text-xl font-bold text-gray-900">₱{{ number_format($product->price, 2) }}</span>
+                                     @if ($product->unit_type)
+                                         <span class="text-xs text-gray-500">/{{ $product->unit_type }}</span>
+                                     @endif
+                                 </div>
 
-                                <div class="mt-4 flex gap-2">
-                                    <button type="button"
-                                        class="flex-1 rounded-lg bg-green-50 border border-green-200 py-2 text-xs font-semibold text-green-600 transition-all duration-200 hover:bg-green-100">
-                                        <x-heroicon-o-shopping-cart class="inline h-4 w-4 mr-1" />
-                                        Add to Cart
-                                    </button>
-                                    <button type="button"
-                                        class="flex-1 rounded-lg bg-green-600 py-2 text-xs font-semibold text-white transition-all duration-200 hover:bg-green-700 shadow-sm hover:shadow-md">
-                                        Buy Now
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    @empty
+                                 <div class="mt-4 flex gap-2">
+                                     <form action="{{ route('cart.store') }}" method="POST" class="flex-1 m-0">
+                                         @csrf
+                                         <input type="hidden" name="item_id" value="{{ $product->item_id }}">
+                                         <input type="hidden" name="quantity" value="1">
+                                         <button type="submit"
+                                             class="w-full rounded-lg bg-green-50 border border-green-200 py-2 text-xs font-semibold text-green-600 transition-all duration-200 hover:bg-green-100">
+                                             <x-heroicon-o-shopping-cart class="inline h-4 w-4 mr-1" />
+                                             Add to Cart
+                                         </button>
+                                     </form>
+                                     <form action="{{ route('checkout.index') }}" method="GET" class="flex-1 m-0">
+                                         <input type="hidden" name="buy_item" value="{{ $product->item_id }}">
+                                         <input type="hidden" name="qty" value="1">
+                                         <button type="submit"
+                                             class="w-full rounded-lg bg-green-600 py-2 text-xs font-semibold text-white transition-all duration-200 hover:bg-green-700 shadow-sm hover:shadow-md">
+                                             Buy Now
+                                         </button>
+                                     </form>
+                                 </div>
+                             </div>
+                         </div>
+                     @empty
                         <div class="col-span-4 text-center py-12 text-gray-400">
                             <x-heroicon-o-inbox class="h-16 w-16 mx-auto mb-4" />
                             <p class="text-lg font-medium">No products available yet.</p>

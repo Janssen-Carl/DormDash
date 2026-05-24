@@ -148,8 +148,8 @@
             {{-- Main Content --}}
             <main class="flex-1 overflow-y-auto px-8 py-8 w-full">
                 @if(session('success'))
-                    <div class="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-lg bg-green-100 p-4 text-sm font-medium text-green-800 shadow-xl border border-green-300" x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 3000)" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-4">
-                        <x-heroicon-s-check-circle class="h-5 w-5 text-green-600" />
+                    <div class="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 rounded-2xl bg-green-600 px-6 py-3 text-sm font-bold text-white shadow-2xl border border-green-500" x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 -translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-4">
+                        <x-heroicon-s-check-circle class="h-5 w-5 text-green-200" />
                         {{ session('success') }}
                     </div>
                 @endif
@@ -227,7 +227,7 @@
                             @foreach ($group['items'] as $product)
                                 <div
                                     class="group shrink-0 w-72 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:shadow-lg hover:border-gray-200">
-                                    <div class="relative aspect-square bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
+                                    <a href="{{ route('products.show', ['id' => $product->item_id]) }}" class="block relative aspect-square bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
                                         @if ($product->images->first())
                                             <img src="{{ asset($product->images->first()->image) }}"
                                                 alt="{{ $product->name }}"
@@ -245,15 +245,15 @@
                                                 Fresh
                                             </div>
                                         @endif
-                                    </div>
+                                    </a>
                                     <div class="p-4">
                                         <p class="text-xs font-semibold text-green-600 uppercase tracking-wide">
                                             {{ $product->vendor->name ?? 'DormDash' }}
                                         </p>
                                         <div class="mt-2 flex items-center gap-2">
-                                            <h3 class="text-base font-bold text-gray-900 truncate" title="{{ $product->name }}">
+                                            <a href="{{ route('products.show', ['id' => $product->item_id]) }}" class="text-base font-bold text-gray-900 truncate hover:text-green-600 transition-colors" title="{{ $product->name }}">
                                                 {{ $product->name }}
-                                            </h3>
+                                            </a>
                                             @if($product->is_bundle)
                                                 <span class="rounded bg-blue-100 px-1.5 py-0.5 text-[10px] font-bold text-blue-700 uppercase tracking-wider shrink-0">Bundle</span>
                                             @endif

@@ -127,4 +127,60 @@ class ProductController extends Controller
 
         return view('pages.products', compact('categoryItems', 'parentCategories', 'vendors', 'selectedVendors', 'selectedCategories', 'search'));
     }
+
+    public function show($id)
+    {
+        $item = Item::with(['images', 'vendor', 'categories', 'discounts' => function ($q) {
+                $q->where('is_active', true)
+                  ->where('date_start', '<=', now())
+                  ->where('date_end', '>=', now());
+            }])
+            ->where('item_id', $id)
+            ->where('is_active', true)
+            ->firstOrFail();
+
+        $relatedProductIds = collect();
+
+        if ($item->categories->isNotEmpty()) {
+            $categoryIds = $item->categories->pluck('category_id');
+            $relatedProductIds = Item::where('is_active', true)
+                ->where('is_available', true)
+                ->where('item_id', '!=', $id)
+                ->whereHas('categories', function ($q) use ($categoryIds) {
+                    $q->whereIn('categories.category_id', $categoryIds);
+                })
+                ->inRandomOrder()
+                ->limit(6)
+                ->pluck('item_id');
+        }
+
+        $vendorRelatedIds = Item::where('is_active', true)
+            ->where('is_available', true)
+            ->where('item_id', '!=', $id)
+            ->where('vendor_id', $item->vendor_id)
+            ->whereNotIn('item_id', $relatedProductIds)
+            ->inRandomOrder()
+            ->limit(6)
+            ->pluck('item_id');
+
+        $allRelatedIds = $relatedProductIds->merge($vendorRelatedIds)->unique();
+
+        if ($allRelatedIds->isNotEmpty()) {
+            $relatedProducts = Item::whereIn('item_id', $allRelatedIds)
+                ->with(['images', 'vendor'])
+                ->inRandomOrder()
+                ->limit(4)
+                ->get();
+        } else {
+            $relatedProducts = Item::where('is_active', true)
+                ->where('is_available', true)
+                ->where('item_id', '!=', $id)
+                ->with(['images', 'vendor'])
+                ->inRandomOrder()
+                ->limit(4)
+                ->get();
+        }
+
+        return view('pages.product-detail', compact('item', 'relatedProducts'));
+    }
 }

@@ -52,6 +52,7 @@ Route::get('/test-login/{id}', function ($id) {
 Route::middleware('auth')->group(function () {
 
     Route::get('/products', [ProductController::class, 'index']);
+    Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.show');
     Route::get('/profile', [UserController::class, 'show']);
     Route::get('/profile/edit', [\App\Http\Controllers\UserController::class, 'edit']);
     Route::post('/profile', [\App\Http\Controllers\UserController::class, 'update'])->name('profile.update');
@@ -94,11 +95,15 @@ Route::middleware(['auth', 'role:vendor'])->group(function () {
 
     Route::get('/vendor-products', [VendorProductController::class, 'index'])->name('vendor.products');
 
-    Route::get('/vendor-profile', fn() => view('pages/vendor-profile'))->name('vendor.profile');
+    Route::get('/vendor-profile', [UserController::class, 'showVendor'])->name('vendor.profile');
 
-    Route::get('/vendor-profile/vendor-profile-edit', fn() => view('pages/vendor-profile-edit'))->name('vendor.profile.edit');
+    Route::get('/vendor-profile/vendor-profile-edit', [UserController::class, 'editVendor'])->name('vendor.profile.edit');
 
-    Route::get('/vendor-profile/vendor-address-add', fn() => view('pages/vendor-address-add'))->name('vendor.address.add');
+    // Support POST from vendor profile edit form
+    Route::post('/vendor-profile', [UserController::class, 'update'])->name('vendor.profile.update');
+
+    Route::get('/vendor-profile/vendor-address-add', fn() => view('pages.vendor-address-add'))->name('vendor.address.add');
+    Route::post('/vendor-profile/vendor-address-add', [UserController::class, 'addAddress'])->name('vendor.address.add.store');
 
     Route::get('/vendor-orders', [VendorOrderController::class, 'index'])->name('vendor.orders');
     Route::post('/vendor-orders/{order}/confirm', [VendorOrderController::class, 'confirm'])->name('vendor.orders.confirm');

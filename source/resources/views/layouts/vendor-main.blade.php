@@ -10,6 +10,8 @@
 
         <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%2316a34a' width='100' height='100' rx='20'/><text x='50' y='70' font-size='70' fill='white' text-anchor='middle' font-weight='bold' font-family='Arial'>D</text></svg>">
 
+        <style>[x-cloak] { display: none !important; }</style>
+
         <title>@yield('title', 'DormDash')</title>
 
         <!-- @fluxAppearance -->
