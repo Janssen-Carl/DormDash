@@ -10,17 +10,13 @@ services:
                 condition: service_healthy
         extra_hosts:
             - "host.docker.internal:host-gateway"
-        healthcheck:
-            test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-            interval: 5s
-            timeout: 5s
-            retries: 10
         environment:
-            - APP_ENV=local
+            - APP_ENV=production
             - DB_HOST=db
             - DB_DATABASE=dormdash_db_v4
             - DB_USERNAME=root
             - DB_PASSWORD=pass
+        restart: unless-stopped
         entrypoint: ["/bin/sh", "/var/www/docker/maria-db/entrypoint.sh"]
         command: ["php-fpm", "-F"]
         volumes:
@@ -34,8 +30,10 @@ services:
         volumes:
             - .:/var/www
             - ./docker/nginx:/etc/nginx/conf.d
+            - /etc/letsencrypt:/etc/letsencrypt:ro
         ports:
-            - "8080:80"
+            - "80:80"
+            - "443:443"
         depends_on:
             - app
         networks:
@@ -72,7 +70,7 @@ services:
         working_dir: /var/www
         volumes:
             - .:/var/www
-        command: sh -c "npm install && npm run dev"
+        command: sh -c "npm install && npm run prod"
         ports:
             - "5173:5173"
         networks:
@@ -82,6 +80,19 @@ services:
         build:
             context: .
             dockerfile: Dockerfile.node
+    ai:
+        image: python:3.11-slim
+        container_name: dormdash-ai
+        command: sh -c "pip install -q fastapi uvicorn pandas scikit-learn sqlalchemy pymysql && uvicorn app.AI.main:app --host 0.0.0.0 --port 5000"
+        working_dir: /var/www
+        environment:
+        - AI_DB_URL=mysql+pymysql://root:pass@db:3306/dormdash_db_v4
+        volumes:
+            - .:/var/www
+        ports:
+            - "5000:5000"
+        networks:
+        - laravel
 networks:
     laravel:
         name: laravel
@@ -90,4 +101,3 @@ networks:
 
 volumes:
     dbdata:
-
