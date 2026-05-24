@@ -19,7 +19,7 @@ app.add_middleware(
 )
 
 # Use env var if provided, fallback to previous value
-DB_URL = os.environ.get('AI_DB_URL') or "mysql+pymysql://root:pass@localhost:3307/dormdash_v4_migration"
+DB_URL = os.environ.get('AI_DB_URL') or "mysql+pymysql://root:pass@localhost:3306/dormdash_db_v4"
 engine = create_engine(DB_URL)
 
 
@@ -191,95 +191,6 @@ def inventory_alerts(vendor_id: int = Query(...), threshold: int = Query(default
         df = pd.read_sql(query, conn, params={"vendor_id": vendor_id, "threshold": threshold})
 
     return df.to_dict(orient='records')
-
-
-def _global_daily_revenue_df(days: int = 90):
-    start_date = (datetime.utcnow() - timedelta(days=days)).date()
-
-    query = text("""
-        SELECT
-            DATE(o.created_at) AS order_date,
-            SUM(oi.price * oi.quantity) AS revenue
-        FROM orders o
-        JOIN order_items oi ON o.order_id = oi.order_id
-        WHERE DATE(o.created_at) >= :start_date
-          AND o.order_status != 'cancelled'
-        GROUP BY DATE(o.created_at)
-        ORDER BY order_date
-    """)
-
-    with engine.connect() as conn:
-        df = pd.read_sql(query, conn, params={"start_date": start_date})
-
-    return df
-
-
-@app.get("/forecast/global/revenue")
-def global_revenue_forecast(days: int = Query(90), horizon: int = Query(7)):
-    """
-    Forecast daily global revenue using linear regression across all vendors.
-    Returns predicted revenue for the next `horizon` days and historical data.
-    """
-    df = _global_daily_revenue_df(days)
-
-    if df.empty or len(df) < 2:
-        return {
-            "predicted": [0.0 for _ in range(horizon)],
-            "dates": [ (datetime.utcnow() + timedelta(days=i+1)).strftime('%Y-%m-%d') for i in range(horizon) ],
-            "historical": []
-        }
-
-    df = df.sort_values("order_date").reset_index(drop=True)
-    df['day_index'] = np.arange(len(df))
-
-    X = df[['day_index']].values
-    y = df['revenue'].values
-
-    model = LinearRegression()
-    model.fit(X, y)
-
-    future_idx = np.arange(len(df), len(df) + horizon).reshape(-1, 1)
-    preds = model.predict(future_idx)
-
-    preds = [round(float(max(p, 0.0)), 2) for p in preds]
-    hist = df.assign(order_date=df['order_date'].astype(str)).to_dict(orient='records')
-
-    return {
-        "predicted": preds,
-        "dates": [ (datetime.utcnow() + timedelta(days=i+1)).strftime('%Y-%m-%d') for i in range(horizon) ],
-        "historical": hist
-    }
-
-
-@app.get('/forecast/global/summary')
-def global_forecast_summary(days: int = Query(90), horizon: int = Query(1)):
-    """
-    Return a compact global summary: predicted next day revenue, last day revenue, and percent change.
-    """
-    df = _global_daily_revenue_df(days)
-
-    if df.empty or len(df) < 2:
-        return {
-            'predicted_next_day': 0.0,
-            'last_day': 0.0,
-            'percent_change': 0.0
-        }
-
-    df = df.sort_values('order_date').reset_index(drop=True)
-    X = np.arange(len(df)).reshape(-1, 1)
-    y = df['revenue'].values
-
-    model = LinearRegression().fit(X, y)
-    next_idx = np.array([[len(df)]])
-    pred = float(max(model.predict(next_idx)[0], 0.0))
-    last = float(df['revenue'].iloc[-1])
-    pct = ((pred - last) / last * 100) if last != 0 else 0.0
-
-    return {
-        'predicted_next_day': round(pred, 2),
-        'last_day': round(last, 2),
-        'percent_change': round(pct, 2)
-    }
 
 
 @app.get('/health')
