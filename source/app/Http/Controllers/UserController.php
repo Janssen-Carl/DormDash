@@ -62,6 +62,7 @@ class UserController extends Controller
             return match ($user->role) {
                 'vendor'   => redirect()->route('vendor.home'),
                 'customer' => redirect('/products'),
+                'admin'    => redirect()->route('admin.dashboard'),
                 default    => redirect('/'),
             };
         }

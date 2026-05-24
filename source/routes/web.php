@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
@@ -11,6 +12,7 @@ use App\Http\Controllers\VendorProductController;
 use App\Http\Controllers\VendorOrderController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 /* -------------------- PUBLIC -------------------- */
 
@@ -21,9 +23,10 @@ Route::get('/', function () {
     }
 
     return match (auth()->user()->role) {
-        'vendor' => redirect()->route('vendor.home'),
+        'vendor'   => redirect()->route('vendor.home'),
         'customer' => redirect()->route('customer.home'),
-        default => app(HomeController::class)->index(),
+        'admin'    => redirect()->route('admin.dashboard'),
+        default    => app(HomeController::class)->index(),
     };
 });
 
@@ -128,6 +131,33 @@ Route::middleware(['auth', 'role:vendor'])->group(function () {
         Route::post('/items', [VendorProductController::class, 'store'])
             ->name('items.store');
     });
+});
+
+/* -------------------- ADMIN ONLY -------------------- */
+
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+
+    Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
+    Route::get('/accounts', [AdminController::class, 'accounts'])->name('accounts');
+    Route::post('/accounts/{id}/approve', [AdminController::class, 'approveVendor'])->name('accounts.approve');
+    Route::delete('/accounts/{id}', [AdminController::class, 'deleteUser'])->name('accounts.delete');
+    Route::get('/logs', [AdminController::class, 'logs'])->name('logs');
+    Route::get('/logs/export', [AdminController::class, 'exportLogs'])->name('logs.export');
+
+});
+
+/* ── One-time admin setup (creates first admin user) ── */
+Route::get('/admin/setup', function () {
+    if (\App\Models\User::where('role', 'admin')->exists()) {
+        return response()->json(['message' => 'Admin already exists. Setup blocked.'], 403);
+    }
+    $admin = \App\Models\User::create([
+        'username' => 'admin',
+        'email'    => 'admin@dormdash.com',
+        'password' => Hash::make('Admin@1234'),
+        'role'     => 'admin',
+    ]);
+    return response()->json(['message' => 'Admin created!', 'email' => $admin->email, 'password' => 'Admin@1234']);
 });
 
 Route::get('/check-auth', function () {
