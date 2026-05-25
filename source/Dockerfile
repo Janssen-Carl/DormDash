@@ -56,7 +56,7 @@ RUN chmod 1777 /tmp
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-progress --no-suggest
 
 # Final permissions
-RUN chown -R www-data:www-data /var/www
+# RUN chown -R www-data:www-data /var/www
 
 EXPOSE 9000
 
