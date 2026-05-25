@@ -52,8 +52,8 @@
     {{-- Bottom section --}}
     <div class="p-4 border-t border-gray-800">
         <div class="flex items-center gap-3 px-2 py-2 rounded-xl bg-gray-800">
-            <div class="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-                {{ strtoupper(substr(auth()->user()->username ?? 'A', 0, 2)) }}
+            <div class="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-white flex-shrink-0">
+                <x-heroicon-o-user class="h-4 w-4" />
             </div>
             <div class="min-w-0">
                 <p class="text-white text-xs font-semibold truncate">{{ auth()->user()->username }}</p>

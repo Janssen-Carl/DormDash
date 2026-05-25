@@ -59,13 +59,9 @@
             {{-- Profile Dropdown --}}
             <div class="relative group">
                 <button
-                    class="{{ request()->path() === 'profile' ? 'border-2 border-green-300' : 'border-2 border-green-200' }} flex h-8.5 w-8.5 cursor-pointer items-center justify-center rounded-full bg-green-600 text-xs font-semibold text-white transition-all hover:border-green-300"
+                    class="{{ request()->path() === 'profile' ? 'border-2 border-green-300' : 'border-2 border-green-200' }} flex h-8.5 w-8.5 cursor-pointer items-center justify-center rounded-full bg-green-600 text-white transition-all hover:border-green-300"
                 >
-                    @if (auth()->user())
-                        {{ strtoupper(substr(auth()->user()->username ?? 'U', 0, 2)) }}
-                    @else
-                        <x-heroicon-o-user class="h-5 w-5 text-white" />
-                    @endif
+                    <x-heroicon-o-user class="h-5 w-5" />
                 </button>
                 
                 {{-- Dropdown Menu --}}
@@ -80,7 +76,7 @@
                     </a>
                     <form method="POST" action="/logout" class="block">
                         @csrf
-                        <button type="submit" class="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-gray-50 last:rounded-b-lg border-t border-gray-200">
+                        <button type="submit" class="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-500 hover:text-white transition-colors duration-150 last:rounded-b-lg border-t border-gray-200">
                             <x-heroicon-o-arrow-right-start-on-rectangle class="inline h-4 w-4 mr-2" />
                             Sign Out
                         </button>
