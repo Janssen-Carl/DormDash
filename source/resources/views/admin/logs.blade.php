@@ -1,6 +1,6 @@
 @extends('layouts.admin-main')
 
-@section('title', 'Activity Logs — Admin — DormDash')
+@section('title', 'Activity Logs')
 @section('page-title', 'Activity Logs')
 @section('page-subtitle', 'Record of all admin actions on accounts')
 

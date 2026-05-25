@@ -1,6 +1,6 @@
 @extends('layouts.admin-main')
 
-@section('title', 'Dashboard — Admin — DormDash')
+@section('title', 'Dashboard ')
 @section('page-title', 'Dashboard')
 @section('page-subtitle', 'Platform overview and activity')
 

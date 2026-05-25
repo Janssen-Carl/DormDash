@@ -1,6 +1,6 @@
 @extends('layouts.admin-main')
 
-@section('title', 'Account Management — Admin — DormDash')
+@section('title', 'Account Management')
 @section('page-title', 'Account Management')
 @section('page-subtitle', 'Manage vendor and customer accounts')
 
