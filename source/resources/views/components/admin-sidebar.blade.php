@@ -60,16 +60,50 @@
     </nav>
 
     {{-- Bottom section --}}
-    <div class="p-4 border-t border-gray-800">
-        <div class="flex items-center gap-3 px-2 py-2 rounded-xl bg-gray-800">
-            <div class="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-white flex-shrink-0">
-                <x-heroicon-o-user class="h-4 w-4" />
-            </div>
-            <div class="min-w-0">
-                <p class="text-white text-xs font-semibold truncate">{{ auth()->user()->username }}</p>
-                <p class="text-emerald-400 text-xs">Administrator</p>
-            </div>
+    <div class="p-4 border-t border-gray-800 relative">
+        {{-- Drop-up Menu --}}
+        <div id="admin-logout-dropdown" 
+             class="hidden absolute bottom-16 left-4 right-4 bg-gray-800 rounded-xl border border-gray-700 shadow-xl overflow-hidden z-50 py-1">
+            <form method="POST" action="/logout" class="block m-0">
+                @csrf
+                <button type="submit"
+                        class="w-full text-left px-4 py-3 text-xs font-semibold text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all duration-150 flex items-center gap-2 border-0 bg-transparent cursor-pointer">
+                    <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                    </svg>
+                    Sign Out / Logout
+                </button>
+            </form>
         </div>
+
+        {{-- Profile Area (Clickable) --}}
+        <button onclick="event.stopPropagation(); document.getElementById('admin-logout-dropdown').classList.toggle('hidden');" 
+                class="w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl bg-gray-800 hover:bg-gray-750 border border-gray-750 hover:border-gray-600 transition-all duration-150 text-left focus:outline-none group cursor-pointer">
+            <div class="flex items-center gap-3 min-w-0">
+                <div class="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-white flex-shrink-0 group-hover:scale-105 transition-transform duration-150">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-white text-xs font-bold truncate">{{ auth()->user()->username }}</p>
+                    <p class="text-emerald-400 text-[10px] font-semibold tracking-wider uppercase">Administrator</p>
+                </div>
+            </div>
+            {{-- Toggle indicator chevron --}}
+            <svg class="w-3.5 h-3.5 text-gray-500 group-hover:text-gray-300 transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
     </div>
+
+    <script>
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('admin-logout-dropdown');
+            if (dropdown && !dropdown.classList.contains('hidden')) {
+                dropdown.classList.add('hidden');
+            }
+        });
+    </script>
 
 </aside>
