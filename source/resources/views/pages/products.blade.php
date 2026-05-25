@@ -126,12 +126,21 @@
                     </div>
 
                     {{-- Bundles --}}
+                    @php
+                        $queryParams = request()->query();
+                        if (request('is_bundle') == '1') {
+                            unset($queryParams['is_bundle']);
+                        } else {
+                            $queryParams['is_bundle'] = '1';
+                        }
+                        $toggleUrl = url()->current() . '?' . http_build_query($queryParams);
+                    @endphp
                     <div class="mb-6">
-                        <label class="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-100 cursor-pointer select-none">
-                            <!-- <input type="checkbox" name="is_bundle" value="1" {{ request('is_bundle') == '1' ? 'checked' : '' }} onchange="this.form.submit()" class="rounded border-gray-300 text-green-600 focus:ring-green-600"> -->
+                        <a href="{{ $toggleUrl }}"
+                           class="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors duration-150 {{ request('is_bundle') == '1' ? 'border border-green-200 bg-green-50 text-green-600 font-semibold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
                             <x-heroicon-o-shopping-bag class="h-4 w-4" />
                             <span>Show Featured Bundles</span>
-                        </label>
+                        </a>
                     </div>
 
                     {{-- Discounts --}}
