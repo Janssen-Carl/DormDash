@@ -3,219 +3,40 @@
 @section('title', 'Products')
 
 @section('content')
-        <div x-data="{ sidebarOpen: true }" class="relative flex min-h-[calc(100vh-80px)]">
+    <div x-data="{ sidebarOpen: true }" class="relative flex min-h-[calc(100vh-80px)]">
 
-            {{-- Sidebar Filters --}}
-            <aside x-show="sidebarOpen" x-transition:enter="transition ease-out duration-300"
-                x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0"
-                x-transition:leave="transition ease-in duration-300" x-transition:leave-start="translate-x-0"
-                x-transition:leave-end="-translate-x-full" class="relative z-40 w-72 shrink-0 overflow-y-auto bg-white border-r border-gray-100">
-                <form action="/products" method="GET" class="p-6">
-                    @if($search !== '')
-                        <input type="hidden" name="q" value="{{ $search }}">
-                    @endif
-                    @if(request('sort'))
-                        <input type="hidden" name="sort" value="{{ request('sort') }}">
-                    @endif
-                    <div class="mb-6 flex items-center justify-between">
-                        <h3 class="text-lg font-semibold text-gray-900">Filters</h3>
-                        <div class="flex items-center gap-3">
-                            @if(request()->hasAny(['q', 'vendors', 'categories']))
-                                <a href="/products" class="text-xs font-semibold text-red-600 hover:text-red-700 transition-colors">Clear All</a>
-                            @endif
-                            <button @click="sidebarOpen = false" type="button"
-                                class="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-600">
-                                <x-heroicon-o-x-mark class="h-5 w-5" />
-                            </button>
-                        </div>
-                    </div>
-
-                    {{-- Vendor --}}
-                    <div class="mb-6" x-data="{ 
-                        open: true, 
-                        search: '',
-                        showAll: false,
-                        selected: {{ Js::from($selectedVendors) }},
-                        vendors: {{ Js::from($vendors->map(fn($v) => ['id' => $v->vendor_id, 'name' => $v->name])) }},
-                        get filteredVendors() {
-                            if (this.search === '') return this.vendors;
-                            return this.vendors.filter(v => v.name.toLowerCase().includes(this.search.toLowerCase()));
-                        }
-                    }">
-                        <button type="button" @click="open = !open"
-                            class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-100">
-                            <div class="flex items-center gap-2.5">
-                                <x-heroicon-o-building-storefront class="h-4 w-4" />
-                                <span>Vendor</span>
-                            </div>
-                            <x-heroicon-o-chevron-down class="h-4 w-4 transition-transform duration-200" x-bind:class="open ? 'rotate-180' : ''" />
-                        </button>
-                        <div x-show="open" x-collapse class="mt-2 space-y-2 px-3">
-                            <div class="relative">
-                                <x-heroicon-o-magnifying-glass class="absolute left-2.5 top-2 h-4 w-4 text-gray-400" />
-                                <input type="text" x-model="search" placeholder="Search vendors..."
-                                    class="w-full rounded-md border border-gray-300 py-1.5 pl-8 pr-2 text-xs text-gray-900 focus:border-green-600 focus:ring-1 focus:ring-green-600" />
-                            </div>
-                            <div class="space-y-1 mt-2">
-                                <template x-for="(vendor, index) in filteredVendors" :key="vendor.id">
-                                    <label x-show="showAll || index < 5" class="flex items-center gap-2 py-1 cursor-pointer">
-                                        <input type="checkbox" name="vendors[]" :value="vendor.id" 
-                                            :checked="selected.map(String).includes(String(vendor.id))"
-                                            x-on:change="$el.form.submit()"
-                                            class="rounded border-gray-300 text-green-600 focus:ring-green-600">
-                                        <span class="text-sm text-gray-600" x-text="vendor.name"></span>
-                                    </label>
-                                </template>
-                            </div>
-                            <button type="button" x-show="filteredVendors.length > 5 && !showAll" @click="showAll = true" 
-                                class="text-xs font-semibold text-green-600 hover:text-green-700 w-full text-left py-1">
-                                Show More...
-                            </button>
-                            <button type="button" x-show="showAll" @click="showAll = false" 
-                                class="text-xs font-semibold text-green-600 hover:text-green-700 w-full text-left py-1">
-                                Show Less
-                            </button>
-                            <p x-show="filteredVendors.length === 0" class="text-xs text-gray-500 py-1">No vendors found.</p>
-                        </div>
-                    </div>
-
-                    {{-- Categories --}}
-                    <div class="mb-6" x-data="{ 
-                        open: true,
-                        search: '',
-                        showAll: false,
-                        selected: {{ Js::from($selectedCategories) }},
-                        categories: {{ Js::from($parentCategories->map(fn($c) => ['id' => $c->category_id, 'name' => $c->name])) }},
-                        get filteredCategories() {
-                            if (this.search === '') return this.categories;
-                            return this.categories.filter(c => c.name.toLowerCase().includes(this.search.toLowerCase()));
-                        }
-                    }">
-                        <button type="button" @click="open = !open"
-                            class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-100">
-                            <div class="flex items-center gap-2.5">
-                                <x-heroicon-o-tag class="h-4 w-4" />
-                                <span>Categories</span>
-                            </div>
-                            <x-heroicon-o-chevron-down class="h-4 w-4 transition-transform duration-200" x-bind:class="open ? 'rotate-180' : ''" />
-                        </button>
-                        <div x-show="open" x-collapse class="mt-2 space-y-2 px-3">
-                            <div class="relative">
-                                <x-heroicon-o-magnifying-glass class="absolute left-2.5 top-2 h-4 w-4 text-gray-400" />
-                                <input type="text" x-model="search" placeholder="Search categories..."
-                                    class="w-full rounded-md border border-gray-300 py-1.5 pl-8 pr-2 text-xs text-gray-900 focus:border-green-600 focus:ring-1 focus:ring-green-600" />
-                            </div>
-                            <div class="space-y-1 mt-2">
-                                <template x-for="(category, index) in filteredCategories" :key="category.id">
-                                    <label x-show="showAll || index < 5" class="flex items-center gap-2 py-1 cursor-pointer">
-                                        <input type="checkbox" name="categories[]" :value="category.id" 
-                                            :checked="selected.map(String).includes(String(category.id))"
-                                            x-on:change="$el.form.submit()"
-                                            class="rounded border-gray-300 text-green-600 focus:ring-green-600">
-                                        <span class="text-sm text-gray-600" x-text="category.name"></span>
-                                    </label>
-                                </template>
-                            </div>
-                            <button type="button" x-show="filteredCategories.length > 5 && !showAll" @click="showAll = true" 
-                                class="text-xs font-semibold text-green-600 hover:text-green-700 w-full text-left py-1">
-                                Show More...
-                            </button>
-                            <button type="button" x-show="showAll" @click="showAll = false" 
-                                class="text-xs font-semibold text-green-600 hover:text-green-700 w-full text-left py-1">
-                                Show Less
-                            </button>
-                            <p x-show="filteredCategories.length === 0" class="text-xs text-gray-500 py-1">No categories found.</p>
-                        </div>
-                    </div>
-
-                    {{-- Bundles --}}
-                    @php
-                        $queryParams = request()->query();
-                        $queryParams['is_bundle'] = '1';
-                        unset($queryParams['has_discount']);
-                        $toggleUrl = url()->current() . '?' . http_build_query($queryParams);
-                    @endphp
-                    <div class="mb-6">
-                        <a href="{{ $toggleUrl }}"
-                           class="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors duration-150 {{ request('is_bundle') == '1' ? 'border border-green-200 bg-green-50 text-green-600 font-semibold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
-                            <x-heroicon-o-shopping-bag class="h-4 w-4" />
-                            <span>Show Featured Bundles</span>
-                        </a>
-                    </div>
-
-                    {{-- Discounts Filter --}}
-                    @php
-                        $queryParams = request()->query();
-                        $queryParams['has_discount'] = '1';
-                        unset($queryParams['is_bundle']);
-                        $discountToggleUrl = url()->current() . '?' . http_build_query($queryParams);
-                    @endphp
-                    <div class="mb-6">
-                        <a href="{{ $discountToggleUrl }}"
-                           class="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors duration-150 {{ request('has_discount') == '1' ? 'border border-green-200 bg-green-50 text-green-600 font-semibold shadow-sm' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
-                            <x-heroicon-o-sparkles class="h-4 w-4" />
-                            <span>Show Discounted Items</span>
-                        </a>
-                    </div>
-                </form>
-            </aside>
-
-            {{-- Main Content --}}
-            <main class="flex-1 overflow-y-auto px-8 py-8 w-full">
-                @if(session('success'))
-                    <div class="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 rounded-2xl bg-green-600 px-6 py-3 text-sm font-bold text-white shadow-2xl border border-green-500" x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 -translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-4">
-                        <x-heroicon-s-check-circle class="h-5 w-5 text-green-200" />
-                        {{ session('success') }}
-                    </div>
+        {{-- Sidebar Filters --}}
+        <aside x-show="sidebarOpen" x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0"
+            x-transition:leave="transition ease-in duration-300" x-transition:leave-start="translate-x-0"
+            x-transition:leave-end="-translate-x-full"
+            class="relative z-40 w-72 shrink-0 overflow-y-auto bg-white border-r border-gray-100">
+            <form action="/products" method="GET" class="p-6">
+                @if($search !== '')
+                    <input type="hidden" name="q" value="{{ $search }}">
                 @endif
-                {{-- Toggle Button --}}
-                <div x-show="!sidebarOpen" x-transition:enter="transition ease-out duration-300"
-                    x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-                    x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100"
-                    x-transition:leave-end="opacity-0" class="mb-8 flex items-center justify-between">
-                    <button @click="sidebarOpen = true" type="button"
-                        class="rounded-lg border border-gray-200 p-2 text-gray-600 transition-colors hover:bg-gray-100">
-                        <x-heroicon-o-bars-3 class="h-6 w-6" />
-                    </button>
-                </div>
-
-                {{-- Header Section --}}
-                <div class="py-8 mb-12 flex flex-col items-center">
-                    <div class="text-center">
-                        <h1 class="text-4xl font-bold tracking-tight text-gray-900">
-                            {{ $search !== '' ? 'Search Results' : 'Products' }}
-                        </h1>
-                        <p class="mt-2 text-gray-500">
-                            {{ $search !== '' ? 'Showing matches for "' . $search . '"' : 'Explore our most popular items this week!' }}
-                        </p>
-                    </div>
-
-                    <form action="/products" method="GET" class="mt-6 flex w-full max-w-2xl gap-3">
-                        @foreach((array) $selectedVendors as $vendorId)
-                            <input type="hidden" name="vendors[]" value="{{ $vendorId }}">
-                        @endforeach
-                        @foreach((array) $selectedCategories as $categoryId)
-                            <input type="hidden" name="categories[]" value="{{ $categoryId }}">
-                        @endforeach
-                        <div class="relative flex-1">
-                            <x-heroicon-o-magnifying-glass class="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
-                            <input
-                                type="search"
-                                name="q"
-                                value="{{ $search }}"
-                                placeholder="Search products, brands, vendors..."
-                                class="w-full rounded-lg border border-gray-200 bg-white py-3 pl-12 pr-4 text-gray-900 placeholder-gray-500 transition-colors focus:border-green-600 focus:ring-1 focus:ring-green-600"
-                            />
+                <div class="mb-6 flex items-center justify-between">
+                            <h3 class="text-lg font-semibold text-gray-900">Filters</h3>
+                            <div class="flex items-center gap-3">
+                                @if(request()->hasAny(['q', 'vendors', 'categories', 'sort']))
+                                    <a href="/products" class="text-xs font-semibold text-red-600 hover:text-red-700 transition-colors">Clear All</a>
+                                @endif
+                                <button @click="sidebarOpen = false" type="button"
+                                    class="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-600">
+                                    <x-heroicon-o-x-mark class="h-5 w-5" />
+                                </button>
+                            </div>
                         </div>
 
-                        {{-- Premium Sorting Select Dropdown --}}
-                        <div class="relative">
+                        {{-- Sort Dropdown inside Sidebar --}}
+                        <div class="mb-6">
+                            <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Sort By</label>
                             <select
                                 name="sort"
                                 onchange="this.form.submit()"
-                                class="h-12 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm text-gray-700 focus:border-green-600 focus:ring-1 focus:ring-green-600 outline-none cursor-pointer"
+                                class="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-green-600 focus:ring-1 focus:ring-green-600 outline-none cursor-pointer font-medium"
                             >
-                                <option value="">Sort By</option>
+                                <option value="">Default</option>
                                 <option value="popularity" {{ request('sort') == 'popularity' ? 'selected' : '' }}>Popularity</option>
                                 <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>Price: Low to High</option>
                                 <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>Price: High to Low</option>
@@ -224,143 +45,437 @@
                             </select>
                         </div>
 
-                        <button type="submit"
-                            class="inline-flex h-12 items-center justify-center rounded-lg bg-green-600 px-6 text-sm font-semibold text-white transition-colors hover:bg-green-700">
-                            Search
-                        </button>
-                    </form>
-
-                    @if($search !== '')
-                        <a href="/products" class="mt-3 text-sm font-semibold text-green-600 hover:text-green-700">
-                            Clear search
-                        </a>
-                    @endif
-                </div>
-
-                {{-- Products by Category --}}
-                @forelse ($categoryItems as $group)
-                    <section class="mb-12" x-data="productCarousel()">
-                        <div class="mb-6 flex items-center justify-between">
-                            <h2 class="text-2xl font-bold text-gray-900">{{ $group['category']->name }}</h2>
-                            <div class="flex gap-2">
-                                <button @click="scrollCarousel('carousel-{{ $group['category']->category_id }}', -400)" type="button"
-                                    class="rounded-lg border border-gray-200 p-2 text-gray-600 transition-colors hover:bg-gray-100">
-                                    <x-heroicon-o-chevron-left class="h-5 w-5" />
+                        {{-- Vendor --}}
+                        <div class="mb-6" x-data="{ 
+                            open: true, 
+                            search: '',
+                            showAll: false,
+                            selected: {{ Js::from($selectedVendors) }},
+                            vendors: {{ Js::from($vendors->map(fn($v) => ['id' => $v->vendor_id, 'name' => $v->name])) }},
+                            get filteredVendors() {
+                                if (this.search === '') return this.vendors;
+                                return this.vendors.filter(v => v.name.toLowerCase().includes(this.search.toLowerCase()));
+                            }
+                        }">
+                            <button type="button" @click="open = !open"
+                                class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-100">
+                                <div class="flex items-center gap-2.5">
+                                    <x-heroicon-o-building-storefront class="h-4 w-4" />
+                                    <span>Vendor</span>
+                                </div>
+                                <x-heroicon-o-chevron-down class="h-4 w-4 transition-transform duration-200" x-bind:class="open ? 'rotate-180' : ''" />
+                            </button>
+                            <div x-show="open" x-collapse class="mt-2 space-y-2 px-3">
+                                <div class="relative">
+                                    <x-heroicon-o-magnifying-glass class="absolute left-2.5 top-2 h-4 w-4 text-gray-400" />
+                                    <input type="text" x-model="search" placeholder="Search vendors..."
+                                        class="w-full rounded-md border border-gray-300 py-1.5 pl-8 pr-2 text-xs text-gray-900 focus:border-green-600 focus:ring-1 focus:ring-green-600" />
+                                </div>
+                                <div class="space-y-1 mt-2">
+                                    <template x-for="(vendor, index) in filteredVendors" :key="vendor.id">
+                                        <label x-show="showAll || index < 5" class="flex items-center gap-2 py-1 cursor-pointer">
+                                            <input type="checkbox" name="vendors[]" :value="vendor.id" 
+                                                :checked="selected.map(String).includes(String(vendor.id))"
+                                                x-on:change="$el.form.submit()"
+                                                class="rounded border-gray-300 text-green-600 focus:ring-green-600">
+                                            <span class="text-sm text-gray-600" x-text="vendor.name"></span>
+                                        </label>
+                                    </template>
+                                </div>
+                                <button type="button" x-show="filteredVendors.length > 5 && !showAll" @click="showAll = true" 
+                                    class="text-xs font-semibold text-green-600 hover:text-green-700 w-full text-left py-1">
+                                    Show More...
                                 </button>
-                                <button @click="scrollCarousel('carousel-{{ $group['category']->category_id }}', 400)" type="button"
-                                    class="rounded-lg border border-gray-200 p-2 text-gray-600 transition-colors hover:bg-gray-100">
-                                    <x-heroicon-o-chevron-right class="h-5 w-5" />
+                                <button type="button" x-show="showAll" @click="showAll = false" 
+                                    class="text-xs font-semibold text-green-600 hover:text-green-700 w-full text-left py-1">
+                                    Show Less
                                 </button>
+                                <p x-show="filteredVendors.length === 0" class="text-xs text-gray-500 py-1">No vendors found.</p>
                             </div>
                         </div>
 
-                        <div id="carousel-{{ $group['category']->category_id }}" class="scrollbar-hide flex gap-4 overflow-x-auto transition-all duration-300"
-                            style="scroll-behavior: smooth;">
-                            @foreach ($group['items'] as $product)
-                                <div
-                                    class="group shrink-0 w-72 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:shadow-lg hover:border-gray-200">
-                                    <a href="{{ route('products.show', ['id' => $product->item_id]) }}" class="block relative aspect-square bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
-                                        @if ($product->images->first())
-                                            <img src="{{ asset($product->images->first()->image) }}"
-                                                alt="{{ $product->name }}"
-                                                class="h-full w-full object-cover group-hover:scale-110 transition-transform duration-300" />
-                                        @else
-                                            <div
-                                                class="flex h-full w-full items-center justify-center text-gray-300 group-hover:scale-110 transition-transform duration-300">
-                                                <x-heroicon-o-photo class="h-16 w-16" />
-                                            </div>
-                                        @endif
-
-                                        <div class="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
-                                            @if ($product->discounts->isNotEmpty())
-                                                @php $discount = $product->discounts->first(); @endphp
-                                                <div
-                                                    class="bg-red-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm text-center">
-                                                    @if ($discount->type === 'percentage')
-                                                        {{ number_format($discount->value) }}% OFF
-                                                    @else
-                                                        ₱{{ number_format($discount->value) }} OFF
-                                                    @endif
-                                                </div>
-                                            @endif
-                                            @if ($product->is_bundle)
-                                                <div class="bg-blue-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm text-center uppercase tracking-wider">
-                                                    Bundle
-                                                </div>
-                                            @endif
-                                        </div>
-                                    </a>
-                                    <div class="p-4">
-                                        <p class="text-xs font-semibold text-green-600 uppercase tracking-wide">
-                                            {{ $product->vendor->name ?? 'DormDash' }}
-                                        </p>
-                                        <div class="mt-2 flex items-center gap-2">
-                                            <a href="{{ route('products.show', ['id' => $product->item_id]) }}" class="text-base font-bold text-gray-900 truncate hover:text-green-600 transition-colors" title="{{ $product->name }}">
-                                                {{ $product->name }}
-                                            </a>
-
-                                        </div>
-
-                                        <div class="mt-2 flex items-center justify-between text-xs text-gray-500">
-                                            <span>Stock: {{ $product->stock }} available</span>
-                                            <span class="font-semibold text-gray-700 bg-gray-100/70 px-2 py-0.5 rounded-full">{{ $product->sold }} sold</span>
-                                        </div>
-
-                                        <div class="mt-4 flex items-baseline gap-2">
-                                            @if ($product->discounts->isNotEmpty())
-                                                <span class="text-xl font-bold text-green-600">₱{{ number_format($product->discounted_price, 2) }}</span>
-                                                <span class="text-xs text-gray-400 line-through">₱{{ number_format($product->price, 2) }}</span>
-                                            @else
-                                                <span class="text-xl font-bold text-gray-900">₱{{ number_format($product->price, 2) }}</span>
-                                            @endif
-                                            @if ($product->is_bundle)
-                                                <span class="text-xs text-gray-500 italic">Bundle Set</span>
-                                            @elseif ($product->unit_type)
-                                                <span class="text-xs text-gray-500 ">/{{ (int) $product->unit_value }} {{ $product->unit_type }}</span>
-                                            @endif
-                                        </div>
-
-                                        <div class="mt-4 flex gap-2">
-                                            <form action="{{ route('cart.store') }}" method="POST" class="flex-1 m-0">
-                                                @csrf
-                                                <input type="hidden" name="item_id" value="{{ $product->item_id }}">
-                                                <input type="hidden" name="quantity" value="1">
-                                                <button type="submit"
-                                                    class="w-full rounded-lg bg-green-50 border border-green-200 py-2 text-xs font-semibold text-green-600 transition-all duration-200 hover:bg-green-100">
-                                                    <x-heroicon-o-shopping-cart class="inline h-4 w-4 mr-1" />
-                                                    Add to Cart
-                                                </button>
-                                            </form>
-                                            <form action="{{ route('checkout.index') }}" method="GET" class="flex-1 m-0">
-                                                <input type="hidden" name="buy_item" value="{{ $product->item_id }}">
-                                                <input type="hidden" name="qty" value="1">
-                                                <button type="submit"
-                                                    class="w-full rounded-lg bg-green-600 py-2 text-xs font-semibold text-white transition-all duration-200 hover:bg-green-700 shadow-sm hover:shadow-md">
-                                                    Buy Now
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </div>
+                        {{-- Categories --}}
+                        <div class="mb-6" x-data="{ 
+                            open: true,
+                            search: '',
+                            showAll: false,
+                            selected: {{ Js::from($selectedCategories) }},
+                            categories: {{ Js::from($parentCategories->map(fn($c) => ['id' => $c->category_id, 'name' => $c->name])) }},
+                            get filteredCategories() {
+                                if (this.search === '') return this.categories;
+                                return this.categories.filter(c => c.name.toLowerCase().includes(this.search.toLowerCase()));
+                            }
+                        }">
+                            <button type="button" @click="open = !open"
+                                class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-100">
+                                <div class="flex items-center gap-2.5">
+                                    <x-heroicon-o-tag class="h-4 w-4" />
+                                    <span>Categories</span>
                                 </div>
-                            @endforeach
+                                <x-heroicon-o-chevron-down class="h-4 w-4 transition-transform duration-200" x-bind:class="open ? 'rotate-180' : ''" />
+                            </button>
+                            <div x-show="open" x-collapse class="mt-2 space-y-2 px-3">
+                                <div class="relative">
+                                    <x-heroicon-o-magnifying-glass class="absolute left-2.5 top-2 h-4 w-4 text-gray-400" />
+                                    <input type="text" x-model="search" placeholder="Search categories..."
+                                        class="w-full rounded-md border border-gray-300 py-1.5 pl-8 pr-2 text-xs text-gray-900 focus:border-green-600 focus:ring-1 focus:ring-green-600" />
+                                </div>
+                                <div class="space-y-1 mt-2">
+                                    <template x-for="(category, index) in filteredCategories" :key="category.id">
+                                        <label x-show="showAll || index < 5" class="flex items-center gap-2 py-1 cursor-pointer">
+                                            <input type="checkbox" name="categories[]" :value="category.id" 
+                                                :checked="selected.map(String).includes(String(category.id))"
+                                                x-on:change="$el.form.submit()"
+                                                class="rounded border-gray-300 text-green-600 focus:ring-green-600">
+                                            <span class="text-sm text-gray-600" x-text="category.name"></span>
+                                        </label>
+                                    </template>
+                                </div>
+                                <button type="button" x-show="filteredCategories.length > 5 && !showAll" @click="showAll = true" 
+                                    class="text-xs font-semibold text-green-600 hover:text-green-700 w-full text-left py-1">
+                                    Show More...
+                                </button>
+                                <button type="button" x-show="showAll" @click="showAll = false" 
+                                    class="text-xs font-semibold text-green-600 hover:text-green-700 w-full text-left py-1">
+                                    Show Less
+                                </button>
+                                <p x-show="filteredCategories.length === 0" class="text-xs text-gray-500 py-1">No categories found.</p>
+                            </div>
                         </div>
-                    </section>
-                @empty
-                    <div class="flex flex-col items-center justify-center py-16 text-gray-400">
-                        <x-heroicon-o-inbox class="h-16 w-16 mb-4" />
-                        <p class="text-lg font-medium">
-                            {{ $search !== '' ? 'No products matched your search.' : 'No products available at the moment.' }}
-                        </p>
+
+                        {{-- Bundles --}}
+                        @php
+                            $queryParams = request()->query();
+                            $queryParams['is_bundle'] = '1';
+                            unset($queryParams['has_discount']);
+                            $toggleUrl = url()->current() . '?' . http_build_query($queryParams);
+                        @endphp
+                        <div class="mb-6">
+                            <a href="{{ $toggleUrl }}"
+                               class="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors duration-150 {{ request('is_bundle') == '1' ? 'border border-green-200 bg-green-50 text-green-600 font-semibold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                                <x-heroicon-o-shopping-bag class="h-4 w-4" />
+                                <span>Show Featured Bundles</span>
+                            </a>
+                        </div>
+
+                        {{-- Discounts Filter --}}
+                        @php
+                            $queryParams = request()->query();
+                            $queryParams['has_discount'] = '1';
+                            unset($queryParams['is_bundle']);
+                            $discountToggleUrl = url()->current() . '?' . http_build_query($queryParams);
+                        @endphp
+                        <div class="mb-6">
+                            <a href="{{ $discountToggleUrl }}"
+                               class="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors duration-150 {{ request('has_discount') == '1' ? 'border border-green-200 bg-green-50 text-green-600 font-semibold shadow-sm' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                                <x-heroicon-o-sparkles class="h-4 w-4" />
+                                <span>Show Discounted Items</span>
+                            </a>
+                        </div>
+                    </form>
+                </aside>
+
+                {{-- Main Content --}}
+                <main class="flex-1 overflow-y-auto px-8 py-8 w-full">
+                    @if(session('success'))
+                        <div class="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 rounded-2xl bg-green-600 px-6 py-3 text-sm font-bold text-white shadow-2xl border border-green-500" x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 -translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-4">
+                            <x-heroicon-s-check-circle class="h-5 w-5 text-green-200" />
+                            {{ session('success') }}
+                        </div>
+                    @endif
+                    {{-- Toggle Button --}}
+                    <div x-show="!sidebarOpen" x-transition:enter="transition ease-out duration-300"
+                        x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                        x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100"
+                        x-transition:leave-end="opacity-0" class="mb-8 flex items-center justify-between">
+                        <button @click="sidebarOpen = true" type="button"
+                            class="rounded-lg border border-gray-200 p-2 text-gray-600 transition-colors hover:bg-gray-100">
+                            <x-heroicon-o-bars-3 class="h-6 w-6" />
+                        </button>
+                    </div>
+
+                    {{-- Header Section --}}
+                    <div class="py-8 mb-12 flex flex-col items-center">
+                        <div class="text-center">
+                            <h1 class="text-4xl font-bold tracking-tight text-gray-900">
+                                {{ $search !== '' ? 'Search Results' : 'Products' }}
+                            </h1>
+                            <p class="mt-2 text-gray-500">
+                                {{ $search !== '' ? 'Showing matches for "' . $search . '"' : 'Explore our most popular items this week!' }}
+                            </p>
+                        </div>
+
+                        <form action="/products" method="GET" class="mt-6 flex w-full max-w-2xl gap-3">
+                            @foreach((array) $selectedVendors as $vendorId)
+                                <input type="hidden" name="vendors[]" value="{{ $vendorId }}">
+                            @endforeach
+                            @foreach((array) $selectedCategories as $categoryId)
+                                <input type="hidden" name="categories[]" value="{{ $categoryId }}">
+                            @endforeach
+                            @if(request('sort'))
+                                <input type="hidden" name="sort" value="{{ request('sort') }}">
+                            @endif
+                            <div class="relative flex-1">
+                                <x-heroicon-o-magnifying-glass class="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
+                                <input
+                                    type="search"
+                                    name="q"
+                                    value="{{ $search }}"
+                                    placeholder="Search products, brands, vendors..."
+                                    class="w-full rounded-lg border border-gray-200 bg-white py-3 pl-12 pr-4 text-gray-900 placeholder-gray-500 transition-colors focus:border-green-600 focus:ring-1 focus:ring-green-600"
+                                />
+                            </div>
+
+                            <button type="submit"
+                                class="inline-flex h-12 items-center justify-center rounded-lg bg-green-600 px-6 text-sm font-semibold text-white transition-colors hover:bg-green-700">
+                                Search
+                            </button>
+                        </form>
+
                         @if($search !== '')
                             <a href="/products" class="mt-3 text-sm font-semibold text-green-600 hover:text-green-700">
-                                View all products
+                                Clear search
                             </a>
                         @endif
                     </div>
-                @endforelse
-            </main>
-        </div>
-    @endsection
+
+                    {{-- Unified Search/Sort Result Grid or Categories --}}
+                    @if($isSingleGrid)
+                        <section class="mb-12">
+                            <div class="mb-6 flex items-center justify-between border-b border-gray-100 pb-4">
+                                <h2 class="text-2xl font-bold text-gray-900">
+                                    {{ $search !== '' ? 'Search Results' : 'Product Catalog' }}
+                                    <span class="ml-2 text-sm font-medium text-gray-500">({{ $items->total() }} items found)</span>
+                                </h2>
+                            </div>
+
+                            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                                @forelse ($items as $product)
+                                    <div
+                                        class="group overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:shadow-lg hover:border-gray-200">
+                                        <a href="{{ route('products.show', ['id' => $product->item_id]) }}" class="block relative aspect-square bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
+                                            @if ($product->images->first())
+                                                <img src="{{ asset($product->images->first()->image) }}"
+                                                    alt="{{ $product->name }}"
+                                                    class="h-full w-full object-cover group-hover:scale-110 transition-transform duration-300" />
+                                            @else
+                                                <div
+                                                    class="flex h-full w-full items-center justify-center text-gray-300 group-hover:scale-110 transition-transform duration-300">
+                                                    <x-heroicon-o-photo class="h-16 w-16" />
+                                                </div>
+                                            @endif
+
+                                            <div class="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
+                                                @if ($product->discounts->isNotEmpty())
+                                                    @php $discount = $product->discounts->first(); @endphp
+                                                    <div
+                                                        class="bg-red-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm text-center">
+                                                        @if ($discount->type === 'percentage')
+                                                            {{ number_format($discount->value) }}% OFF
+                                                        @else
+                                                            ₱{{ number_format($discount->value) }} OFF
+                                                        @endif
+                                                    </div>
+                                                @endif
+                                                @if ($product->is_bundle)
+                                                    <div class="bg-blue-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm text-center uppercase tracking-wider">
+                                                        Bundle
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </a>
+                                        <div class="p-4">
+                                            <p class="text-xs font-semibold text-green-600 uppercase tracking-wide">
+                                                {{ $product->vendor->name ?? 'DormDash' }}
+                                            </p>
+                                            <div class="mt-2 flex items-center gap-2">
+                                                <a href="{{ route('products.show', ['id' => $product->item_id]) }}" class="text-base font-bold text-gray-900 truncate hover:text-green-600 transition-colors" title="{{ $product->name }}">
+                                                    {{ $product->name }}
+                                                </a>
+                                            </div>
+
+                                            <div class="mt-2 flex items-center justify-between text-xs text-gray-500">
+                                                <span>Stock: {{ $product->stock }} available</span>
+                                                <span class="font-semibold text-gray-700 bg-gray-100/70 px-2 py-0.5 rounded-full">{{ $product->sold }} sold</span>
+                                            </div>
+
+                                            <div class="mt-4 flex items-baseline gap-2">
+                                                @if ($product->discounts->isNotEmpty())
+                                                    <span class="text-xl font-bold text-green-600">₱{{ number_format($product->discounted_price, 2) }}</span>
+                                                    <span class="text-xs text-gray-400 line-through">₱{{ number_format($product->price, 2) }}</span>
+                                                @else
+                                                    <span class="text-xl font-bold text-gray-900">₱{{ number_format($product->price, 2) }}</span>
+                                                @endif
+                                                @if ($product->is_bundle)
+                                                    <span class="text-xs text-gray-500 italic">Bundle Set</span>
+                                                @elseif ($product->unit_type)
+                                                    <span class="text-xs text-gray-500 ">/{{ (int) $product->unit_value }} {{ $product->unit_type }}</span>
+                                                @endif
+                                            </div>
+
+                                            <div class="mt-4 flex gap-2">
+                                                <form action="{{ route('cart.store') }}" method="POST" class="flex-1 m-0">
+                                                    @csrf
+                                                    <input type="hidden" name="item_id" value="{{ $product->item_id }}">
+                                                    <input type="hidden" name="quantity" value="1">
+                                                    <button type="submit"
+                                                        class="w-full rounded-lg bg-green-50 border border-green-200 py-2 text-xs font-semibold text-green-600 transition-all duration-200 hover:bg-green-100">
+                                                        <x-heroicon-o-shopping-cart class="inline h-4 w-4 mr-1" />
+                                                        Add to Cart
+                                                    </button>
+                                                </form>
+                                                <form action="{{ route('checkout.index') }}" method="GET" class="flex-1 m-0">
+                                                    <input type="hidden" name="buy_item" value="{{ $product->item_id }}">
+                                                    <input type="hidden" name="qty" value="1">
+                                                    <button type="submit"
+                                                        class="w-full rounded-lg bg-green-600 py-2 text-xs font-semibold text-white transition-all duration-200 hover:bg-green-700 shadow-sm hover:shadow-md">
+                                                        Buy Now
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <div class="col-span-full flex flex-col items-center justify-center py-16 text-gray-400">
+                                        <x-heroicon-o-inbox class="h-16 w-16 mb-4" />
+                                        <p class="text-lg font-medium">No products matched your criteria.</p>
+                                        <a href="/products" class="mt-3 text-sm font-semibold text-green-600 hover:text-green-700">
+                                            Reset all filters
+                                        </a>
+                                    </div>
+                                @endforelse
+                            </div>
+
+                            {{-- Pagination links --}}
+                            <div class="mt-12 flex justify-center">
+                                {{ $items->links() }}
+                            </div>
+                        </section>
+                    @else
+                        @forelse ($categoryItems as $group)
+                            <section class="mb-12" x-data="productCarousel()">
+                                <div class="mb-6 flex items-center justify-between">
+                                    <h2 class="text-2xl font-bold text-gray-900">{{ $group['category']->name }}</h2>
+                                    <div class="flex gap-2">
+                                        <button @click="scrollCarousel('carousel-{{ $group['category']->category_id }}', -400)" type="button"
+                                            class="rounded-lg border border-gray-200 p-2 text-gray-600 transition-colors hover:bg-gray-100">
+                                            <x-heroicon-o-chevron-left class="h-5 w-5" />
+                                        </button>
+                                        <button @click="scrollCarousel('carousel-{{ $group['category']->category_id }}', 400)" type="button"
+                                            class="rounded-lg border border-gray-200 p-2 text-gray-600 transition-colors hover:bg-gray-100">
+                                            <x-heroicon-o-chevron-right class="h-5 w-5" />
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div id="carousel-{{ $group['category']->category_id }}" class="scrollbar-hide flex gap-4 overflow-x-auto transition-all duration-300"
+                                    style="scroll-behavior: smooth;">
+                                    @foreach ($group['items'] as $product)
+                                        <div
+                                            class="group shrink-0 w-72 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:shadow-lg hover:border-gray-200">
+                                            <a href="{{ route('products.show', ['id' => $product->item_id]) }}" class="block relative aspect-square bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
+                                                @if ($product->images->first())
+                                                    <img src="{{ asset($product->images->first()->image) }}"
+                                                        alt="{{ $product->name }}"
+                                                        class="h-full w-full object-cover group-hover:scale-110 transition-transform duration-300" />
+                                                @else
+                                                    <div
+                                                        class="flex h-full w-full items-center justify-center text-gray-300 group-hover:scale-110 transition-transform duration-300">
+                                                        <x-heroicon-o-photo class="h-16 w-16" />
+                                                    </div>
+                                                @endif
+
+                                                <div class="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
+                                                    @if ($product->discounts->isNotEmpty())
+                                                        @php $discount = $product->discounts->first(); @endphp
+                                                        <div
+                                                            class="bg-red-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm text-center">
+                                                            @if ($discount->type === 'percentage')
+                                                                {{ number_format($discount->value) }}% OFF
+                                                            @else
+                                                                ₱{{ number_format($discount->value) }} OFF
+                                                            @endif
+                                                        </div>
+                                                    @endif
+                                                    @if ($product->is_bundle)
+                                                        <div class="bg-blue-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm text-center uppercase tracking-wider">
+                                                            Bundle
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </a>
+                                            <div class="p-4">
+                                                <p class="text-xs font-semibold text-green-600 uppercase tracking-wide">
+                                                    {{ $product->vendor->name ?? 'DormDash' }}
+                                                </p>
+                                                <div class="mt-2 flex items-center gap-2">
+                                                    <a href="{{ route('products.show', ['id' => $product->item_id]) }}" class="text-base font-bold text-gray-900 truncate hover:text-green-600 transition-colors" title="{{ $product->name }}">
+                                                        {{ $product->name }}
+                                                    </a>
+
+                                                </div>
+
+                                                <div class="mt-2 flex items-center justify-between text-xs text-gray-500">
+                                                    <span>Stock: {{ $product->stock }} available</span>
+                                                    <span class="font-semibold text-gray-700 bg-gray-100/70 px-2 py-0.5 rounded-full">{{ $product->sold }} sold</span>
+                                                </div>
+
+                                                <div class="mt-4 flex items-baseline gap-2">
+                                                    @if ($product->discounts->isNotEmpty())
+                                                        <span class="text-xl font-bold text-green-600">₱{{ number_format($product->discounted_price, 2) }}</span>
+                                                        <span class="text-xs text-gray-400 line-through">₱{{ number_format($product->price, 2) }}</span>
+                                                    @else
+                                                        <span class="text-xl font-bold text-gray-900">₱{{ number_format($product->price, 2) }}</span>
+                                                    @endif
+                                                    @if ($product->is_bundle)
+                                                        <span class="text-xs text-gray-500 italic">Bundle Set</span>
+                                                    @elseif ($product->unit_type)
+                                                        <span class="text-xs text-gray-500 ">/{{ (int) $product->unit_value }} {{ $product->unit_type }}</span>
+                                                    @endif
+                                                </div>
+
+                                                <div class="mt-4 flex gap-2">
+                                                    <form action="{{ route('cart.store') }}" method="POST" class="flex-1 m-0">
+                                                        @csrf
+                                                        <input type="hidden" name="item_id" value="{{ $product->item_id }}">
+                                                        <input type="hidden" name="quantity" value="1">
+                                                        <button type="submit"
+                                                            class="w-full rounded-lg bg-green-50 border border-green-200 py-2 text-xs font-semibold text-green-600 transition-all duration-200 hover:bg-green-100">
+                                                            <x-heroicon-o-shopping-cart class="inline h-4 w-4 mr-1" />
+                                                            Add to Cart
+                                                        </button>
+                                                    </form>
+                                                    <form action="{{ route('checkout.index') }}" method="GET" class="flex-1 m-0">
+                                                        <input type="hidden" name="buy_item" value="{{ $product->item_id }}">
+                                                        <input type="hidden" name="qty" value="1">
+                                                        <button type="submit"
+                                                            class="w-full rounded-lg bg-green-600 py-2 text-xs font-semibold text-white transition-all duration-200 hover:bg-green-700 shadow-sm hover:shadow-md">
+                                                            Buy Now
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </section>
+                        @empty
+                            <div class="flex flex-col items-center justify-center py-16 text-gray-400">
+                                <x-heroicon-o-inbox class="h-16 w-16 mb-4" />
+                                <p class="text-lg font-medium">
+                                    {{ $search !== '' ? 'No products matched your search.' : 'No products available at the moment.' }}
+                                </p>
+                                @if($search !== '')
+                                    <a href="/products" class="mt-3 text-sm font-semibold text-green-600 hover:text-green-700">
+                                        View all products
+                                    </a>
+                                @endif
+                            </div>
+                        @endforelse
+                    @endif
+                </main>
+            </div>
+@endsection
 
     <script>
         function productCarousel() {

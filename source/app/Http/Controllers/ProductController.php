@@ -29,8 +29,13 @@ class ProductController extends Controller
 
         $isBundle = $request->input('is_bundle') == '1';
 
-        // Group items by parent category
-        $categoryItems = [];
+        // Check if we should render a unified single grid
+        $isSingleGrid = ($search !== '') 
+            || ($sort !== '' && $sort !== 'default') 
+            || !empty($selectedCategories) 
+            || !empty($selectedVendors)
+            || $request->input('is_bundle') == '1'
+            || $request->input('has_discount') == '1';
 
         // Sorting closure to reuse sorting logic on both bundles and items
         $applySorting = function ($query) use ($sort) {
@@ -65,32 +70,54 @@ class ProductController extends Controller
             }
             return $query;
         };
-        
-        // 1. Fetch Bundles
-        if ($isBundle || (empty($selectedCategories) && !$request->has('is_bundle'))) {
-            $bundleQuery = Item::where('is_active', true)
+
+        $categoryItems = [];
+        $items = null;
+
+        if ($isSingleGrid) {
+            $itemsQuery = Item::where('is_active', true)
                 ->where('is_available', true)
-                ->where('is_bundle', true)
                 ->with(['images', 'vendor', 'discounts' => function ($q) {
                     $q->where('is_active', true)
                       ->where('date_start', '<=', now())
                       ->where('date_end', '>=', now());
                 }]);
-                
+
+            if ($request->input('is_bundle') == '1') {
+                $itemsQuery->where('is_bundle', true);
+            } elseif ($request->has('is_bundle') && $request->input('is_bundle') == '0') {
+                $itemsQuery->where('is_bundle', false);
+            }
+
             if ($request->input('has_discount') == '1') {
-                $bundleQuery->whereHas('discounts', function ($q) {
+                $itemsQuery->whereHas('discounts', function ($q) {
                     $q->where('is_active', true)
                       ->where('date_start', '<=', now())
                       ->where('date_end', '>=', now());
                 });
             }
-                
+
             if (!empty($selectedVendors)) {
-                $bundleQuery->whereIn('vendor_id', $selectedVendors);
+                $itemsQuery->whereIn('vendor_id', $selectedVendors);
+            }
+
+            if (!empty($selectedCategories)) {
+                // Collect children categories recursively
+                $categoryIds = Category::whereIn('category_id', $selectedCategories)
+                    ->get()
+                    ->flatMap(function($c) {
+                        return $c->children->pluck('category_id')->push($c->category_id);
+                    })
+                    ->unique()
+                    ->toArray();
+
+                $itemsQuery->whereHas('categories', function ($q) use ($categoryIds) {
+                    $q->whereIn('categories.category_id', $categoryIds);
+                });
             }
 
             if ($search !== '') {
-                $bundleQuery->where(function ($q) use ($search) {
+                $itemsQuery->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
                         ->orWhere('description', 'like', "%{$search}%")
                         ->orWhere('brand', 'like', "%{$search}%")
@@ -98,49 +125,25 @@ class ProductController extends Controller
                         ->orWhere('barcode', 'like', "%{$search}%")
                         ->orWhereHas('vendor', function ($vendorQuery) use ($search) {
                             $vendorQuery->where('name', 'like', "%{$search}%");
+                        })
+                        ->orWhereHas('categories', function ($categoryQuery) use ($search) {
+                            $categoryQuery->where('name', 'like', "%{$search}%")
+                                ->orWhere('description', 'like', "%{$search}%");
                         });
                 });
             }
 
-            // Apply dynamic sorting to bundles
-            $bundleQuery = $applySorting($bundleQuery);
-            
-            $bundles = $bundleQuery->limit(20)->get();
-            if ($bundles->isNotEmpty()) {
-                $categoryItems[] = [
-                    'category' => (object) ['name' => 'Featured Bundles', 'category_id' => 'bundles'],
-                    'items' => $bundles,
-                ];
-            }
-        }
+            // Apply sorting
+            $itemsQuery = $applySorting($itemsQuery);
 
-        // 2. Fetch standard Categories
-        $shouldFetchCategories = true;
-        if ($isBundle && empty($selectedCategories)) {
-            $shouldFetchCategories = false;
-        }
-
-        if ($shouldFetchCategories) {
-            $categoriesToDisplay = empty($selectedCategories) 
-                ? $parentCategories 
-                : $parentCategories->whereIn('category_id', $selectedCategories);
-
-            foreach ($categoriesToDisplay as $category) {
-                // Collect this category + its children IDs
-                $categoryIds = $category->children->pluck('category_id')->push($category->category_id);
-                $categoryMatchesSearch = $search !== '' && collect([$category])
-                    ->merge($category->children)
-                    ->contains(function ($category) use ($search) {
-                        return str_contains(strtolower($category->name ?? ''), strtolower($search))
-                            || str_contains(strtolower($category->description ?? ''), strtolower($search));
-                    });
-
-                $itemsQuery = Item::where('is_active', true)
+            // Paginate results (24 items per page for balanced grid layout)
+            $items = $itemsQuery->paginate(24)->withQueryString();
+        } else {
+            // 1. Fetch Bundles
+            if ($isBundle || (empty($selectedCategories) && !$request->has('is_bundle'))) {
+                $bundleQuery = Item::where('is_active', true)
                     ->where('is_available', true)
-                    ->where('is_bundle', false) // Exclude bundles from standard categories
-                    ->whereHas('categories', function ($q) use ($categoryIds) {
-                        $q->whereIn('categories.category_id', $categoryIds);
-                    })
+                    ->where('is_bundle', true)
                     ->with(['images', 'vendor', 'discounts' => function ($q) {
                         $q->where('is_active', true)
                           ->where('date_start', '<=', now())
@@ -148,7 +151,7 @@ class ProductController extends Controller
                     }]);
                     
                 if ($request->input('has_discount') == '1') {
-                    $itemsQuery->whereHas('discounts', function ($q) {
+                    $bundleQuery->whereHas('discounts', function ($q) {
                         $q->where('is_active', true)
                           ->where('date_start', '<=', now())
                           ->where('date_end', '>=', now());
@@ -156,11 +159,11 @@ class ProductController extends Controller
                 }
                     
                 if (!empty($selectedVendors)) {
-                    $itemsQuery->whereIn('vendor_id', $selectedVendors);
+                    $bundleQuery->whereIn('vendor_id', $selectedVendors);
                 }
 
-                if ($search !== '' && ! $categoryMatchesSearch) {
-                    $itemsQuery->where(function ($q) use ($search) {
+                if ($search !== '') {
+                    $bundleQuery->where(function ($q) use ($search) {
                         $q->where('name', 'like', "%{$search}%")
                             ->orWhere('description', 'like', "%{$search}%")
                             ->orWhere('brand', 'like', "%{$search}%")
@@ -168,29 +171,110 @@ class ProductController extends Controller
                             ->orWhere('barcode', 'like', "%{$search}%")
                             ->orWhereHas('vendor', function ($vendorQuery) use ($search) {
                                 $vendorQuery->where('name', 'like', "%{$search}%");
-                            })
-                            ->orWhereHas('categories', function ($categoryQuery) use ($search) {
-                                $categoryQuery->where('name', 'like', "%{$search}%")
-                                    ->orWhere('description', 'like', "%{$search}%");
                             });
                     });
                 }
 
-                // Apply dynamic sorting to category items
-                $itemsQuery = $applySorting($itemsQuery);
-
-                $items = $itemsQuery->limit(10)->get();
-
-                if ($items->isNotEmpty()) {
+                // Apply dynamic sorting to bundles
+                $bundleQuery = $applySorting($bundleQuery);
+                
+                $bundles = $bundleQuery->limit(20)->get();
+                if ($bundles->isNotEmpty()) {
                     $categoryItems[] = [
-                        'category' => $category,
-                        'items' => $items,
+                        'category' => (object) ['name' => 'Featured Bundles', 'category_id' => 'bundles'],
+                        'items' => $bundles,
                     ];
+                }
+            }
+
+            // 2. Fetch standard Categories
+            $shouldFetchCategories = true;
+            if ($isBundle && empty($selectedCategories)) {
+                $shouldFetchCategories = false;
+            }
+
+            if ($shouldFetchCategories) {
+                $categoriesToDisplay = empty($selectedCategories) 
+                    ? $parentCategories 
+                    : $parentCategories->whereIn('category_id', $selectedCategories);
+
+                foreach ($categoriesToDisplay as $category) {
+                    // Collect this category + its children IDs
+                    $categoryIds = $category->children->pluck('category_id')->push($category->category_id);
+                    $categoryMatchesSearch = $search !== '' && collect([$category])
+                        ->merge($category->children)
+                        ->contains(function ($category) use ($search) {
+                            return str_contains(strtolower($category->name ?? ''), strtolower($search))
+                                || str_contains(strtolower($category->description ?? ''), strtolower($search));
+                        });
+
+                    $itemsQuery = Item::where('is_active', true)
+                        ->where('is_available', true)
+                        ->where('is_bundle', false) // Exclude bundles from standard categories
+                        ->whereHas('categories', function ($q) use ($categoryIds) {
+                            $q->whereIn('categories.category_id', $categoryIds);
+                        })
+                        ->with(['images', 'vendor', 'discounts' => function ($q) {
+                            $q->where('is_active', true)
+                              ->where('date_start', '<=', now())
+                              ->where('date_end', '>=', now());
+                        }]);
+                        
+                    if ($request->input('has_discount') == '1') {
+                        $itemsQuery->whereHas('discounts', function ($q) {
+                            $q->where('is_active', true)
+                              ->where('date_start', '<=', now())
+                              ->where('date_end', '>=', now());
+                        });
+                    }
+                        
+                    if (!empty($selectedVendors)) {
+                        $itemsQuery->whereIn('vendor_id', $selectedVendors);
+                    }
+
+                    if ($search !== '' && ! $categoryMatchesSearch) {
+                        $itemsQuery->where(function ($q) use ($search) {
+                            $q->where('name', 'like', "%{$search}%")
+                                ->orWhere('description', 'like', "%{$search}%")
+                                ->orWhere('brand', 'like', "%{$search}%")
+                                ->orWhere('sku', 'like', "%{$search}%")
+                                ->orWhere('barcode', 'like', "%{$search}%")
+                                ->orWhereHas('vendor', function ($vendorQuery) use ($search) {
+                                    $vendorQuery->where('name', 'like', "%{$search}%");
+                                })
+                                ->orWhereHas('categories', function ($categoryQuery) use ($search) {
+                                    $categoryQuery->where('name', 'like', "%{$search}%")
+                                        ->orWhere('description', 'like', "%{$search}%");
+                                });
+                        });
+                    }
+
+                    // Apply dynamic sorting to category items
+                    $itemsQuery = $applySorting($itemsQuery);
+
+                    $itemsList = $itemsQuery->limit(10)->get();
+
+                    if ($itemsList->isNotEmpty()) {
+                        $categoryItems[] = [
+                            'category' => $category,
+                            'items' => $itemsList,
+                        ];
+                    }
                 }
             }
         }
 
-        return view('pages.products', compact('categoryItems', 'parentCategories', 'vendors', 'selectedVendors', 'selectedCategories', 'search', 'sort'));
+        return view('pages.products', compact(
+            'categoryItems', 
+            'parentCategories', 
+            'vendors', 
+            'selectedVendors', 
+            'selectedCategories', 
+            'search', 
+            'sort',
+            'isSingleGrid',
+            'items'
+        ));
     }
 
     public function show($id)
