@@ -472,7 +472,7 @@
             <div class="sticky top-6 space-y-6">
                 
                 {{-- Preview Header --}}
-                <div class="rounded-3xl border border-zinc-200 bg-zinc-50 p-6">
+                <!-- <div class="rounded-3xl border border-zinc-200 bg-zinc-50 p-6">
                     <div class="flex items-center gap-2 text-zinc-800 mb-2">
                         <span class="relative flex h-2.5 w-2.5">
                             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -481,7 +481,7 @@
                         <span class="text-xs font-bold uppercase tracking-wider">Live Customer Preview</span>
                     </div>
                     <p class="text-xs text-zinc-500">See exactly how your new promotional campaign card will render on the store product listings page.</p>
-                </div>
+                </div> -->
 
                 {{-- Product Showcase Preview Widget --}}
                 <div class="rounded-3xl border border-zinc-200 bg-white shadow-xl overflow-hidden p-6 space-y-6 transition-all duration-300">
