@@ -127,7 +127,10 @@
                                  </p>
                                  <a href="{{ route('products.show', ['id' => $product->item_id]) }}" class="mt-2 block text-base font-bold text-gray-900 hover:text-green-600 transition-colors truncate">{{ $product->name }}</a>
 
-                                 <p class="mt-2 text-xs text-gray-600">Stock: {{ $product->stock }} available</p>
+                                 <div class="mt-2 flex items-center justify-between text-xs text-gray-500">
+                                      <span>Stock: {{ $product->stock }} available</span>
+                                      <span class="font-semibold text-gray-700 bg-gray-100/70 px-2 py-0.5 rounded-full">{{ $product->sold }} sold</span>
+                                  </div>
 
                                   <div class="mt-4 flex items-baseline gap-2">
                                      @if ($product->discounts->isNotEmpty())
@@ -270,7 +273,7 @@
                                              </div>
  
                                              <div class="mt-3 flex items-center justify-between text-xs font-bold text-green-600 group-hover:text-green-700 transition-colors">
-                                                 <span class="text-[10px] text-gray-400 font-medium">Limited time only</span>
+                                                 <span class="text-[10px] text-red-600 font-semibold bg-red-50 px-2 py-0.5 rounded-full">{{ $offer->item->sold }} sold</span>
                                                  <span class="inline-flex items-center gap-1">
                                                      Claim Deal
                                                      <svg class="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">

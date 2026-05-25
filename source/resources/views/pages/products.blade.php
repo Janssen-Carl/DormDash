@@ -287,7 +287,10 @@
 
                                         </div>
 
-                                        <p class="mt-2 text-xs text-gray-600">Stock: {{ $product->stock }} available</p>
+                                        <div class="mt-2 flex items-center justify-between text-xs text-gray-500">
+                                            <span>Stock: {{ $product->stock }} available</span>
+                                            <span class="font-semibold text-gray-700 bg-gray-100/70 px-2 py-0.5 rounded-full">{{ $product->sold }} sold</span>
+                                        </div>
 
                                         <div class="mt-4 flex items-baseline gap-2">
                                             @if ($product->discounts->isNotEmpty())

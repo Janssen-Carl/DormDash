@@ -118,6 +118,10 @@
                         <p class="text-xs text-gray-500 uppercase tracking-wide">Stock</p>
                         <p class="mt-1 font-semibold text-gray-900">{{ $item->stock }} available</p>
                     </div>
+                    <div class="rounded-xl bg-gray-50 p-4">
+                        <p class="text-xs text-gray-500 uppercase tracking-wide">Sales</p>
+                        <p class="mt-1 font-semibold text-gray-900">{{ $item->sold }} items sold</p>
+                    </div>
                     @if ($item->sku)
                     <div class="rounded-xl bg-gray-50 p-4">
                         <p class="text-xs text-gray-500 uppercase tracking-wide">SKU</p>
@@ -235,7 +239,10 @@
                                     <span class="rounded bg-blue-100 px-1.5 py-0.5 text-[10px] font-bold text-blue-700 uppercase tracking-wider shrink-0">Bundle</span>
                                 @endif
                             </div>
-                            <p class="mt-2 text-xs text-gray-600">Stock: {{ $product->stock }} available</p>
+                            <div class="mt-2 flex items-center justify-between text-xs text-gray-500">
+                                <span>Stock: {{ $product->stock }} available</span>
+                                <span class="font-semibold text-gray-700 bg-gray-100/70 px-2 py-0.5 rounded-full">{{ $product->sold }} sold</span>
+                            </div>
                             <div class="mt-4 flex items-baseline gap-2">
                                 <span class="text-xl font-bold text-gray-900">₱{{ number_format($product->price, 2) }}</span>
                                 @if ($product->unit_type)

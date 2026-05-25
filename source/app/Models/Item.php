@@ -118,4 +118,15 @@ class Item extends Model
             'item_id'
         )->withPivot('quantity');
     }
+
+    public function getSoldAttribute()
+    {
+        if (array_key_exists('total_sold', $this->attributes)) {
+            return (int) $this->attributes['total_sold'];
+        }
+        
+        return (int) \Illuminate\Support\Facades\DB::table('order_items')
+            ->where('item_id', $this->item_id)
+            ->sum('quantity');
+    }
 }
