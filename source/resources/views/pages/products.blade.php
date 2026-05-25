@@ -14,6 +14,9 @@
                     @if($search !== '')
                         <input type="hidden" name="q" value="{{ $search }}">
                     @endif
+                    @if(request('sort'))
+                        <input type="hidden" name="sort" value="{{ request('sort') }}">
+                    @endif
                     <div class="mb-6 flex items-center justify-between">
                         <h3 class="text-lg font-semibold text-gray-900">Filters</h3>
                         <div class="flex items-center gap-3">
@@ -204,6 +207,23 @@
                                 class="w-full rounded-lg border border-gray-200 bg-white py-3 pl-12 pr-4 text-gray-900 placeholder-gray-500 transition-colors focus:border-green-600 focus:ring-1 focus:ring-green-600"
                             />
                         </div>
+
+                        {{-- Premium Sorting Select Dropdown --}}
+                        <div class="relative">
+                            <select
+                                name="sort"
+                                onchange="this.form.submit()"
+                                class="h-12 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm text-gray-700 focus:border-green-600 focus:ring-1 focus:ring-green-600 outline-none cursor-pointer"
+                            >
+                                <option value="">Sort By</option>
+                                <option value="popularity" {{ request('sort') == 'popularity' ? 'selected' : '' }}>Popularity</option>
+                                <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>Price: Low to High</option>
+                                <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>Price: High to Low</option>
+                                <option value="alpha_asc" {{ request('sort') == 'alpha_asc' ? 'selected' : '' }}>Alphabetical: A-Z</option>
+                                <option value="alpha_desc" {{ request('sort') == 'alpha_desc' ? 'selected' : '' }}>Alphabetical: Z-A</option>
+                            </select>
+                        </div>
+
                         <button type="submit"
                             class="inline-flex h-12 items-center justify-center rounded-lg bg-green-600 px-6 text-sm font-semibold text-white transition-colors hover:bg-green-700">
                             Search

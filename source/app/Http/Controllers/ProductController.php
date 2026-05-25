@@ -14,6 +14,7 @@ class ProductController extends Controller
         $search = trim((string) $request->input('q', ''));
         $selectedVendors = $request->input('vendors', []);
         $selectedCategories = $request->input('categories', []);
+        $sort = $request->input('sort', '');
 
         // Get all parent categories (self-referencing = top-level)
         $parentCategories = Category::whereColumn('parent_id', 'category_id')
@@ -30,6 +31,40 @@ class ProductController extends Controller
 
         // Group items by parent category
         $categoryItems = [];
+
+        // Sorting closure to reuse sorting logic on both bundles and items
+        $applySorting = function ($query) use ($sort) {
+            switch ($sort) {
+                case 'price_asc':
+                    $query->orderBy('price', 'asc');
+                    break;
+                case 'price_desc':
+                    $query->orderBy('price', 'desc');
+                    break;
+                case 'alpha_asc':
+                    $query->orderBy('name', 'asc');
+                    break;
+                case 'alpha_desc':
+                    $query->orderBy('name', 'desc');
+                    break;
+                case 'popularity':
+                    $query->select('items.*')
+                        ->selectSub(function ($subQuery) {
+                            $subQuery->selectRaw('COALESCE(SUM(order_items.quantity), 0)')
+                                ->from('order_items')
+                                ->join('orders', 'order_items.order_id', '=', 'orders.order_id')
+                                ->where('orders.order_status', '!=', 'cancelled')
+                                ->whereColumn('order_items.item_id', 'items.item_id');
+                        }, 'total_sold')
+                        ->orderBy('total_sold', 'desc');
+                    break;
+                default:
+                    // Default fallback is alphabetical A-Z
+                    $query->orderBy('name', 'asc');
+                    break;
+            }
+            return $query;
+        };
         
         // 1. Fetch Bundles
         if ($isBundle || (empty($selectedCategories) && !$request->has('is_bundle'))) {
@@ -66,6 +101,9 @@ class ProductController extends Controller
                         });
                 });
             }
+
+            // Apply dynamic sorting to bundles
+            $bundleQuery = $applySorting($bundleQuery);
             
             $bundles = $bundleQuery->limit(20)->get();
             if ($bundles->isNotEmpty()) {
@@ -138,6 +176,9 @@ class ProductController extends Controller
                     });
                 }
 
+                // Apply dynamic sorting to category items
+                $itemsQuery = $applySorting($itemsQuery);
+
                 $items = $itemsQuery->limit(10)->get();
 
                 if ($items->isNotEmpty()) {
@@ -149,7 +190,7 @@ class ProductController extends Controller
             }
         }
 
-        return view('pages.products', compact('categoryItems', 'parentCategories', 'vendors', 'selectedVendors', 'selectedCategories', 'search'));
+        return view('pages.products', compact('categoryItems', 'parentCategories', 'vendors', 'selectedVendors', 'selectedCategories', 'search', 'sort'));
     }
 
     public function show($id)
