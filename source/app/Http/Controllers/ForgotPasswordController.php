@@ -26,13 +26,16 @@ class ForgotPasswordController extends Controller
     public function sendResetLink(Request $request)
     {
         $request->validate([
-            'email' => 'required|email|exists:users,email',
-        ], [
-            'email.exists' => 'We could not find a user with that email address.',
+            'email' => 'required|email',
         ]);
 
         $email = $request->input('email');
         $user  = User::where('email', $email)->first();
+
+        // Countermeasure: If account does not exist, return success immediately to prevent user enumeration
+        if (!$user) {
+            return back()->with('success', "If there is an account registered on that email, we'll send an email.");
+        }
 
         // Generate secure random token
         $token = Str::random(60);
@@ -56,12 +59,10 @@ class ForgotPasswordController extends Controller
         $sent = MailService::send($email, 'Reset Your DormDash Password', $body);
 
         if (!$sent) {
-            return back()->withErrors([
-                'email' => 'Failed to send reset link email. Please check SMTP configuration or try again later.',
-            ]);
+            \Illuminate\Support\Facades\Log::error("SMTP Delivery failed for password reset link requested by: " . $email);
         }
 
-        return back()->with('success', 'We have successfully emailed your password reset link!');
+        return back()->with('success', "If there is an account registered on that email, we'll send an email.");
     }
 
     /**
