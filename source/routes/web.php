@@ -78,6 +78,7 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
 
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::post('/orders/{order}/complete', [OrderController::class, 'complete'])->name('orders.complete');
+    Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
     Route::get('/orders-overview', [OrderController::class, 'overview'])->name('orders.overview');
     Route::get('/analytics', [OrderController::class, 'analytics'])->name('orders.analytics');
     Route::get('/track/{tracking}', fn() => view('pages.track'))->name('orders.track');

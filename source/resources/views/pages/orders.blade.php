@@ -4,6 +4,12 @@
 
 @section('content')
 <div class="mx-auto max-w-6xl px-8 py-12">
+    @if(session('success'))
+        <div class="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 rounded-2xl bg-green-600 px-6 py-3 text-sm font-bold text-white shadow-2xl border border-green-500" x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 -translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-4">
+            <x-heroicon-s-check-circle class="h-5 w-5 text-green-200" />
+            {{ session('success') }}
+        </div>
+    @endif
     <div class="mb-8 flex items-center gap-4">
         <a href="/orders-overview" class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition-colors hover:bg-gray-200 hover:text-gray-900">
             <x-heroicon-o-arrow-left class="h-5 w-5" />
@@ -34,6 +40,9 @@
         <a href="/orders?status=completed" class="{{ request('status') === 'completed' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }} rounded-full px-4 py-2 text-sm font-semibold transition-colors">
             Completed
         </a>
+        <a href="/orders?status=cancelled" class="{{ request('status') === 'cancelled' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }} rounded-full px-4 py-2 text-sm font-semibold transition-colors">
+            Cancelled
+        </a>
     </div>
 
     <div class="space-y-6">
@@ -46,6 +55,7 @@
                     'delivered' => 'indigo',
                     'shipped' => 'blue',
                     'to ship', 'pending' => 'amber',
+                    'cancelled' => 'red',
                     default => 'gray'
                 };
             @endphp
@@ -186,7 +196,17 @@
                     <div class="border-t border-gray-100 bg-gray-50 px-6 py-6">
                         <div class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-end">
                             <div class="flex gap-3">
-                                @if($order->order_status !== 'completed' && $order->order_status !== 'delivered')
+                                @if($order->order_status === 'pending')
+                                <form action="{{ route('orders.cancel', $order->order_id) }}" method="POST" class="m-0" onsubmit="return confirm('Are you sure you want to cancel this order?')">
+                                    @csrf
+                                    <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-lg bg-red-50 border border-red-200 px-4 py-2.5 text-sm font-semibold text-red-600 transition-all duration-200 hover:bg-red-100 hover:border-red-300">
+                                        <x-heroicon-o-x-circle class="h-4 w-4" />
+                                        Cancel Order
+                                    </button>
+                                </form>
+                                @endif
+
+                                @if($order->order_status !== 'completed' && $order->order_status !== 'delivered' && $order->order_status !== 'cancelled')
                                 <a href="{{ route('orders.track', $order->tracking_number ?? 'untracked') }}" class="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-900 transition-all duration-200 hover:bg-gray-100 hover:border-gray-300">
                                     <x-heroicon-o-truck class="h-4 w-4" />
                                     Track Order

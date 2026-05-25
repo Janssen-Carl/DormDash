@@ -46,7 +46,7 @@ class OrderController extends Controller
             ->with(['items.images', 'address', 'paymentTransaction'])
             ->orderBy('created_at', 'desc');
 
-        if ($request->has('status') && in_array($request->status, ['pending', 'to_ship', 'shipped', 'delivered', 'completed'])) {
+        if ($request->has('status') && in_array($request->status, ['pending', 'to_ship', 'shipped', 'delivered', 'completed', 'cancelled'])) {
             $query->where('order_status', $request->status);
         }
 
@@ -99,4 +99,17 @@ class OrderController extends Controller
         return view('pages.analytics', compact('labels', 'data'));
     }
 
+    public function cancel($orderId)
+    {
+        $userId = auth()->id();
+        
+        $order = Order::where('customer_id', $userId)
+            ->where('order_id', $orderId)
+            ->where('order_status', 'pending')
+            ->firstOrFail();
+
+        $order->update(['order_status' => 'cancelled']);
+
+        return redirect()->back()->with('success', 'Order has been cancelled successfully.');
+    }
 }

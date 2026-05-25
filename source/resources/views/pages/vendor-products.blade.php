@@ -18,9 +18,9 @@
 
     {{-- Success Message --}}
     @if(session('success'))
-        <div class="mb-6 rounded-2xl bg-emerald-50 border border-emerald-200 p-4 flex items-center gap-3">
-            <svg class="h-5 w-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            <p class="text-sm font-medium text-emerald-800">{{ session('success') }}</p>
+        <div class="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 rounded-2xl bg-green-600 px-6 py-3 text-sm font-bold text-white shadow-2xl border border-green-500" x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 -translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-4">
+            <x-heroicon-s-check-circle class="h-5 w-5 text-green-200" />
+            {{ session('success') }}
         </div>
     @endif
 
@@ -70,6 +70,9 @@
                                 <button type="submit" name="quantity" value="25" class="rounded-lg bg-amber-100 px-2.5 py-1.5 text-xs font-semibold text-amber-700 hover:bg-amber-200 transition">+25</button>
                                 <button type="submit" name="quantity" value="50" class="rounded-lg bg-amber-100 px-2.5 py-1.5 text-xs font-semibold text-amber-700 hover:bg-amber-200 transition">+50</button>
                                 <button type="submit" name="quantity" value="100" class="rounded-lg bg-emerald-100 px-2.5 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-200 transition">+100</button>
+                                <span class="text-zinc-300 mx-1">|</span>
+                                <input type="number" name="quantity" min="1" max="10000" placeholder="Qty" class="w-16 rounded-lg border border-zinc-200 px-2 py-1.5 text-xs text-zinc-800 text-center focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none" />
+                                <button type="submit" class="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 transition">Restock</button>
                             </div>
                         </form>
                     </div>

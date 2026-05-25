@@ -137,7 +137,28 @@
                                 @endif
                             </div>
                             <div class="flex-1 min-w-0">
-                                <h4 class="truncate text-sm font-semibold text-gray-900">{{ $entry->item->name }}</h4>
+                                <div class="flex items-center gap-2">
+                                    <h4 class="truncate text-sm font-semibold text-gray-900">{{ $entry->item->name }}</h4>
+                                    @if($entry->item->is_bundle)
+                                        <span class="shrink-0 rounded bg-blue-100 px-1.5 py-0.5 text-[10px] font-bold text-blue-700 uppercase tracking-wider">Bundle</span>
+                                    @endif
+                                </div>
+                                @if($entry->item->discounts->isNotEmpty())
+                                    @php $discount = $entry->item->discounts->first(); @endphp
+                                    <div class="mt-1 flex items-center gap-2 flex-wrap">
+                                        <span class="inline-flex items-center gap-1 rounded-full bg-red-50 border border-red-100 px-2 py-0.5 text-[10px] font-bold text-red-600">
+                                            @if($discount->type === 'percentage')
+                                                {{ number_format($discount->value) }}% OFF
+                                            @else
+                                                ₱{{ number_format($discount->value) }} OFF
+                                            @endif
+                                        </span>
+                                        @if($discount->name)
+                                            <span class="text-[10px] font-semibold text-emerald-600 bg-emerald-50 border border-emerald-100 rounded-full px-2 py-0.5">{{ $discount->name }}</span>
+                                        @endif
+                                        <span class="text-[10px] text-gray-400 line-through">₱{{ number_format($entry->item->price, 2) }}</span>
+                                    </div>
+                                @endif
                                 <div class="mt-2 flex items-center gap-3">
                                     <span class="text-xs text-gray-500 font-medium">Qty</span>
                                     <div class="flex items-center rounded-lg border border-gray-200 bg-white shadow-sm overflow-hidden">

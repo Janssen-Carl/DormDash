@@ -85,6 +85,7 @@ The following tasks have been identified for subsequent phases of development:
 - 📧 **Email Integrations**: Set up active email services (SMTP/API) for vendor email verification and secure user password resets.
 - 🎨 **Continuous UI/UX Refinement**: Further polish responsive layouts, micro-animations, and overall interface usability across all storefront and dashboard screens. -->
 
+To do:
 
 - fix profile and edit profile on customer and vendor (add eye on the password entry)
 - add toasts and success modals accross the system 

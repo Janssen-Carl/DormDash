@@ -229,7 +229,7 @@
                             type="button"
                             @click="step = 2"
                             :disabled="!itemId"
-                            class="rounded-2xl bg-zinc-900 px-6 py-3.5 text-sm font-bold text-white transition hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 shadow-sm"
+                            class="rounded-2xl bg-emerald-600 px-6 py-3.5 text-sm font-bold text-white transition hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 shadow-md shadow-emerald-600/10"
                         >
                             Next: Campaign Details
                             <x-heroicon-o-arrow-right class="h-4 w-4" />
@@ -356,7 +356,7 @@
                             type="button"
                             @click="step = 3"
                             :disabled="!name || !value || parseFloat(value) <= 0"
-                            class="rounded-2xl bg-zinc-900 px-6 py-3.5 text-sm font-bold text-white transition hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 shadow-sm"
+                            class="rounded-2xl bg-emerald-600 px-6 py-3.5 text-sm font-bold text-white transition hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 shadow-md shadow-emerald-600/10"
                         >
                             Next: Schedule
                             <x-heroicon-o-arrow-right class="h-4 w-4" />

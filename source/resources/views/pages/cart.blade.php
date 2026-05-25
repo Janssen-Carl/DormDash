@@ -121,7 +121,12 @@
                                     </div>
 
                                     <div class="flex-1 min-w-0">
-                                        <h3 class="font-semibold text-gray-900 truncate" title="{{ $cart->item->name }}">{{ $cart->item->name }}</h3>
+                                        <div class="flex items-center gap-2">
+                                            <h3 class="font-semibold text-gray-900 truncate" title="{{ $cart->item->name }}">{{ $cart->item->name }}</h3>
+                                            @if($cart->item->is_bundle)
+                                                <span class="shrink-0 rounded bg-blue-100 px-1.5 py-0.5 text-[10px] font-bold text-blue-700 uppercase tracking-wider">Bundle</span>
+                                            @endif
+                                        </div>
                                         <p class="mt-1 text-sm text-gray-500">
                                             @if($cart->item->discounts->isNotEmpty())
                                                 <span class="text-green-600 font-bold">₱{{ number_format($cart->item->discounted_price, 2) }}</span>
@@ -133,6 +138,25 @@
                                                 /{{ $cart->item->unit_type }}
                                             @endif
                                         </p>
+                                        @if($cart->item->discounts->isNotEmpty())
+                                            @php $discount = $cart->item->discounts->first(); @endphp
+                                            <div class="mt-1.5 flex items-center gap-2 flex-wrap">
+                                                <span class="inline-flex items-center gap-1 rounded-full bg-red-50 border border-red-100 px-2 py-0.5 text-[10px] font-bold text-red-600">
+                                                    <x-heroicon-s-sparkles class="h-3 w-3" />
+                                                    @if($discount->type === 'percentage')
+                                                        {{ number_format($discount->value) }}% OFF
+                                                    @else
+                                                        ₱{{ number_format($discount->value) }} OFF
+                                                    @endif
+                                                </span>
+                                                @if($discount->name)
+                                                    <span class="text-[10px] font-semibold text-emerald-600 bg-emerald-50 border border-emerald-100 rounded-full px-2 py-0.5">{{ $discount->name }}</span>
+                                                @endif
+                                                <span class="text-[10px] text-green-600 font-medium">
+                                                    Save ₱{{ number_format(($cart->item->price - $cart->item->discounted_price) * $cart->quantity, 2) }}
+                                                </span>
+                                            </div>
+                                        @endif
                                     </div>
 
                                     {{-- Quantity Controls --}}
