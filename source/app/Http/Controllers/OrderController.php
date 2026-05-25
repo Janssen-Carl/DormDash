@@ -112,4 +112,19 @@ class OrderController extends Controller
 
         return redirect()->back()->with('success', 'Order has been cancelled successfully.');
     }
+
+    public function track($tracking)
+    {
+        $userId = auth()->id();
+        
+        $order = Order::where('customer_id', $userId)
+            ->where(function($q) use ($tracking) {
+                $q->where('tracking_number', $tracking)
+                  ->orWhere('order_id', $tracking);
+            })
+            ->with(['items.images', 'address', 'paymentTransaction'])
+            ->firstOrFail();
+            
+        return view('pages.track', compact('order'));
+    }
 }

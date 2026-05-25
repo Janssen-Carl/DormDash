@@ -206,12 +206,10 @@
                                 </form>
                                 @endif
 
-                                @if($order->order_status !== 'completed' && $order->order_status !== 'delivered' && $order->order_status !== 'cancelled')
-                                <a href="{{ route('orders.track', $order->tracking_number ?? 'untracked') }}" class="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-900 transition-all duration-200 hover:bg-gray-100 hover:border-gray-300">
-                                    <x-heroicon-o-truck class="h-4 w-4" />
-                                    Track Order
+                                <a href="{{ route('orders.track', $order->tracking_number ?? $order->order_id) }}" class="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-900 transition-all duration-200 hover:bg-gray-100 hover:border-gray-300">
+                                    <x-heroicon-o-map class="h-4 w-4" />
+                                    Live Tracking
                                 </a>
-                                @endif
 
                                 @if($order->order_status === 'delivered')
                                 <form action="{{ route('orders.complete', $order->order_id) }}" method="POST" class="m-0">
