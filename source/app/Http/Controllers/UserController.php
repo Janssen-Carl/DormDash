@@ -15,17 +15,20 @@ class UserController extends Controller
     public function register(Request $request)
     {
         $validated = $request->validate([
-            'username' => ['required', 'string', 'max:255', 'unique:users'],
-            'email'    => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'role'     => ['required', 'in:customer,vendor']
+            'username'      => ['required', 'string', 'max:255', 'unique:users'],
+            'email'         => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password'      => ['required', 'string', 'min:8', 'confirmed'],
+            'role'          => ['required', 'in:customer,vendor'],
+            'store_name'    => ['required_if:role,vendor', 'nullable', 'string', 'max:255'],
+            'store_phone'   => ['required_if:role,vendor', 'nullable', 'string', 'max:255'],
+            'store_website' => ['nullable', 'url', 'max:255'],
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
 
         $user = null;
 
-        DB::transaction(function () use (&$user, $validated) {
+        DB::transaction(function () use (&$user, $validated, $request) {
 
             $user = User::create([
                 'username' => $validated['username'],
@@ -36,11 +39,18 @@ class UserController extends Controller
 
             if ($validated['role'] === 'vendor') {
                 Vendor::create([
-                    'user_id' => $user->user_id, // correct PK usage
-                    'name'    => $user->username,
+                    'vendor_id' => $user->user_id,
+                    'name'      => $validated['store_name'] ?? $user->username,
+                    'phone'     => $validated['store_phone'] ?? null,
+                    'website'   => $validated['store_website'] ?? null,
+                    'active'    => false, // newly registered vendors must be approved by admin!
                 ]);
             }
         });
+
+        if ($validated['role'] === 'vendor') {
+            return redirect('/login')->with('success', 'Registration successful! Your vendor account is pending approval by an administrator.');
+        }
 
         auth()->login($user);
 
@@ -55,9 +65,20 @@ class UserController extends Controller
         ]);
 
         if (auth()->attempt($credentials)) {
-            $request->session()->regenerate();
-
             $user = auth()->user();
+
+            // Check if vendor account is active/approved
+            if ($user->role === 'vendor' && (!$user->vendor || !$user->vendor->active)) {
+                auth()->logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return back()->withErrors([
+                    'email' => 'Your vendor account is pending approval. Please wait for an administrator to review your request.',
+                ]);
+            }
+
+            $request->session()->regenerate();
 
             return match ($user->role) {
                 'vendor'   => redirect()->route('vendor.home'),
