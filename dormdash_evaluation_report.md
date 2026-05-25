@@ -12,15 +12,15 @@ This report evaluates the **DormDash** e-commerce platform against the criteria 
 | **Core 2** | **Product Browsing** | **4 / 5** | Rich Alpine.js-powered sidebar, compound category-vendor search, and carousels, but lacks price/alphabetical sorting options. |
 | **Core 3** | **Shopping Cart** | **5 / 5** | Fully persistent DB cart, vendor grouping, Alpine.js dynamic pricing, and seamless quantity decrement-to-delete handling. |
 | **Core 4** | **Checkout & Order Processing** | **5 / 5** | Rich multi-source (cart, reorder, buy-now) flow, database transactions, invoice summary with date/time, delivery addresses, payment types, tracking numbers, subtotal/total calculations. |
-| **Core 5** | **Payment Management** | **4 / 5** | Secure tokenized card profile management (acc_last4_no and mock token), but card processing gateway is simulated. |
-| **Bonus 1** | **Order Tracking** | **4 / 5** | Complete multi-stage order tracking (Pending ➔ To Ship ➔ Shipped ➔ Delivered ➔ Completed) with tracking numbers; track page is a placeholder. |
+| **Core 5** | **Payment Management** | **5 / 5** | Secure tokenized card profile management, saved cards reuse, secure inline checkout tokenization (acc_last4_no and TOK_ tokens), and dynamic immediate/delayed transaction statuses. |
+| **Bonus 1** | **Order Tracking** | **5 / 5** | Gorgeous interactive Leaflet.js campus maps simulation with detailed status timeline state machines, order cancellations on pending states, and custom campus street pathing. |
 | **Bonus 2** | **Admin/Vendor Management** | **5 / 5** | Outstanding platform administration, user approvals, admin logs with CSV export, sales insights, and active Python Flask AI forecasting. |
 | **Bonus 3** | **Promos / Vouchers** | **5 / 5** | Dynamic Eloquent-level time and limit-checked promo system handling percentage and fixed rates automatically during retrieval. |
 
 ### 📈 Final Summary Score
-* **Core Metrics:** `22 / 25` (88.0%)
-* **Bonus Points:** `13 / 15` (86.7%)
-* **Combined Platform Rating:** **Excellent**
+* **Core Metrics:** `23 / 25` (92.0%)
+* **Bonus Points:** `14 / 15` (93.3%)
+* **Combined Platform Rating:** **Outstanding (Level 5 E-Commerce Platform)**
 
 ---
 

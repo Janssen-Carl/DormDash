@@ -103,11 +103,15 @@ class CheckoutController extends Controller
 
         $deliveryFee = 50.00;
         $total = $subtotal + $deliveryFee;
+        
+        $customer = \App\Models\Customer::where('customer_id', $userId)->first();
+        $cards = $customer ? \App\Models\CusBankingInfo::where('customer_id', $customer->customer_id)->get() : collect();
+        $defaultCardId = $customer ? $customer->primary_banking_info : null;
 
         // Fetch user addresses for the view
         $addresses = Address::where('user_id', $userId)->get();
 
-        return view('pages.checkout', compact('items', 'subtotal', 'deliveryFee', 'total', 'addresses', 'sourceType', 'sourceData'));
+        return view('pages.checkout', compact('items', 'subtotal', 'deliveryFee', 'total', 'addresses', 'sourceType', 'sourceData', 'cards', 'defaultCardId'));
     }
 
     public function store(Request $request)
@@ -187,7 +191,40 @@ class CheckoutController extends Controller
         $deliveryFee = 50.00;
         $total = $subtotal + $deliveryFee;
 
-        DB::transaction(function () use ($userId, $request, $items, $total) {
+        // Securely prepare tokenized card info if using card payment
+        $cardToken = null;
+        $cardLast4 = null;
+        if ($request->payment_method === 'card') {
+            $customer = \App\Models\Customer::where('customer_id', $userId)->firstOrFail();
+            if ($request->filled('card_id') && $request->card_id !== 'new') {
+                $banking = \App\Models\CusBankingInfo::where('customer_id', $customer->customer_id)
+                    ->where('banking_id', $request->card_id)
+                    ->firstOrFail();
+                $cardToken = $banking->token;
+                $cardLast4 = $banking->acc_last4_no;
+            } else {
+                $request->validate([
+                    'new_card_name' => 'required|string|max:100',
+                    'new_card_number' => 'required|string',
+                    'new_card_type' => 'required|in:visa,mastercard,amex,discover',
+                ]);
+                $cleanCard = preg_replace('/\s+/', '', $request->new_card_number);
+                $cardLast4 = substr($cleanCard, -4);
+                $cardToken = 'TOK_' . strtoupper(uniqid());
+                
+                // Securely save card to customer profile for easy future checkouts
+                \App\Models\CusBankingInfo::create([
+                    'customer_id' => $customer->customer_id,
+                    'payment_method' => $request->new_card_type,
+                    'provider' => ucfirst($request->new_card_type),
+                    'account_name' => strtoupper($request->new_card_name),
+                    'acc_last4_no' => $cardLast4,
+                    'token' => $cardToken,
+                ]);
+            }
+        }
+
+        DB::transaction(function () use ($userId, $request, $items, $total, $cardToken, $cardLast4) {
             // 1. Create Order
             $order = Order::create([
                 'customer_id' => $userId,
@@ -208,8 +245,6 @@ class CheckoutController extends Controller
             $order->items()->attach($syncData);
 
             // 3. Create Payment Transaction
-            // FR-18: record the payment method chosen at checkout
-            // FR-19: COD starts as 'pending' (cash collected on delivery); card starts as 'success'
             $paymentMethod = $request->payment_method; // 'cod' or 'card'
             $paymentStatus = ($paymentMethod === 'cod') ? 'pending' : 'success';
 
@@ -219,6 +254,8 @@ class CheckoutController extends Controller
                 'status'         => $paymentStatus,
                 'payment_method' => $paymentMethod,
                 'reference_no'   => 'REF' . strtoupper(uniqid()),
+                'token'          => $cardToken,
+                'acc_last4_no'   => $cardLast4,
             ]);
 
             // 4. Cleanup Cart

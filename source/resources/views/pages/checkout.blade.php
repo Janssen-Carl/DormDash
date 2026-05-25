@@ -86,7 +86,7 @@
             </div>
 
             {{-- Payment Method --}}
-            <div class="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
+            <div class="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm" x-data="{ paymentMethod: 'cod', selectedCard: '{{ count($cards) > 0 ? $cards->first()->banking_id : 'new' }}' }">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-600">
                         <x-heroicon-s-credit-card class="h-5 w-5" />
@@ -96,7 +96,7 @@
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <label class="flex cursor-pointer items-center gap-4 rounded-xl border border-gray-200 p-5 transition-colors hover:border-blue-600 has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50">
-                        <input type="radio" name="payment_method" value="cod" class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-600" checked>
+                        <input type="radio" name="payment_method" value="cod" x-model="paymentMethod" class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-600">
                         <div class="flex items-center gap-3">
                             <x-heroicon-o-banknotes class="h-6 w-6 text-gray-500" />
                             <span class="font-semibold text-gray-900">Cash on Delivery</span>
@@ -104,12 +104,74 @@
                     </label>
 
                     <label class="flex cursor-pointer items-center gap-4 rounded-xl border border-gray-200 p-5 transition-colors hover:border-blue-600 has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50">
-                        <input type="radio" name="payment_method" value="card" class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-600">
+                        <input type="radio" name="payment_method" value="card" x-model="paymentMethod" class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-600">
                         <div class="flex items-center gap-3">
                             <x-heroicon-o-credit-card class="h-6 w-6 text-gray-500" />
                             <span class="font-semibold text-gray-900">Credit / Debit Card</span>
                         </div>
                     </label>
+                </div>
+
+                {{-- Saved Cards & Tokenized Form (Visible when Card is chosen) --}}
+                <div x-show="paymentMethod === 'card'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="mt-8 space-y-6 border-t border-gray-100 pt-6">
+                    @if(count($cards) > 0)
+                        <div>
+                            <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wider mb-3">Saved Payment Cards</h3>
+                            <div class="grid grid-cols-1 gap-3">
+                                @foreach($cards as $card)
+                                    <label class="flex cursor-pointer items-center gap-3 rounded-xl border border-gray-200 p-4 transition-colors hover:border-blue-600 has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50">
+                                        <input type="radio" name="card_id" value="{{ $card->banking_id }}" x-model="selectedCard" class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-600">
+                                        <div class="flex-1 flex items-center justify-between">
+                                            <div class="flex items-center gap-2">
+                                                <span class="font-bold text-gray-950 uppercase text-xs tracking-wider bg-gray-100 px-2 py-0.5 rounded">{{ $card->payment_method }}</span>
+                                                <span class="text-sm font-semibold text-gray-800">•••• {{ $card->acc_last4_no }}</span>
+                                            </div>
+                                            <span class="text-xs text-gray-400 font-mono font-medium">{{ $card->token }}</span>
+                                        </div>
+                                    </label>
+                                @endforeach
+                                <label class="flex cursor-pointer items-center gap-3 rounded-xl border border-gray-200 p-4 transition-colors hover:border-blue-600 has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50">
+                                    <input type="radio" name="card_id" value="new" x-model="selectedCard" class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-600">
+                                    <span class="text-sm font-bold text-gray-700">Use a New Credit / Debit Card</span>
+                                </label>
+                            </div>
+                        </div>
+                    @else
+                        <input type="hidden" name="card_id" value="new">
+                    @endif
+
+                    {{-- Secure Card Number Inputs --}}
+                    <div x-show="selectedCard === 'new'" class="space-y-4 rounded-2xl bg-gray-50/50 p-6 border border-gray-100">
+                        <div class="flex items-center gap-2 text-blue-600 font-bold text-xs uppercase tracking-wider mb-2">
+                            <x-heroicon-s-shield-check class="h-4 w-4 text-blue-500" />
+                            Secure Input
+                        </div>
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Cardholder Name</label>
+                                <input type="text" name="new_card_name" placeholder="JOHN DOE" class="w-full rounded-xl border-gray-200 text-sm focus:border-blue-500 focus:ring-blue-500 uppercase font-semibold">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Card Type</label>
+                                <select name="new_card_type" class="w-full rounded-xl border-gray-200 text-sm focus:border-blue-500 focus:ring-blue-500 font-semibold">
+                                    <option value="visa">Visa</option>
+                                    <option value="mastercard">Mastercard</option>
+                                    <option value="amex">American Express</option>
+                                    <option value="discover">Discover</option>
+                                </select>
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Card Number</label>
+                                <div class="relative">
+                                    <input type="text" name="new_card_number" placeholder="4111 2222 3333 4444" class="w-full rounded-xl border-gray-200 text-sm focus:border-blue-500 focus:ring-blue-500 pl-10 font-mono tracking-widest">
+                                    <x-heroicon-o-credit-card class="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                </div>
+                                <p class="text-[10px] text-gray-400 mt-2 flex items-center gap-1">
+                                    🔒 DormDash stores only the last 4 digits.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
