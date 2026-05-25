@@ -74,3 +74,14 @@ This report maps the functional requirements against the current codebase state.
 | ❌ Missing | 0 | — |
 
 ### All requirements are now implemented. ✅
+
+---
+
+## 3.8 Future Improvements & Remaining Tasks
+
+The following tasks have been identified for subsequent phases of development:
+
+- 💳 **Card Payment Processing Improvement**: Implement a functional card payment gateway integration during checkout (currently simulated/non-functional).
+- 📧 **Email Integrations**: Set up active email services (SMTP/API) for vendor email verification and secure user password resets.
+- 🎨 **Continuous UI/UX Refinement**: Further polish responsive layouts, micro-animations, and overall interface usability across all storefront and dashboard screens.
+
