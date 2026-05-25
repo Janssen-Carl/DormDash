@@ -122,12 +122,12 @@
                         <p class="text-xs text-gray-500 uppercase tracking-wide">Sales</p>
                         <p class="mt-1 font-semibold text-gray-900">{{ $item->sold }} items sold</p>
                     </div>
-                    @if ($item->sku)
+                    <!-- @if ($item->sku)
                     <div class="rounded-xl bg-gray-50 p-4">
                         <p class="text-xs text-gray-500 uppercase tracking-wide">SKU</p>
                         <p class="mt-1 font-semibold text-gray-900">{{ $item->sku }}</p>
                     </div>
-                    @endif
+                    @endif -->
                     @if ($item->unit_type)
                     <div class="rounded-xl bg-gray-50 p-4">
                         <p class="text-xs text-gray-500 uppercase tracking-wide">Unit</p>
