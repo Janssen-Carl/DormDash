@@ -33,12 +33,7 @@ class VendorProductController extends Controller
 
             // Handle Filter — default to active only (so "deleted" items vanish)
             $status = $request->input('status', 'active');
-            $status = in_array($status, ['active', 'inactive', 'all']) ? $status : 'active';
-            if ($status === 'active') {
-                $query->where('is_active', 1);
-            } elseif ($status === 'inactive') {
-                $query->where('is_active', 0);
-            }
+            $status = in_array($status, ['active', 'inactive', 'all']) ? $status : 'active');
             // 'all' shows everything
 
             // Handle Sorting

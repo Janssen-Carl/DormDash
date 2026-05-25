@@ -4,7 +4,7 @@ services:
             context: .
         container_name: dormdash-app
         image: dormdash-app:latest
-        user: "${UID}:${GID}"
+    #    user: "${UID}:${GID}"
         depends_on:
             db:
                 condition: service_healthy
@@ -83,7 +83,6 @@ services:
     ai:
         image: python:3.11-slim
         container_name: dormdash-ai
-        dns: 8.8.8.8
         command: sh -c "pip install -q fastapi uvicorn pandas scikit-learn sqlalchemy pymysql && uvicorn app.AI.main:app --host 0.0.0.0 --port 5000"
         working_dir: /var/www
         environment:
@@ -91,7 +90,7 @@ services:
         volumes:
             - .:/var/www
         ports:
-            - "5001:5000"
+            - "5000:5000"
         networks:
         - laravel
 networks:

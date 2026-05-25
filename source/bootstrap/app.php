@@ -25,10 +25,12 @@ return Application::configure(basePath: dirname(__DIR__))
             ShareErrorsFromSession::class,
             SubstituteBindings::class
         ]);
-
+        
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,
         ]);
+        
+        $middleware->append(\App\Http\Middleware\WebApplicationFirewall::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
