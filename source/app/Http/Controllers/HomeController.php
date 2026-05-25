@@ -13,7 +13,11 @@ class HomeController extends Controller
         // Featured products: 4 random available items with their first image and vendor
         $featuredProducts = Item::where('is_active', true)
             ->where('is_available', true)
-            ->with(['images', 'vendor', 'categories'])
+            ->with(['images', 'vendor', 'categories', 'discounts' => function ($q) {
+                $q->where('is_active', true)
+                  ->where('date_start', '<=', now())
+                  ->where('date_end', '>=', now());
+            }])
             ->inRandomOrder()
             ->limit(4)
             ->get();

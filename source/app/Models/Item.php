@@ -64,6 +64,31 @@ class Item extends Model
         return $this->hasMany(Discount::class, 'item_id');
     }
 
+    public function getActiveDiscount()
+    {
+        return $this->discounts()
+            ->where('is_active', true)
+            ->where('date_start', '<=', now())
+            ->where('date_end', '>=', now())
+            ->first();
+    }
+
+    public function getDiscountedPriceAttribute()
+    {
+        $discount = $this->getActiveDiscount();
+        if (!$discount) {
+            return $this->price;
+        }
+
+        if ($discount->type === 'percentage') {
+            $discounted = $this->price * (1 - ($discount->value / 100));
+        } else { // fixed
+            $discounted = $this->price - $discount->value;
+        }
+
+        return max(0.00, $discounted);
+    }
+
     public function categories()
     {
         return $this->belongsToMany(

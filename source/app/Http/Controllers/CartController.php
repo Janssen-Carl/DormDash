@@ -12,7 +12,11 @@ class CartController extends Controller
         $userId = auth()->id();
         
         $cartItems = Cart::where('customer_id', $userId)
-            ->with(['item.images', 'item.vendor'])
+            ->with(['item.images', 'item.vendor', 'item.discounts' => function ($q) {
+                $q->where('is_active', true)
+                  ->where('date_start', '<=', now())
+                  ->where('date_end', '>=', now());
+            }])
             ->get();
             
         // Group items by vendor
@@ -25,14 +29,15 @@ class CartController extends Controller
             return [
                 'item_id' => $cart->item_id,
                 'vendor_id' => $cart->item->vendor_id ?? 'unknown',
-                'price' => $cart->item->price,
+                'price' => (float)$cart->item->discounted_price,
+                'original_price' => (float)$cart->item->price,
                 'quantity' => $cart->quantity
             ];
         });
 
         // Calculate initial subtotal assuming all items are selected by default
         $subtotal = $cartItems->sum(function($cart) {
-            return $cart->item->price * $cart->quantity;
+            return $cart->item->discounted_price * $cart->quantity;
         });
 
         $deliveryFee = $cartItems->count() > 0 ? 50.00 : 0.00;

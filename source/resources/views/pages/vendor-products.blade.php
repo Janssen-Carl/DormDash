@@ -162,7 +162,7 @@
     @endphp
 
     {{-- Product Table --}}
-    <div class="overflow-x-auto rounded-3xl border border-zinc-200 bg-white shadow-sm">
+    <div class="w-full max-w-full overflow-x-auto rounded-3xl border border-zinc-200 bg-white shadow-sm">
 
         <table class="min-w-full divide-y divide-zinc-200">
 
@@ -170,43 +170,43 @@
             <thead class="bg-zinc-50">
                 <tr>
 
-                    <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                    <th class="px-4.5 py-4 text-left text-xs font-bold uppercase tracking-wider text-zinc-500 whitespace-nowrap">
                         Product
                     </th>
 
-                    <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                    <th class="px-4.5 py-4 text-left text-xs font-bold uppercase tracking-wider text-zinc-500 whitespace-nowrap">
                         Brand
                     </th>
 
-                    <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                    <th class="px-4.5 py-4 text-left text-xs font-bold uppercase tracking-wider text-zinc-500 whitespace-nowrap">
                         Unit
                     </th>
 
-                    <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                    <th class="px-4.5 py-4 text-left text-xs font-bold uppercase tracking-wider text-zinc-500 whitespace-nowrap">
                         <a href="{{ sortUrl('stock', $currentSort, $currentDir) }}" class="inline-flex items-center hover:text-emerald-600 transition-colors">
                             Stock {!! sortIcon('stock', $currentSort, $currentDir) !!}
                         </a>
                     </th>
 
-                    <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                    <th class="px-4.5 py-4 text-left text-xs font-bold uppercase tracking-wider text-zinc-500 whitespace-nowrap">
                         <a href="{{ sortUrl('price', $currentSort, $currentDir) }}" class="inline-flex items-center hover:text-emerald-600 transition-colors">
                             Price {!! sortIcon('price', $currentSort, $currentDir) !!}
                         </a>
                     </th>
 
-                    <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                    <th class="px-4.5 py-4 text-left text-xs font-bold uppercase tracking-wider text-zinc-500 whitespace-nowrap">
                         <a href="{{ sortUrl('is_available', $currentSort, $currentDir) }}" class="inline-flex items-center hover:text-emerald-600 transition-colors">
                             Status {!! sortIcon('is_available', $currentSort, $currentDir) !!}
                         </a>
                     </th>
 
-                    <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                    <th class="px-4.5 py-4 text-left text-xs font-bold uppercase tracking-wider text-zinc-500 whitespace-nowrap">
                         <a href="{{ sortUrl('created_at', $currentSort, $currentDir) }}" class="inline-flex items-center hover:text-emerald-600 transition-colors">
                             Added {!! sortIcon('created_at', $currentSort, $currentDir) !!}
                         </a>
                     </th>
 
-                    <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                    <th class="px-4.5 py-4 text-right text-xs font-bold uppercase tracking-wider text-zinc-500 whitespace-nowrap">
                         Actions
                     </th>
 
@@ -220,7 +220,7 @@
                 <tr class="transition hover:bg-zinc-50 {{ $product->stock <= 5 ? 'bg-red-50/40' : '' }}">
 
                     {{-- Product --}}
-                    <td class="whitespace-nowrap px-6 py-4">
+                    <td class="whitespace-nowrap px-4.5 py-4">
                         <div class="flex items-center gap-4">
 
                             <div class="flex h-14 w-14 overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-50 shrink-0">
@@ -252,12 +252,12 @@
                     </td>
 
                     {{-- Brand --}}
-                    <td class="whitespace-nowrap px-6 py-4 text-sm text-zinc-700">
+                    <td class="whitespace-nowrap px-4.5 py-4 text-sm text-zinc-700">
                         {{ $product->brand ?? 'N/A' }}
                     </td>
 
                     {{-- Unit --}}
-                    <td class="whitespace-nowrap px-6 py-4 text-sm text-zinc-700">
+                    <td class="whitespace-nowrap px-4.5 py-4 text-sm text-zinc-700">
                         @if($product->is_bundle)
                             <span class="text-zinc-400 italic font-medium">Bundle Package</span>
                         @else
@@ -266,7 +266,7 @@
                     </td>
 
                     {{-- Stock --}}
-                    <td class="whitespace-nowrap px-6 py-4">
+                    <td class="whitespace-nowrap px-4.5 py-4">
                         @if ($product->stock <= 5)
                             <span class="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
                                 {{ $product->stock == 0 ? 'Out of Stock' : 'Low (' . $product->stock . ')' }}
@@ -283,12 +283,12 @@
                     </td>
 
                     {{-- Price --}}
-                    <td class="whitespace-nowrap px-6 py-4 text-sm font-bold text-zinc-900">
+                    <td class="whitespace-nowrap px-4.5 py-4 text-sm font-bold text-zinc-900">
                         ₱{{ number_format($product->price, 2) }}
                     </td>
 
                     {{-- Availability --}}
-                    <td class="whitespace-nowrap px-6 py-4">
+                    <td class="whitespace-nowrap px-4.5 py-4">
 
                         @if ($product->is_available)
                             <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
@@ -303,14 +303,33 @@
                     </td>
 
                     {{-- Date Added --}}
-                    <td class="whitespace-nowrap px-6 py-4 text-sm text-zinc-500">
+                    <td class="whitespace-nowrap px-4.5 py-4 text-sm text-zinc-500">
                         {{ $product->created_at ? $product->created_at->format('Y-m-d') : 'N/A' }}
                     </td>
 
                     {{-- Actions --}}
-                    <td class="whitespace-nowrap px-6 py-4 text-right">
+                    <td class="whitespace-nowrap px-4.5 py-4 text-right">
 
                         <div class="flex justify-end gap-2">
+
+                            {{-- Discount / Promotion --}}
+                            @if($product->discounts->isNotEmpty())
+                                <a 
+                                    href="{{ route('vendor.discounts.edit', $product->discounts->first()->discount_id) }}"
+                                    class="inline-flex items-center rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-700 transition hover:bg-emerald-100"
+                                    title="Edit Active Promotion ({{ $product->discounts->first()->name }})"
+                                >
+                                    <x-heroicon-o-sparkles class="h-4 w-4 text-emerald-600" />
+                                </a>
+                            @else
+                                <a 
+                                    href="{{ route('vendor.discounts.create') }}?item_id={{ $product->item_id }}"
+                                    class="inline-flex items-center rounded-lg border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100"
+                                    title="Add Discount / Launch Promotion"
+                                >
+                                    <x-heroicon-o-sparkles class="h-4 w-4" />
+                                </a>
+                            @endif
 
                             {{-- Edit --}}
                             <a 

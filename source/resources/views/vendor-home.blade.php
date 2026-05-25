@@ -94,9 +94,9 @@
     <div class="bg-white rounded-3xl p-8 border border-gray-200 shadow-md">
         <div class="flex items-center justify-between mb-6">
             <h2 class="text-xl font-bold text-zinc-900">Recent Activity</h2>
-            @if(isset($activities) && $activities->isNotEmpty())
+            <!-- @if(isset($activities) && $activities->isNotEmpty())
                 <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">Live</span>
-            @endif
+            @endif -->
         </div>
         
         @if(isset($activities) && $activities->isNotEmpty())

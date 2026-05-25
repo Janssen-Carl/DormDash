@@ -54,7 +54,7 @@
                                 class="inline-flex h-12 items-center justify-center rounded-xl bg-gray-900 px-8 font-semibold text-white transition-all hover:bg-gray-800 hover:shadow-lg hover:-translate-y-0.5">
                                 Browse Products
                             </a>
-                            <a href="/products/offers"
+                            <a href="/products?has_discount=1"
                                 class="inline-flex h-12 items-center justify-center rounded-xl border-2 border-gray-200 bg-white px-8 font-semibold text-gray-700 transition-all hover:border-gray-300 hover:bg-gray-50 hover:-translate-y-0.5">
                                 See Deals
                             </a>
@@ -111,8 +111,20 @@
 
                                  @if ($product->is_perishable)
                                      <div
-                                         class="absolute top-3 right-3 bg-green-600 text-white text-xs font-bold px-2.5 py-1 rounded-full">
+                                         class="absolute top-3 right-3 bg-green-600 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-sm z-10">
                                          Fresh
+                                     </div>
+                                 @endif
+
+                                 @if ($product->discounts->isNotEmpty())
+                                     @php $discount = $product->discounts->first(); @endphp
+                                     <div
+                                         class="absolute top-3 left-3 bg-red-600 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-sm z-10">
+                                         @if ($discount->type === 'percentage')
+                                             {{ number_format($discount->value) }}% OFF
+                                         @else
+                                             ₱{{ number_format($discount->value) }} OFF
+                                         @endif
                                      </div>
                                  @endif
                              </a>
@@ -124,12 +136,17 @@
 
                                  <p class="mt-2 text-xs text-gray-600">Stock: {{ $product->stock }} available</p>
 
-                                 <div class="mt-4 flex items-baseline gap-2">
-                                     <span class="text-xl font-bold text-gray-900">₱{{ number_format($product->price, 2) }}</span>
+                                  <div class="mt-4 flex items-baseline gap-2">
+                                     @if ($product->discounts->isNotEmpty())
+                                         <span class="text-xl font-bold text-green-600">₱{{ number_format($product->discounted_price, 2) }}</span>
+                                         <span class="text-xs text-gray-400 line-through">₱{{ number_format($product->price, 2) }}</span>
+                                     @else
+                                         <span class="text-xl font-bold text-gray-900">₱{{ number_format($product->price, 2) }}</span>
+                                     @endif
                                      @if ($product->unit_type)
                                          <span class="text-xs text-gray-500">/{{ $product->unit_type }}</span>
                                      @endif
-                                 </div>
+                                  </div>
 
                                  <div class="mt-4 flex gap-2">
                                      <form action="{{ route('cart.store') }}" method="POST" class="flex-1 m-0">
@@ -174,13 +191,13 @@
                         <p class="text-sm text-gray-600 mb-8">Don't miss out on these limited-time deals!</p>
 
                         <div class="space-y-3">
-                            <a href="/products/offers"
+                            <a href="/products?has_discount=1"
                                 class="flex items-center gap-2 text-green-600 font-semibold text-sm hover:text-green-700 transition-colors">
                                 <x-heroicon-o-arrow-right class="h-4 w-4" />
                                 See All Offers
                             </a>
-                            <a href="/products"
-                                class="inline-flex h-10 items-center justify-center rounded-lg bg-green-600 px-4 text-xs font-semibold text-white transition-colors hover:bg-green-700 w-full">
+                            <a href="/products?has_discount=1"
+                                class="inline-flex h-10 items-center justify-center rounded-lg bg-green-600 px-4 text-xs font-semibold text-white transition-colors hover:bg-green-700 w-full font-bold">
                                 Grab Deal
                             </a>
                         </div>
@@ -210,24 +227,24 @@
                             @endphp
 
                             @forelse ($offers as $index => $offer)
-                                <div
-                                    class="overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow duration-300 cursor-pointer group">
-                                    <div
-                                        class="flex flex-col items-center justify-center bg-gradient-to-br {{ $offerGradients[$index % count($offerGradients)] }} px-6 py-8 h-48">
-                                        <div class="text-6xl group-hover:scale-110 transition-transform duration-300">
-                                            {{ $offerEmojis[$index % count($offerEmojis)] }}
-                                        </div>
-                                        <h3 class="mt-4 text-lg font-bold text-gray-900">{{ $offer->name }}</h3>
-                                        <p class="mt-1 text-xs text-gray-600">{{ $offer->item->name }}</p>
-                                        <p class="mt-3 text-sm font-bold {{ $offerColors[$index % count($offerColors)] }}">
-                                            @if ($offer->type === 'percentage')
-                                                {{ number_format($offer->value) }}% Off
-                                            @else
-                                                ₱{{ number_format($offer->value, 2) }} Off
-                                            @endif
-                                        </p>
-                                    </div>
-                                </div>
+                                <a href="{{ route('products.show', ['id' => $offer->item_id]) }}"
+                                     class="overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow duration-300 cursor-pointer group block">
+                                     <div
+                                         class="flex flex-col items-center justify-center bg-gradient-to-br {{ $offerGradients[$index % count($offerGradients)] }} px-6 py-8 h-48">
+                                         <div class="text-6xl group-hover:scale-110 transition-transform duration-300">
+                                             {{ $offerEmojis[$index % count($offerEmojis)] }}
+                                         </div>
+                                         <h3 class="mt-4 text-lg font-bold text-gray-900">{{ $offer->name }}</h3>
+                                         <p class="mt-1 text-xs text-gray-600">{{ $offer->item->name }}</p>
+                                         <p class="mt-3 text-sm font-bold {{ $offerColors[$index % count($offerColors)] }}">
+                                             @if ($offer->type === 'percentage')
+                                                 {{ number_format($offer->value) }}% Off
+                                             @else
+                                                 ₱{{ number_format($offer->value, 2) }} Off
+                                             @endif
+                                         </p>
+                                     </div>
+                                 </a>
                             @empty
                                 {{-- Fallback static cards when no offers exist --}}
                                 <div

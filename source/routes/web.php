@@ -131,6 +131,14 @@ Route::middleware(['auth', 'role:vendor'])->group(function () {
         Route::post('/items', [VendorProductController::class, 'store'])
             ->name('items.store');
     });
+
+    // Discounts Management
+    Route::get('/vendor-discounts', [\App\Http\Controllers\VendorDiscountController::class, 'index'])->name('vendor.discounts');
+    Route::get('/vendor-discounts/create', [\App\Http\Controllers\VendorDiscountController::class, 'create'])->name('vendor.discounts.create');
+    Route::post('/vendor-discounts', [\App\Http\Controllers\VendorDiscountController::class, 'store'])->name('vendor.discounts.store');
+    Route::get('/vendor-discounts/{discount}/edit', [\App\Http\Controllers\VendorDiscountController::class, 'edit'])->name('vendor.discounts.edit');
+    Route::post('/vendor-discounts/{discount}/edit', [\App\Http\Controllers\VendorDiscountController::class, 'update'])->name('vendor.discounts.update');
+    Route::delete('/vendor-discounts/{discount}', [\App\Http\Controllers\VendorDiscountController::class, 'destroy'])->name('vendor.discounts.destroy');
 });
 
 /* -------------------- ADMIN ONLY -------------------- */

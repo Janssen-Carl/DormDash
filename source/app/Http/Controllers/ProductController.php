@@ -36,7 +36,19 @@ class ProductController extends Controller
             $bundleQuery = Item::where('is_active', true)
                 ->where('is_available', true)
                 ->where('is_bundle', true)
-                ->with(['images', 'vendor']);
+                ->with(['images', 'vendor', 'discounts' => function ($q) {
+                    $q->where('is_active', true)
+                      ->where('date_start', '<=', now())
+                      ->where('date_end', '>=', now());
+                }]);
+                
+            if ($request->input('has_discount') == '1') {
+                $bundleQuery->whereHas('discounts', function ($q) {
+                    $q->where('is_active', true)
+                      ->where('date_start', '<=', now())
+                      ->where('date_end', '>=', now());
+                });
+            }
                 
             if (!empty($selectedVendors)) {
                 $bundleQuery->whereIn('vendor_id', $selectedVendors);
@@ -91,7 +103,19 @@ class ProductController extends Controller
                     ->whereHas('categories', function ($q) use ($categoryIds) {
                         $q->whereIn('categories.category_id', $categoryIds);
                     })
-                    ->with(['images', 'vendor']);
+                    ->with(['images', 'vendor', 'discounts' => function ($q) {
+                        $q->where('is_active', true)
+                          ->where('date_start', '<=', now())
+                          ->where('date_end', '>=', now());
+                    }]);
+                    
+                if ($request->input('has_discount') == '1') {
+                    $itemsQuery->whereHas('discounts', function ($q) {
+                        $q->where('is_active', true)
+                          ->where('date_start', '<=', now())
+                          ->where('date_end', '>=', now());
+                    });
+                }
                     
                 if (!empty($selectedVendors)) {
                     $itemsQuery->whereIn('vendor_id', $selectedVendors);

@@ -27,13 +27,17 @@ class CheckoutController extends Controller
             $sourceType = 'reorder';
             $sourceData = $request->reorder_id;
             
-            $order = Order::with('items.images', 'items.vendor')
+            $order = Order::with(['items.images', 'items.vendor', 'items.discounts' => function ($q) {
+                $q->where('is_active', true)
+                  ->where('date_start', '<=', now())
+                  ->where('date_end', '>=', now());
+            }])
                 ->where('customer_id', $userId)
                 ->findOrFail($request->reorder_id);
 
             foreach ($order->items as $item) {
                 // We use the current item price, not the historical price, for new orders
-                $price = $item->price;
+                $price = $item->discounted_price;
                 $quantity = $item->pivot->quantity;
                 
                 $items->push((object)[
@@ -48,8 +52,12 @@ class CheckoutController extends Controller
             $sourceType = 'buy_now';
             $sourceData = ['item_id' => $request->buy_item, 'qty' => $request->qty];
             
-            $item = Item::with('images', 'vendor')->findOrFail($request->buy_item);
-            $price = $item->price;
+            $item = Item::with(['images', 'vendor', 'discounts' => function ($q) {
+                $q->where('is_active', true)
+                  ->where('date_start', '<=', now())
+                  ->where('date_end', '>=', now());
+            }])->findOrFail($request->buy_item);
+            $price = $item->discounted_price;
             $quantity = $request->qty;
             
             $items->push((object)[
@@ -64,13 +72,17 @@ class CheckoutController extends Controller
             $sourceType = 'cart';
             $sourceData = $request->selected_items;
             
-            $cartItems = Cart::with('item.images', 'item.vendor')
+            $cartItems = Cart::with(['item.images', 'item.vendor', 'item.discounts' => function ($q) {
+                $q->where('is_active', true)
+                  ->where('date_start', '<=', now())
+                  ->where('date_end', '>=', now());
+            }])
                 ->where('customer_id', $userId)
                 ->whereIn('item_id', $request->selected_items)
                 ->get();
 
             foreach ($cartItems as $cart) {
-                $price = $cart->item->price;
+                $price = $cart->item->discounted_price;
                 $quantity = $cart->quantity;
 
                 $items->push((object)[
@@ -114,31 +126,43 @@ class CheckoutController extends Controller
 
         // Reconstruct items based on source
         if ($request->source === 'reorder') {
-            $order = Order::where('customer_id', $userId)->findOrFail($request->reorder_id);
+            $order = Order::with(['items.discounts' => function ($q) {
+                $q->where('is_active', true)
+                  ->where('date_start', '<=', now())
+                  ->where('date_end', '>=', now());
+            }])->where('customer_id', $userId)->findOrFail($request->reorder_id);
             foreach ($order->items as $item) {
                 $quantity = isset($updatedQuantities[$item->item_id]) ? (int)$updatedQuantities[$item->item_id] : $item->pivot->quantity;
                 if ($quantity > 0) {
                     $items->push((object)[
                         'item_id' => $item->item_id,
                         'quantity' => $quantity,
-                        'price' => $item->price,
+                        'price' => $item->discounted_price,
                     ]);
-                    $subtotal += $item->price * $quantity;
+                    $subtotal += $item->discounted_price * $quantity;
                 }
             }
         } elseif ($request->source === 'buy_now') {
-            $item = Item::findOrFail($request->buy_item);
+            $item = Item::with(['discounts' => function ($q) {
+                $q->where('is_active', true)
+                  ->where('date_start', '<=', now())
+                  ->where('date_end', '>=', now());
+            }])->findOrFail($request->buy_item);
             $quantity = isset($updatedQuantities[$item->item_id]) ? (int)$updatedQuantities[$item->item_id] : (int)$request->qty;
             if ($quantity > 0) {
                 $items->push((object)[
                     'item_id' => $item->item_id,
                     'quantity' => $quantity,
-                    'price' => $item->price,
+                    'price' => $item->discounted_price,
                 ]);
-                $subtotal += $item->price * $quantity;
+                $subtotal += $item->discounted_price * $quantity;
             }
         } elseif ($request->source === 'cart') {
-            $cartItems = Cart::with('item')
+            $cartItems = Cart::with(['item.discounts' => function ($q) {
+                $q->where('is_active', true)
+                  ->where('date_start', '<=', now())
+                  ->where('date_end', '>=', now());
+            }])
                 ->where('customer_id', $userId)
                 ->whereIn('item_id', $request->selected_items)
                 ->get();
@@ -149,9 +173,9 @@ class CheckoutController extends Controller
                     $items->push((object)[
                         'item_id' => $cart->item_id,
                         'quantity' => $quantity,
-                        'price' => $cart->item->price,
+                        'price' => $cart->item->discounted_price,
                     ]);
-                    $subtotal += $cart->item->price * $quantity;
+                    $subtotal += $cart->item->discounted_price * $quantity;
                 }
             }
         }

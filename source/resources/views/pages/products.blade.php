@@ -143,13 +143,22 @@
                         </a>
                     </div>
 
-                    {{-- Discounts --}}
-                    <div>
-                        <button type="button"
-                            class="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-100">
+                    {{-- Discounts Filter --}}
+                    @php
+                        $queryParams = request()->query();
+                        if (request('has_discount') == '1') {
+                            unset($queryParams['has_discount']);
+                        } else {
+                            $queryParams['has_discount'] = '1';
+                        }
+                        $discountToggleUrl = url()->current() . '?' . http_build_query($queryParams);
+                    @endphp
+                    <div class="mb-6">
+                        <a href="{{ $discountToggleUrl }}"
+                           class="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors duration-150 {{ request('has_discount') == '1' ? 'border border-green-200 bg-green-50 text-green-600 font-semibold shadow-sm' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
                             <x-heroicon-o-sparkles class="h-4 w-4" />
-                            <span>Discounts</span>
-                        </button>
+                            <span>Show Discounted Items</span>
+                        </a>
                     </div>
                 </form>
             </aside>
@@ -248,12 +257,24 @@
                                             </div>
                                         @endif
 
-                                        @if ($product->is_perishable)
-                                            <div
-                                                class="absolute top-3 right-3 bg-green-600 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">
-                                                Fresh
-                                            </div>
-                                        @endif
+                                        <div class="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
+                                            @if ($product->discounts->isNotEmpty())
+                                                @php $discount = $product->discounts->first(); @endphp
+                                                <div
+                                                    class="bg-red-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm text-center">
+                                                    @if ($discount->type === 'percentage')
+                                                        {{ number_format($discount->value) }}% OFF
+                                                    @else
+                                                        ₱{{ number_format($discount->value) }} OFF
+                                                    @endif
+                                                </div>
+                                            @endif
+                                            @if ($product->is_bundle)
+                                                <div class="bg-blue-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm text-center uppercase tracking-wider">
+                                                    Bundle
+                                                </div>
+                                            @endif
+                                        </div>
                                     </a>
                                     <div class="p-4">
                                         <p class="text-xs font-semibold text-green-600 uppercase tracking-wide">
@@ -263,15 +284,18 @@
                                             <a href="{{ route('products.show', ['id' => $product->item_id]) }}" class="text-base font-bold text-gray-900 truncate hover:text-green-600 transition-colors" title="{{ $product->name }}">
                                                 {{ $product->name }}
                                             </a>
-                                            @if($product->is_bundle)
-                                                <span class="rounded bg-blue-100 px-1.5 py-0.5 text-[10px] font-bold text-blue-700 uppercase tracking-wider shrink-0">Bundle</span>
-                                            @endif
+
                                         </div>
 
                                         <p class="mt-2 text-xs text-gray-600">Stock: {{ $product->stock }} available</p>
 
                                         <div class="mt-4 flex items-baseline gap-2">
-                                            <span class="text-xl font-bold text-gray-900">₱{{ number_format($product->price, 2) }}</span>
+                                            @if ($product->discounts->isNotEmpty())
+                                                <span class="text-xl font-bold text-green-600">₱{{ number_format($product->discounted_price, 2) }}</span>
+                                                <span class="text-xs text-gray-400 line-through">₱{{ number_format($product->price, 2) }}</span>
+                                            @else
+                                                <span class="text-xl font-bold text-gray-900">₱{{ number_format($product->price, 2) }}</span>
+                                            @endif
                                             @if ($product->is_bundle)
                                                 <span class="text-xs text-gray-500 italic">Bundle Set</span>
                                             @elseif ($product->unit_type)

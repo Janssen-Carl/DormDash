@@ -63,18 +63,28 @@
                     @if($item->is_bundle)
                         <span class="rounded bg-blue-100 px-2.5 py-0.5 text-xs font-bold text-blue-700 uppercase tracking-wider">Bundle</span>
                     @endif
-                    @if($item->is_perishable)
-                        <span class="rounded bg-green-100 px-2.5 py-0.5 text-xs font-bold text-green-700 uppercase tracking-wider">Fresh</span>
-                    @endif
                     @if($item->is_available && $item->stock > 0)
                         <span class="rounded bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">In Stock</span>
-                    @else
-                        <span class="rounded bg-red-50 px-2.5 py-0.5 text-xs font-semibold text-red-700">Out of Stock</span>
+                    @endif
+                    @if($item->discounts->isNotEmpty())
+                        @php $discount = $item->discounts->first(); @endphp
+                        <span class="rounded bg-red-100 px-2.5 py-0.5 text-xs font-bold text-red-700 uppercase tracking-wider animate-pulse">
+                            @if ($discount->type === 'percentage')
+                                {{ number_format($discount->value) }}% OFF
+                            @else
+                                ₱{{ number_format($discount->value) }} OFF
+                            @endif
+                        </span>
                     @endif
                 </div>
 
                 <div class="mt-6 flex items-baseline gap-3">
-                    <span class="text-4xl font-bold text-gray-900">₱{{ number_format($item->price, 2) }}</span>
+                    @if ($item->discounts->isNotEmpty())
+                        <span class="text-4xl font-bold text-green-600">₱{{ number_format($item->discounted_price, 2) }}</span>
+                        <span class="text-xl text-gray-400 line-through">₱{{ number_format($item->price, 2) }}</span>
+                    @else
+                        <span class="text-4xl font-bold text-gray-900">₱{{ number_format($item->price, 2) }}</span>
+                    @endif
                     @if ($item->unit_type)
                         <span class="text-lg text-gray-500">/{{ (int) $item->unit_value }} {{ $item->unit_type }}</span>
                     @endif
@@ -213,9 +223,6 @@
                                 <div class="flex h-full w-full items-center justify-center text-gray-300 group-hover:scale-110 transition-transform duration-300">
                                     <x-heroicon-o-photo class="h-16 w-16" />
                                 </div>
-                            @endif
-                            @if ($product->is_perishable)
-                                <div class="absolute top-3 right-3 bg-green-600 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">Fresh</div>
                             @endif
                         </div>
                         <div class="p-4">

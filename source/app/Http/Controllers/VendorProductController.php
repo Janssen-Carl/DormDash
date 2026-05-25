@@ -19,7 +19,7 @@ class VendorProductController extends Controller
         $products = collect();
         if ($vendor) {
             $query = Item::where('vendor_id', $vendor->vendor_id)
-                ->with(['images']);
+                ->with(['images', 'discounts']);
 
             // Handle Search
             if ($request->filled('search')) {

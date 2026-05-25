@@ -123,7 +123,12 @@
                                     <div class="flex-1 min-w-0">
                                         <h3 class="font-semibold text-gray-900 truncate" title="{{ $cart->item->name }}">{{ $cart->item->name }}</h3>
                                         <p class="mt-1 text-sm text-gray-500">
-                                            ₱{{ number_format($cart->item->price, 2) }}
+                                            @if($cart->item->discounts->isNotEmpty())
+                                                <span class="text-green-600 font-bold">₱{{ number_format($cart->item->discounted_price, 2) }}</span>
+                                                <span class="text-xs text-gray-400 line-through">₱{{ number_format($cart->item->price, 2) }}</span>
+                                            @else
+                                                ₱{{ number_format($cart->item->price, 2) }}
+                                            @endif
                                             @if($cart->item->unit_type)
                                                 /{{ $cart->item->unit_type }}
                                             @endif
@@ -154,7 +159,7 @@
                                     </div>
 
                                     <span class="w-24 shrink-0 text-right font-semibold text-gray-900">
-                                        ₱{{ number_format($cart->item->price * $cart->quantity, 2) }}
+                                        ₱{{ number_format($cart->item->discounted_price * $cart->quantity, 2) }}
                                     </span>
 
                                     {{-- Remove Item --}}
