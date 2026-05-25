@@ -57,6 +57,10 @@ class OrderController extends Controller
 
     public function complete($orderId)
     {
+        if (!is_numeric($orderId)) {
+            return redirect()->back()->with('error', 'Invalid order ID.');
+        }
+
         $userId = auth()->id();
         
         $order = Order::where('customer_id', $userId)
@@ -101,6 +105,10 @@ class OrderController extends Controller
 
     public function cancel($orderId)
     {
+        if (!is_numeric($orderId)) {
+            return redirect()->back()->with('error', 'Invalid order ID.');
+        }
+
         $userId = auth()->id();
         
         $order = Order::where('customer_id', $userId)
@@ -115,12 +123,18 @@ class OrderController extends Controller
 
     public function track($tracking)
     {
+        $tracking = strip_tags(trim($tracking));
+
+        if (empty($tracking)) {
+            return redirect()->back()->with('error', 'Invalid tracking reference.');
+        }
+
         $userId = auth()->id();
         
         $order = Order::where('customer_id', $userId)
             ->where(function($q) use ($tracking) {
                 $q->where('tracking_number', $tracking)
-                  ->orWhere('order_id', $tracking);
+                  ->orWhere('order_id', is_numeric($tracking) ? $tracking : 0);
             })
             ->with(['items.images', 'address', 'paymentTransaction'])
             ->firstOrFail();

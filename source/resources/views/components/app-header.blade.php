@@ -57,11 +57,16 @@
 
         @auth
             {{-- Profile Dropdown --}}
+            @php $profileImg = auth()->user()->customer?->profile_img; @endphp
             <div class="relative group">
                 <button
-                    class="{{ request()->path() === 'profile' ? 'border-2 border-green-300' : 'border-2 border-green-200' }} flex h-8.5 w-8.5 cursor-pointer items-center justify-center rounded-full bg-green-600 text-white transition-all hover:border-green-300"
+                    class="{{ request()->path() === 'profile' ? 'border-2 border-green-300' : 'border-2 border-green-200' }} flex h-8.5 w-8.5 cursor-pointer items-center justify-center rounded-full transition-all hover:border-green-300 {{ $profileImg ? 'overflow-hidden p-0' : 'bg-green-600 text-white' }}"
                 >
-                    <x-heroicon-o-user class="h-5 w-5" />
+                    @if($profileImg)
+                        <img src="{{ asset($profileImg) }}" class="h-full w-full rounded-full object-cover" />
+                    @else
+                        <x-heroicon-o-user class="h-5 w-5" />
+                    @endif
                 </button>
                 
                 {{-- Dropdown Menu --}}

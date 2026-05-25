@@ -50,10 +50,15 @@
         <div class="mx-1.5 h-5 w-px bg-gray-200"></div>
 
         {{-- Profile Dropdown --}}
+        @php $vendorProfileImg = auth()->user()->vendor?->profile_img; @endphp
         <div class="relative group">
             <button
-                class="{{ request()->path() === 'profile' ? 'border-2 border-green-300' : 'border-2 border-green-200' }} flex h-8.5 w-8.5 cursor-pointer items-center justify-center rounded-full bg-green-600 text-white transition-all hover:border-green-300">
-                <x-heroicon-o-user class="h-5 w-5" />
+                class="{{ request()->path() === 'profile' ? 'border-2 border-green-300' : 'border-2 border-green-200' }} flex h-8.5 w-8.5 cursor-pointer items-center justify-center rounded-full transition-all hover:border-green-300 {{ $vendorProfileImg ? 'overflow-hidden p-0' : 'bg-green-600 text-white' }}">
+                @if($vendorProfileImg)
+                    <img src="{{ asset($vendorProfileImg) }}" class="h-full w-full rounded-full object-cover" />
+                @else
+                    <x-heroicon-o-user class="h-5 w-5" />
+                @endif
             </button>
 
             {{-- Dropdown Menu --}}

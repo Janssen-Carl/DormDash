@@ -74,10 +74,13 @@ class AdminController extends Controller
     {
         $roleFilter   = $request->query('role', 'all');
         $statusFilter = $request->query('status', 'all');
-        $search       = $request->query('search', '');
+        $search       = strip_tags(trim($request->query('search', '')));
         $sortBy       = in_array($request->query('sort'), ['username', 'email', 'role', 'created_at'])
                             ? $request->query('sort') : 'created_at';
         $sortDir      = $request->query('dir', 'desc') === 'asc' ? 'asc' : 'desc';
+
+        $validRoles = ['vendor', 'customer'];
+        $roleFilter = in_array($roleFilter, $validRoles) ? $roleFilter : 'all';
 
         $query = User::with(['vendor', 'customer'])
             ->whereIn('role', ['vendor', 'customer']);
@@ -112,6 +115,10 @@ class AdminController extends Controller
      * ────────────────────────────────────── */
     public function approveVendor($id)
     {
+        if (!is_numeric($id)) {
+            return back()->withErrors(['error' => 'Invalid user ID.']);
+        }
+
         $user   = User::with('vendor')->findOrFail($id);
         $vendor = $user->vendor;
 
@@ -139,6 +146,10 @@ class AdminController extends Controller
      * ────────────────────────────────────── */
     public function deleteUser(Request $request, $id)
     {
+        if (!is_numeric($id)) {
+            return back()->withErrors(['error' => 'Invalid user ID.']);
+        }
+
         $user = User::findOrFail($id);
 
         // Prevent deleting yourself
@@ -172,7 +183,7 @@ class AdminController extends Controller
      * ────────────────────────────────────── */
     public function logs(Request $request)
     {
-        $search       = $request->query('search', '');
+        $search       = strip_tags(trim($request->query('search', '')));
         $actionFilter = $request->query('action', 'all');
         $sortBy       = in_array($request->query('sort'), ['created_at', 'action', 'target_username'])
                             ? $request->query('sort') : 'created_at';
@@ -203,7 +214,7 @@ class AdminController extends Controller
      * ────────────────────────────────────── */
     public function exportLogs(Request $request)
     {
-        $search       = $request->query('search', '');
+        $search       = strip_tags(trim($request->query('search', '')));
         $actionFilter = $request->query('action', 'all');
 
         $query = AdminLog::with('admin')->latest();

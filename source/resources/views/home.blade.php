@@ -51,7 +51,7 @@
 
                         <div class="mt-8 flex flex-wrap items-center gap-4">
                             <a href="/products"
-                                class="inline-flex h-12 items-center justify-center rounded-xl bg-gray-900 px-8 font-semibold text-white transition-all hover:bg-gray-800 hover:shadow-lg hover:-translate-y-0.5">
+                                class="inline-flex h-12 items-center justify-center rounded-xl bg-green-600 px-8 font-semibold text-white transition-all hover:bg-green-700 hover:shadow-lg hover:-translate-y-0.5">
                                 Browse Products
                             </a>
                             <a href="/products?has_discount=1"

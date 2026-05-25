@@ -22,7 +22,7 @@ class CheckoutController extends Controller
         $sourceType = null;
         $sourceData = null;
 
-        if ($request->has('reorder_id')) {
+        if ($request->has('reorder_id') && is_numeric($request->reorder_id)) {
             // Handle Checkout from Reorder
             $sourceType = 'reorder';
             $sourceData = $request->reorder_id;
@@ -47,7 +47,7 @@ class CheckoutController extends Controller
                 ]);
                 $subtotal += $price * $quantity;
             }
-        } elseif ($request->has('buy_item') && $request->has('qty')) {
+        } elseif ($request->has('buy_item') && is_numeric($request->buy_item) && $request->has('qty') && is_numeric($request->qty)) {
             // Handle Checkout from Buy Now
             $sourceType = 'buy_now';
             $sourceData = ['item_id' => $request->buy_item, 'qty' => $request->qty];
@@ -69,8 +69,12 @@ class CheckoutController extends Controller
             
         } elseif ($request->has('selected_items') && is_array($request->selected_items)) {
             // Handle Checkout from Cart Selections
+            $selectedItems = array_filter((array) $request->selected_items, 'is_numeric');
+            if (empty($selectedItems)) {
+                return redirect()->route('cart.index')->withErrors(['msg' => 'No valid items selected.']);
+            }
             $sourceType = 'cart';
-            $sourceData = $request->selected_items;
+            $sourceData = $selectedItems;
             
             $cartItems = Cart::with(['item.images', 'item.vendor', 'item.discounts' => function ($q) {
                 $q->where('is_active', true)
@@ -78,7 +82,7 @@ class CheckoutController extends Controller
                   ->where('date_end', '>=', now());
             }])
                 ->where('customer_id', $userId)
-                ->whereIn('item_id', $request->selected_items)
+                ->whereIn('item_id', $selectedItems)
                 ->get();
 
             foreach ($cartItems as $cart) {
@@ -126,6 +130,9 @@ class CheckoutController extends Controller
 
         // Reconstruct items based on source
         if ($request->source === 'reorder') {
+            if (!$request->filled('reorder_id') || !is_numeric($request->reorder_id)) {
+                return redirect()->route('cart.index')->withErrors(['msg' => 'Invalid reorder reference.']);
+            }
             $order = Order::with(['items.discounts' => function ($q) {
                 $q->where('is_active', true)
                   ->where('date_start', '<=', now())
@@ -143,6 +150,9 @@ class CheckoutController extends Controller
                 }
             }
         } elseif ($request->source === 'buy_now') {
+            if (!$request->filled('buy_item') || !is_numeric($request->buy_item) || !$request->filled('qty') || !is_numeric($request->qty)) {
+                return redirect()->route('cart.index')->withErrors(['msg' => 'Invalid item reference.']);
+            }
             $item = Item::with(['discounts' => function ($q) {
                 $q->where('is_active', true)
                   ->where('date_start', '<=', now())
@@ -158,13 +168,18 @@ class CheckoutController extends Controller
                 $subtotal += $item->discounted_price * $quantity;
             }
         } elseif ($request->source === 'cart') {
+            $selectedItems = $request->input('selected_items', []);
+            if (!is_array($selectedItems) || empty($selectedItems)) {
+                return redirect()->route('cart.index')->withErrors(['msg' => 'No items selected.']);
+            }
+            $selectedItems = array_filter($selectedItems, 'is_numeric');
             $cartItems = Cart::with(['item.discounts' => function ($q) {
                 $q->where('is_active', true)
                   ->where('date_start', '<=', now())
                   ->where('date_end', '>=', now());
             }])
                 ->where('customer_id', $userId)
-                ->whereIn('item_id', $request->selected_items)
+                ->whereIn('item_id', $selectedItems)
                 ->get();
                 
             foreach ($cartItems as $cart) {
@@ -223,9 +238,13 @@ class CheckoutController extends Controller
 
             // 4. Cleanup Cart
             if ($request->source === 'cart') {
-                Cart::where('customer_id', $userId)
-                    ->whereIn('item_id', $request->selected_items)
-                    ->delete();
+                $selectedItems = $request->input('selected_items', []);
+                if (is_array($selectedItems)) {
+                    $selectedItems = array_filter($selectedItems, 'is_numeric');
+                    Cart::where('customer_id', $userId)
+                        ->whereIn('item_id', $selectedItems)
+                        ->delete();
+                }
             }
         });
 

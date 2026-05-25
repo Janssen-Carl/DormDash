@@ -11,7 +11,7 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $search = trim((string) $request->input('q', ''));
+        $search = strip_tags(trim((string) $request->input('q', '')));
         $selectedVendors = $request->input('vendors', []);
         $selectedCategories = $request->input('categories', []);
         $sort = $request->input('sort', '');
@@ -28,6 +28,10 @@ class ProductController extends Controller
         $vendors = Vendor::where('active', true)->get();
 
         $isBundle = $request->input('is_bundle') == '1';
+
+        // Filter vendor/category IDs to only valid numeric values
+        $selectedVendors = array_filter((array) $selectedVendors, 'is_numeric');
+        $selectedCategories = array_filter((array) $selectedCategories, 'is_numeric');
 
         // Check if we should render a unified single grid
         $isSingleGrid = ($search !== '') 
@@ -279,6 +283,10 @@ class ProductController extends Controller
 
     public function show($id)
     {
+        if (!is_numeric($id)) {
+            abort(404);
+        }
+
         $item = Item::with(['images', 'vendor', 'categories', 'discounts' => function ($q) {
                 $q->where('is_active', true)
                   ->where('date_start', '<=', now())

@@ -112,6 +112,10 @@ class CartController extends Controller
 
     public function destroy($itemId)
     {
+        if (!is_numeric($itemId)) {
+            return redirect()->back()->with('error', 'Invalid item.');
+        }
+
         Cart::where('customer_id', auth()->id())
             ->where('item_id', $itemId)
             ->delete();

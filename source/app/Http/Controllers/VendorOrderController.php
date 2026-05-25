@@ -29,7 +29,7 @@ class VendorOrderController extends Controller
         $totalCount = $baseQuery->count();
 
         // 2. Build filtered orders query for listing
-        $search = $request->query('search');
+        $search = strip_tags(trim($request->query('search', '')));
         $status = $request->query('status');
 
         $query = Order::with(['customer.user', 'address', 'items' => function ($q) use ($vendorId) {
@@ -60,12 +60,13 @@ class VendorOrderController extends Controller
         }
 
         // Apply Status Filter
+        $allowedStatuses = ['pending', 'to_ship', 'shipped', 'delivered', 'completed', 'cancelled'];
         if ($status && $status !== 'all') {
             if ($status === 'pending') {
                 $query->where('order_status', 'pending');
             } elseif ($status === 'confirmed') {
                 $query->whereIn('order_status', ['to_ship', 'shipped', 'delivered']);
-            } else {
+            } elseif (in_array($status, $allowedStatuses)) {
                 $query->where('order_status', $status);
             }
         }
@@ -77,6 +78,10 @@ class VendorOrderController extends Controller
 
     public function confirm($orderId)
     {
+        if (!is_numeric($orderId)) {
+            return redirect()->back()->with('error', 'Invalid order ID.');
+        }
+
         $user = Auth::user();
         $vendor = $user->vendor;
 
@@ -133,6 +138,10 @@ class VendorOrderController extends Controller
 
     public function ship($orderId)
     {
+        if (!is_numeric($orderId)) {
+            return redirect()->back()->with('error', 'Invalid order ID.');
+        }
+
         $user = Auth::user();
         $vendor = $user->vendor;
 
@@ -160,6 +169,10 @@ class VendorOrderController extends Controller
 
     public function deliver($orderId)
     {
+        if (!is_numeric($orderId)) {
+            return redirect()->back()->with('error', 'Invalid order ID.');
+        }
+
         $user = Auth::user();
         $vendor = $user->vendor;
 

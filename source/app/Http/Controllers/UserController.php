@@ -72,6 +72,12 @@ class UserController extends Controller
 
     public function verifyEmail($token)
     {
+        if (empty($token) || strlen($token) !== 60) {
+            return redirect('/login')->withErrors([
+                'email' => 'Invalid email verification token.',
+            ]);
+        }
+
         $user = User::where('verification_token', $token)->first();
 
         if (!$user) {
@@ -204,13 +210,17 @@ class UserController extends Controller
             'email'    => 'required|email|max:255|unique:users,email,' . $user->user_id . ',user_id',
             'phone'    => 'nullable|string|max:50',
             'profile_image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:4096',
+            'website'  => 'nullable|url|max:255',
+            'address'  => 'nullable|string|max:500',
+            'city'     => 'nullable|string|max:100',
+            'country'  => 'nullable|string|max:100',
         ];
 
         $validated = $request->validate($rules);
 
         // Update user basic fields
-        $user->username = $validated['username'];
-        $user->email = $validated['email'];
+        $user->username = strip_tags($validated['username']);
+        $user->email = strip_tags($validated['email']);
         $user->save();
 
         // Sync vendor name & email with user fields for vendor accounts
@@ -265,18 +275,24 @@ class UserController extends Controller
         if ($user->role === 'vendor' && $request->filled('website')) {
             $vendor = $user->vendor;
             if ($vendor) {
-                $vendor->website = $request->input('website');
+                $vendor->website = $validated['website'];
                 $vendor->save();
             }
         }
 
-        // Handle address_id (set default address from vendor profile page or edit form)
+        // Handle address_id (set default address from profile page)
         if ($request->filled('address_id')) {
             if ($user->role === 'vendor') {
                 $vendor = $user->vendor;
                 if ($vendor) {
                     $vendor->address_id = $request->input('address_id');
                     $vendor->save();
+                }
+            } elseif ($user->role === 'customer') {
+                $customer = $user->customer;
+                if ($customer) {
+                    $customer->primary_address_id = $request->input('address_id');
+                    $customer->save();
                 }
             }
         }
@@ -301,12 +317,12 @@ class UserController extends Controller
                 $address->user_id = $user->user_id;
             }
 
-            $address->street = $request->input('address');
-            $address->city = $request->input('city', '');
-            $address->province_state = $request->input('city', 'Batangas');
+            $address->street = strip_tags($validated['address']);
+            $address->city = strip_tags($validated['city'] ?? '');
+            $address->province_state = strip_tags($validated['city'] ?? 'Batangas');
             $address->postal_code = '4200';
-            $address->country = $request->input('country', 'Philippines');
-            $address->phone = $request->input('phone', '') ?: '';
+            $address->country = strip_tags($validated['country'] ?? 'Philippines');
+            $address->phone = strip_tags($validated['phone'] ?? '');
             $address->email = $user->email;
             $address->save();
 
@@ -422,6 +438,10 @@ class UserController extends Controller
     // Delete Address
     public function deleteAddress($id)
     {
+        if (!is_numeric($id)) {
+            return back()->withErrors(['address' => 'Invalid address ID.']);
+        }
+
         $user = auth()->user();
         $address = Address::where('user_id', $user->user_id)->findOrFail($id);
 
@@ -489,6 +509,10 @@ class UserController extends Controller
     // Delete Payment Card
     public function deletePayment($id)
     {
+        if (!is_numeric($id)) {
+            return back()->withErrors(['payment' => 'Invalid payment ID.']);
+        }
+
         $user = auth()->user();
         
         if ($user->role === 'customer') {

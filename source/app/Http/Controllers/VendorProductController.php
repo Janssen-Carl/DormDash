@@ -23,7 +23,7 @@ class VendorProductController extends Controller
 
             // Handle Search
             if ($request->filled('search')) {
-                $search = $request->input('search');
+                $search = strip_tags($request->input('search'));
                 $query->where(function($q) use ($search) {
                     $q->where('name', 'like', '%' . $search . '%')
                       ->orWhere('sku', 'like', '%' . $search . '%')
@@ -33,6 +33,7 @@ class VendorProductController extends Controller
 
             // Handle Filter — default to active only (so "deleted" items vanish)
             $status = $request->input('status', 'active');
+            $status = in_array($status, ['active', 'inactive', 'all']) ? $status : 'active';
             if ($status === 'active') {
                 $query->where('is_active', 1);
             } elseif ($status === 'inactive') {
