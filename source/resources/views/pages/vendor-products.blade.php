@@ -71,7 +71,7 @@
                                 <button type="submit" name="quantity" value="50" class="rounded-lg bg-amber-100 px-2.5 py-1.5 text-xs font-semibold text-amber-700 hover:bg-amber-200 transition">+50</button>
                                 <button type="submit" name="quantity" value="100" class="rounded-lg bg-emerald-100 px-2.5 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-200 transition">+100</button>
                                 <span class="text-zinc-300 mx-1">|</span>
-                                <input type="number" name="quantity" min="1" max="10000" placeholder="Qty" class="w-16 rounded-lg border border-zinc-200 px-2 py-1.5 text-xs text-zinc-800 text-center focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none" />
+                                <input type="number" name="quantity" min="1" max="10000" placeholder="0" class="w-16 rounded-lg border border-zinc-200 px-2 py-1.5 text-xs text-zinc-800 text-center focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none" />
                                 <button type="submit" class="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 transition">Restock</button>
                             </div>
                         </form>
