@@ -146,6 +146,8 @@ Route::middleware(['auth', 'role:vendor'])->group(function () {
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
+    Route::get('/insights', [AdminController::class, 'insights'])->name('insights');
+    Route::get('/insights/export', [AdminController::class, 'exportInsights'])->name('insights.export');
     Route::get('/accounts', [AdminController::class, 'accounts'])->name('accounts');
     Route::post('/accounts/{id}/approve', [AdminController::class, 'approveVendor'])->name('accounts.approve');
     Route::delete('/accounts/{id}', [AdminController::class, 'deleteUser'])->name('accounts.delete');
