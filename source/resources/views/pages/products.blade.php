@@ -128,11 +128,8 @@
                     {{-- Bundles --}}
                     @php
                         $queryParams = request()->query();
-                        if (request('is_bundle') == '1') {
-                            unset($queryParams['is_bundle']);
-                        } else {
-                            $queryParams['is_bundle'] = '1';
-                        }
+                        $queryParams['is_bundle'] = '1';
+                        unset($queryParams['has_discount']);
                         $toggleUrl = url()->current() . '?' . http_build_query($queryParams);
                     @endphp
                     <div class="mb-6">
@@ -146,11 +143,8 @@
                     {{-- Discounts Filter --}}
                     @php
                         $queryParams = request()->query();
-                        if (request('has_discount') == '1') {
-                            unset($queryParams['has_discount']);
-                        } else {
-                            $queryParams['has_discount'] = '1';
-                        }
+                        $queryParams['has_discount'] = '1';
+                        unset($queryParams['is_bundle']);
                         $discountToggleUrl = url()->current() . '?' . http_build_query($queryParams);
                     @endphp
                     <div class="mb-6">

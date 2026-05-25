@@ -10,75 +10,87 @@
                 </div>
 
                 {{-- Overview Stats --}}
-                <div class="mb-12 grid grid-cols-2 gap-6 sm:grid-cols-4">
-                    <a href="/orders" class="block rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:border-green-300">
+                <div class="mb-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {{-- Total Orders --}}
+                    <a href="/orders" class="block rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-blue-300">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-sm text-gray-600">Total Orders</p>
-                                <p class="mt-2 text-3xl font-bold text-gray-900">{{ $totalOrders }}</p>
+                                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Orders</p>
+                                <p class="mt-2 text-3xl font-extrabold text-gray-900">{{ $totalOrders }}</p>
+                                <p class="mt-1 text-[11px] text-gray-400">All purchased transactions</p>
                             </div>
-                            <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
-                                <x-heroicon-o-shopping-bag class="h-6 w-6 text-blue-600" />
+                            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 text-blue-600 shadow-inner">
+                                <x-heroicon-o-shopping-bag class="h-6 w-6" />
                             </div>
                         </div>
                     </a>
 
-                    <a href="/analytics" class="block rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:border-green-300">
+                    {{-- Total Spent --}}
+                    <a href="/analytics" class="block rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-emerald-300">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-sm text-gray-600">Total Spent</p>
-                                <p class="mt-2 text-3xl font-bold text-gray-900">₱{{ number_format($totalSpent, 2) }}</p>
+                                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Spent</p>
+                                <p class="mt-2 text-3xl font-extrabold text-gray-900">₱{{ number_format($totalSpent, 2) }}</p>
+                                <p class="mt-1 text-[11px] text-gray-400">Successful completions</p>
                             </div>
-                            <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
-                                <x-heroicon-o-banknotes class="h-6 w-6 text-green-600" />
+                            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100 text-emerald-600 shadow-inner">
+                                <x-heroicon-o-banknotes class="h-6 w-6" />
                             </div>
                         </div>
                     </a>
 
-                    <a href="/orders?status=to_ship" class="block rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:border-green-300">
+                    {{-- To Ship --}}
+                    <a href="/orders?status=to_ship" class="block rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-amber-300">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-sm text-gray-600">To Ship</p>
-                                <p class="mt-2 text-3xl font-bold text-gray-900">{{ $toShipCount }}</p>
+                                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">To Ship</p>
+                                <p class="mt-2 text-3xl font-extrabold text-gray-900">{{ $toShipCount }}</p>
+                                <p class="mt-1 text-[11px] text-gray-400">Preparing for courier</p>
                             </div>
-                            <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-amber-100">
-                                <x-heroicon-o-clock class="h-6 w-6 text-amber-600" />
+                            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-amber-50 to-amber-100 text-amber-600 shadow-inner">
+                                <x-heroicon-o-clock class="h-6 w-6" />
                             </div>
                         </div>
                     </a>
 
-                    <a href="/orders?status=shipped" class="block rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:border-green-300">
+                    {{-- Shipped --}}
+                    <a href="/orders?status=shipped" class="block rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-cyan-300">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-sm text-gray-600">Shipped</p>
-                                <p class="mt-2 text-3xl font-bold text-gray-900">{{ $shippedCount }}</p>
+                                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Shipped</p>
+                                <p class="mt-2 text-3xl font-extrabold text-gray-900">{{ $shippedCount }}</p>
+                                <p class="mt-1 text-[11px] text-gray-400">In transit to campus</p>
                             </div>
-                            <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
-                                <x-heroicon-o-truck class="h-6 w-6 text-blue-600" />
+                            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-50 to-cyan-100 text-cyan-600 shadow-inner">
+                                <x-heroicon-o-truck class="h-6 w-6" />
                             </div>
                         </div>
                     </a>
 
-                    <a href="/orders?status=delivered" class="block rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:border-green-300">
+                    {{-- Delivered --}}
+                    <a href="/orders?status=delivered" class="block rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-indigo-300">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-sm text-gray-600">Delivered</p>
-                                <p class="mt-2 text-3xl font-bold text-gray-900">{{ $deliveredCount }}</p>
+                                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Delivered</p>
+                                <p class="mt-2 text-3xl font-extrabold text-gray-900">{{ $deliveredCount }}</p>
+                                <p class="mt-1 text-[11px] text-gray-400">Arrived at your dorm</p>
                             </div>
-                            <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-indigo-100">
-                                <x-heroicon-o-home class="h-6 w-6 text-indigo-600" />
+                            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-50 to-indigo-100 text-indigo-600 shadow-inner">
+                                <x-heroicon-o-home class="h-6 w-6" />
                             </div>
                         </div>
                     </a>
 
-                    <a href="/orders?status=completed" class="block rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md hover:border-green-300">
+                    {{-- Completed --}}
+                    <a href="/orders?status=completed" class="block rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-green-300">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-sm text-gray-600">Completed</p>
-                                <p class="mt-2 text-3xl font-bold text-gray-900">{{ $completedCount }}</p>
+                                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Completed</p>
+                                <p class="mt-2 text-3xl font-extrabold text-gray-900">{{ $completedCount }}</p>
+                                <p class="mt-1 text-[11px] text-gray-400">Finished & confirmed</p>
                             </div>
-                            <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
-                                <x-heroicon-o-check-circle class="h-6 w-6 text-green-600" />
+                            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-green-50 to-green-100 text-green-600 shadow-inner">
+                                <x-heroicon-o-check-circle class="h-6 w-6" />
                             </div>
                         </div>
                     </a>
