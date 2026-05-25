@@ -5,12 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Item;
 use App\Models\Discount;
 use App\Models\Category;
+use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
     public function index()
     {
-        // Featured products: 4 random available items with their first image and vendor
+        // Featured products: Top selling available items based on order_items quantity sold (general analytics), fallback to default order
         $featuredProducts = Item::where('is_active', true)
             ->where('is_available', true)
             ->with(['images', 'vendor', 'categories', 'discounts' => function ($q) {
@@ -18,8 +19,13 @@ class HomeController extends Controller
                   ->where('date_start', '<=', now())
                   ->where('date_end', '>=', now());
             }])
-            ->inRandomOrder()
-            ->limit(4)
+            ->orderByDesc(
+                DB::table('order_items')
+                    ->selectRaw('COALESCE(SUM(quantity), 0)')
+                    ->whereColumn('order_items.item_id', 'items.item_id')
+            )
+            ->orderBy('name', 'asc')
+            ->limit(8)
             ->get();
 
         // Active discount offers with their items

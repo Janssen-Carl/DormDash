@@ -109,13 +109,6 @@
                                      </div>
                                  @endif
 
-                                 @if ($product->is_perishable)
-                                     <div
-                                         class="absolute top-3 right-3 bg-green-600 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-sm z-10">
-                                         Fresh
-                                     </div>
-                                 @endif
-
                                  @if ($product->discounts->isNotEmpty())
                                      @php $discount = $product->discounts->first(); @endphp
                                      <div
@@ -181,83 +174,171 @@
         </section>
 
         {{-- Today's Exclusive Offers Section --}}
-        <section class="px-8 py-16 bg-gray-50">
+        <section class="px-8 py-16 bg-gradient-to-b from-white to-gray-50/50">
             <div class="mx-auto max-w-6xl">
-                <div class="grid grid-cols-4 gap-8">
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
                     {{-- Left Sidebar with Offers List --}}
                     <div class="col-span-1">
-                        <h2 class="text-2xl font-bold tracking-tight text-gray-900 mb-2">Today's</h2>
-                        <h2 class="text-2xl font-bold tracking-tight text-gray-900 mb-6">Exclusive Offers</h2>
-                        <p class="text-sm text-gray-600 mb-8">Don't miss out on these limited-time deals!</p>
-
-                        <div class="space-y-3">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 border border-red-100 text-red-600 text-xs font-bold w-fit mb-4">
+                            <span class="relative flex h-2 w-2">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                            </span>
+                            Flash Deals
+                        </span>
+                        <h2 class="text-3xl font-extrabold tracking-tight text-gray-900 leading-tight">Today's <br/><span class="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-rose-500">Exclusive Offers</span></h2>
+                        <p class="mt-3 text-sm text-gray-500 leading-relaxed">Don't miss out on these limited-time deals! Grab them before they sell out.</p>
+ 
+                        <div class="mt-6 space-y-3">
                             <a href="/products?has_discount=1"
-                                class="flex items-center gap-2 text-green-600 font-semibold text-sm hover:text-green-700 transition-colors">
-                                <x-heroicon-o-arrow-right class="h-4 w-4" />
-                                See All Offers
+                                class="flex items-center gap-2 text-green-600 font-bold text-sm hover:text-green-700 transition-colors group">
+                                <x-heroicon-o-arrow-right class="h-4 w-4 transform group-hover:translate-x-1 transition-transform" />
+                                See All Active Offers
                             </a>
                             <a href="/products?has_discount=1"
-                                class="inline-flex h-10 items-center justify-center rounded-lg bg-green-600 px-4 text-xs font-semibold text-white transition-colors hover:bg-green-700 w-full font-bold">
-                                Grab Deal
+                                class="inline-flex h-12 items-center justify-center rounded-xl bg-gradient-to-r from-green-600 to-emerald-500 px-6 text-sm font-bold text-white transition-all hover:from-green-700 hover:to-emerald-600 w-full shadow-md hover:shadow-lg hover:-translate-y-0.5">
+                                Grab A Deal Now
                             </a>
                         </div>
                     </div>
-
+ 
                     {{-- Right Grid with Offer Cards --}}
                     <div class="col-span-3">
-                        <div class="grid grid-cols-3 gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             @php
                                 $offerGradients = [
-                                    'from-emerald-50 to-green-50',
-                                    'from-blue-50 to-indigo-50',
-                                    'from-orange-50 to-yellow-50',
-                                    'from-purple-50 to-pink-50',
-                                    'from-rose-50 to-red-50',
-                                    'from-teal-50 to-cyan-50',
-                                ];
-                                $offerColors = [
-                                    'text-green-600',
-                                    'text-blue-600',
-                                    'text-orange-600',
-                                    'text-purple-600',
-                                    'text-red-600',
-                                    'text-teal-600',
+                                    'from-emerald-50 to-green-100',
+                                    'from-blue-50 to-indigo-100',
+                                    'from-orange-50 to-yellow-100',
+                                    'from-purple-50 to-pink-100',
+                                    'from-rose-50 to-red-100',
+                                    'from-teal-50 to-cyan-100',
                                 ];
                                 $offerEmojis = ['💰', '📦', '🍰', '✨', '🎁', '🛒'];
                             @endphp
-
+ 
                             @forelse ($offers as $index => $offer)
                                 <a href="{{ route('products.show', ['id' => $offer->item_id]) }}"
-                                     class="overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow duration-300 cursor-pointer group block">
-                                     <div
-                                         class="flex flex-col items-center justify-center bg-gradient-to-br {{ $offerGradients[$index % count($offerGradients)] }} px-6 py-8 h-48">
-                                         <div class="text-6xl group-hover:scale-110 transition-transform duration-300">
-                                             {{ $offerEmojis[$index % count($offerEmojis)] }}
-                                         </div>
-                                         <h3 class="mt-4 text-lg font-bold text-gray-900">{{ $offer->name }}</h3>
-                                         <p class="mt-1 text-xs text-gray-600">{{ $offer->item->name }}</p>
-                                         <p class="mt-3 text-sm font-bold {{ $offerColors[$index % count($offerColors)] }}">
+                                     class="group overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.08)] transition-all duration-300 hover:-translate-y-1.5 flex flex-col h-full">
+                                     
+                                     {{-- Image Container --}}
+                                     <div class="h-44 relative bg-gray-50 overflow-hidden">
+                                         @if ($offer->item && $offer->item->images->first())
+                                             <img src="{{ asset($offer->item->images->first()->image) }}"
+                                                  alt="{{ $offer->item->name }}"
+                                                  class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                         @else
+                                             <div class="flex h-full w-full items-center justify-center bg-gradient-to-br {{ $offerGradients[$index % count($offerGradients)] }} group-hover:scale-105 transition-transform duration-500">
+                                                 <span class="text-6xl">{{ $offerEmojis[$index % count($offerEmojis)] }}</span>
+                                             </div>
+                                         @endif
+ 
+                                         {{-- Floating Discount Badge --}}
+                                         <div class="absolute top-4 left-4 bg-gradient-to-r from-red-600 to-rose-500 text-white text-[11px] font-black tracking-wider uppercase px-3 py-1.5 rounded-full shadow-md z-10">
                                              @if ($offer->type === 'percentage')
-                                                 {{ number_format($offer->value) }}% Off
+                                                 {{ number_format($offer->value) }}% OFF
                                              @else
-                                                 ₱{{ number_format($offer->value, 2) }} Off
+                                                 ₱{{ number_format($offer->value) }} OFF
                                              @endif
-                                         </p>
+                                         </div>
+                                     </div>
+ 
+                                     {{-- Details --}}
+                                     <div class="p-5 flex flex-col justify-between flex-grow">
+                                         <div>
+                                             <span class="text-[10px] font-extrabold text-green-600 uppercase tracking-widest block mb-1">
+                                                 {{ $offer->item->vendor->name ?? 'DormDash Exclusive' }}
+                                             </span>
+                                             <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider line-clamp-1">
+                                                 {{ $offer->name }}
+                                             </h3>
+                                             <h4 class="mt-1.5 text-base font-bold text-gray-900 group-hover:text-green-600 transition-colors line-clamp-1">
+                                                 {{ $offer->item->name ?? 'Special Product' }}
+                                             </h4>
+                                         </div>
+ 
+                                         <div class="mt-4 pt-4 border-t border-gray-50">
+                                             <div class="flex items-baseline gap-2">
+                                                 @if ($offer->item)
+                                                     <span class="text-xl font-black text-rose-600">
+                                                         ₱{{ number_format($offer->item->discounted_price, 2) }}
+                                                     </span>
+                                                     <span class="text-xs text-gray-400 line-through">
+                                                         ₱{{ number_format($offer->item->price, 2) }}
+                                                     </span>
+                                                 @endif
+                                             </div>
+ 
+                                             <div class="mt-3 flex items-center justify-between text-xs font-bold text-green-600 group-hover:text-green-700 transition-colors">
+                                                 <span class="text-[10px] text-gray-400 font-medium">Limited time only</span>
+                                                 <span class="inline-flex items-center gap-1">
+                                                     Claim Deal
+                                                     <svg class="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path>
+                                                     </svg>
+                                                 </span>
+                                             </div>
+                                         </div>
                                      </div>
                                  </a>
-                            @empty
-                                {{-- Fallback static cards when no offers exist --}}
-                                <div
-                                    class="overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow duration-300 cursor-pointer group">
-                                    <div
-                                        class="flex flex-col items-center justify-center bg-gradient-to-br from-emerald-50 to-green-50 px-6 py-8 h-48">
-                                        <div class="text-6xl group-hover:scale-110 transition-transform duration-300">💰</div>
-                                        <h3 class="mt-4 text-lg font-bold text-gray-900">Coming Soon</h3>
-                                        <p class="mt-1 text-xs text-gray-600">Stay tuned for deals</p>
-                                        <p class="mt-3 text-sm font-bold text-green-600">Check Back Later</p>
-                                    </div>
-                                </div>
-                            @endforelse
+                             @empty
+                                 {{-- Fallback static cards when no active offers exist --}}
+                                 <div class="group overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.08)] transition-all duration-300 hover:-translate-y-1.5 flex flex-col h-full">
+                                     <div class="h-44 flex items-center justify-center bg-gradient-to-br from-emerald-50 to-green-100 group-hover:scale-105 transition-transform duration-500">
+                                         <span class="text-6xl">🍕</span>
+                                     </div>
+                                     <div class="p-5 flex flex-col justify-between flex-grow">
+                                         <div>
+                                             <span class="text-[10px] font-extrabold text-green-600 uppercase tracking-widest block mb-1">MIDNIGHT FLAVORS</span>
+                                             <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Late Night Craving</h3>
+                                             <h4 class="mt-1.5 text-base font-bold text-gray-900">Midnight Munchies Pack</h4>
+                                         </div>
+                                         <div class="mt-4 pt-4 border-t border-gray-50 flex items-center justify-between">
+                                             <span class="text-sm font-bold text-red-500">Up to 30% OFF</span>
+                                             <span class="text-[10px] text-gray-400 font-medium">Starts 10 PM</span>
+                                         </div>
+                                     </div>
+                                 </div>
+ 
+                                 <div class="group overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.08)] transition-all duration-300 hover:-translate-y-1.5 flex flex-col h-full">
+                                     <div class="h-44 flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 group-hover:scale-105 transition-transform duration-500">
+                                         <span class="text-6xl">📦</span>
+                                     </div>
+                                     <div class="p-5 flex flex-col justify-between flex-grow">
+                                         <div>
+                                             <span class="text-[10px] font-extrabold text-green-600 uppercase tracking-widest block mb-1">STUDENT SPECIALS</span>
+                                             <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Dorm essentials</h3>
+                                             <h4 class="mt-1.5 text-base font-bold text-gray-900">Dorm Starter Bundles</h4>
+                                         </div>
+                                         <div class="mt-4 pt-4 border-t border-gray-50 flex items-center justify-between">
+                                             <span class="text-sm font-bold text-blue-500">Save ₱150</span>
+                                             <span class="text-[10px] text-gray-400 font-medium">Available Now</span>
+                                         </div>
+                                     </div>
+                                 </div>
+ 
+                                 <div class="group overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.08)] transition-all duration-300 hover:-translate-y-1.5 flex flex-col h-full">
+                                     <div class="h-44 flex items-center justify-center bg-gradient-to-br from-orange-50 to-yellow-100 group-hover:scale-105 transition-transform duration-500">
+                                         <span class="text-6xl">🍹</span>
+                                     </div>
+                                     <div class="p-5 flex flex-col justify-between flex-grow">
+                                         <div>
+                                             <span class="text-[10px] font-extrabold text-green-600 uppercase tracking-widest block mb-1">FLASH SIPS</span>
+                                             <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Happy Hour Deals</h3>
+                                             <h4 class="mt-1.5 text-base font-bold text-gray-900">Soda & Drinks Combo</h4>
+                                         </div>
+                                         <div class="mt-4 pt-4 border-t border-gray-50 flex items-center justify-between">
+                                             <span class="text-sm font-bold text-orange-500">Buy 1 Get 1 FREE</span>
+                                             <span class="text-[10px] text-gray-400 font-medium">Limited Stock</span>
+                                         </div>
+                                     </div>
+                                 </div>
+                             @endforelse
+                         </div>
+                     </div>
+                 </div>
+             </div>
+         </section>
                         </div>
                     </div>
                 </div>
