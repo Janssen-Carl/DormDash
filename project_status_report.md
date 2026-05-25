@@ -89,4 +89,4 @@ The following tasks have been identified for subsequent phases of development:
 - improve orders-overview KPI design  (done)
 - fix the sidebar buttons (shouldn't act as checkbox) (done)
 - the data on the admin panel (products sold) does not match the one displayed on the home page (done)
-
+- fix profile and edit profile on customer and vendor (add eye on the password entry)
