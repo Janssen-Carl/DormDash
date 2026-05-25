@@ -87,28 +87,4 @@ The following tasks have been identified for subsequent phases of development:
 
 To do:
 
-- fix profile and edit profile on customer and vendor (add eye on the password entry)
-- add toasts and success modals accross the system 
-(
-example: 
- - when adding items to cart (done)
- - when placing order (done)
- - when updating profile
- - when deleting items from cart
- - when updating items in cart
- - when updating order status 
- - when deleting products
- - when adding products 
- - when updating products 
-)
-
-- add a way to cancel an order when the order status is still pending
-- update the cart and checkout to display if the item is a bundle or has discounts (add info abt it)
-
-- discounts and promotion page.. change the button color from black to green
-- " Campaign / Promotion Name " is not used on product cards
-
-
-- on vendor products page the drop down of " 2 products running low on stock ", add a input section on adding stocks not just fixed 10 25 50 100
-
-- 📧 **Email Integrations**: Set up active email services (SMTP/API) for vendor email verification and secure user password resets. Use PHPMailer 
+- improve design and fix functionality on profile and edit profile on customer and vendor 
