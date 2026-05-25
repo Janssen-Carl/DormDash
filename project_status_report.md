@@ -84,8 +84,9 @@ The following tasks have been identified for subsequent phases of development:
 - 💳 **Card Payment Processing Improvement**: Implement a functional card payment gateway integration during checkout (currently simulated/non-functional).
 - 📧 **Email Integrations**: Set up active email services (SMTP/API) for vendor email verification and secure user password resets.
 - 🎨 **Continuous UI/UX Refinement**: Further polish responsive layouts, micro-animations, and overall interface usability across all storefront and dashboard screens.
-- fix the database seeder, some of the orders are already past May 2026 (done)... 
-- improve orders-overview KPI design 
-- fix the sidebar buttons (shouldn't act as checkbox)
+
+- fix the database seeder, some of the orders are already past May 2026 (done)
+- improve orders-overview KPI design  (done)
+- fix the sidebar buttons (shouldn't act as checkbox) (done)
 - the data on the admin panel (products sold) does not match the one displayed on the home page (done)
 
