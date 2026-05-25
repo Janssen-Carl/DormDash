@@ -346,6 +346,7 @@ class VendorProductTest extends TestCase
     private function createProductTestSchema(): void
     {
         Schema::dropIfExists('item_images');
+        Schema::dropIfExists('discounts');
         Schema::dropIfExists('items');
         Schema::dropIfExists('vendors');
         Schema::dropIfExists('users');
@@ -398,6 +399,20 @@ class VendorProductTest extends TestCase
             $table->increments('item_image_id');
             $table->unsignedInteger('item_id');
             $table->string('image', 255)->default('/images/items/1/1.jpg');
+            $table->timestamps();
+        });
+
+        Schema::create('discounts', function (Blueprint $table): void {
+            $table->increments('discount_id');
+            $table->unsignedInteger('item_id');
+            $table->dateTime('date_end');
+            $table->dateTime('date_start');
+            $table->string('type');
+            $table->decimal('value', 10, 2);
+            $table->unsignedInteger('use_limit')->nullable();
+            $table->text('description')->nullable();
+            $table->string('name', 100);
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

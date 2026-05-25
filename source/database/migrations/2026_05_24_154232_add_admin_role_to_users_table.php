@@ -13,7 +13,9 @@ return new class extends Migration
     public function up(): void
     {
         // MySQL requires raw SQL to modify ENUM columns
-        DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('customer', 'vendor', 'admin') NOT NULL");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('customer', 'vendor', 'admin') NOT NULL");
+        }
     }
 
     /**
@@ -21,6 +23,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('customer', 'vendor') NOT NULL");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('customer', 'vendor') NOT NULL");
+        }
     }
 };

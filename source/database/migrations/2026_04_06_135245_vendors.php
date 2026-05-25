@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('vendors', function (Blueprint $table) {
-            $table->increments('vendor_id')->primary();
+            $table->increments('vendor_id');
             $table->foreign('vendor_id')
                 ->references('user_id')
                 ->on('users')
