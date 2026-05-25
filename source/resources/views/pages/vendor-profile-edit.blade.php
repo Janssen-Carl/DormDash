@@ -94,39 +94,57 @@
             </div>
 
             {{-- Change Password --}}
-            <div class="rounded-3xl border border-gray-100 bg-gradient-to-br from-white to-gray-50 p-8 shadow-lg">
+            <div class="rounded-3xl border border-gray-100 bg-gradient-to-br from-white to-gray-50 p-8 shadow-lg" x-data="{ showCurrent: false, showNew: false, showConfirm: false }">
                 <h3 class="mb-8 text-lg font-bold text-gray-900">Change Password</h3>
                 <p class="mb-6 text-sm text-gray-500">Leave blank to keep your current password.</p>
 
                 <div class="space-y-5">
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-3">Current Password</label>
-                        <input
-                            type="password"
-                            name="current_password"
-                            placeholder="Enter current password"
-                            class="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none"
-                        />
+                        <div class="relative">
+                            <input
+                                :type="showCurrent ? 'text' : 'password'"
+                                name="current_password"
+                                placeholder="Enter current password"
+                                class="w-full rounded-xl border border-gray-200 px-4 py-3 pr-12 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none"
+                            />
+                            <button type="button" @click="showCurrent = !showCurrent" class="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-gray-600 transition-colors">
+                                <x-heroicon-o-eye x-show="!showCurrent" class="h-5 w-5" />
+                                <x-heroicon-o-eye-slash x-show="showCurrent" x-cloak class="h-5 w-5" />
+                            </button>
+                        </div>
                     </div>
 
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-3">New Password</label>
-                        <input
-                            type="password"
-                            name="new_password"
-                            placeholder="Enter new password"
-                            class="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none"
-                        />
+                        <div class="relative">
+                            <input
+                                :type="showNew ? 'text' : 'password'"
+                                name="new_password"
+                                placeholder="Enter new password"
+                                class="w-full rounded-xl border border-gray-200 px-4 py-3 pr-12 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none"
+                            />
+                            <button type="button" @click="showNew = !showNew" class="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-gray-600 transition-colors">
+                                <x-heroicon-o-eye x-show="!showNew" class="h-5 w-5" />
+                                <x-heroicon-o-eye-slash x-show="showNew" x-cloak class="h-5 w-5" />
+                            </button>
+                        </div>
                     </div>
 
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-3">Confirm New Password</label>
-                        <input
-                            type="password"
-                            name="new_password_confirmation"
-                            placeholder="Confirm new password"
-                            class="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none"
-                        />
+                        <div class="relative">
+                            <input
+                                :type="showConfirm ? 'text' : 'password'"
+                                name="new_password_confirmation"
+                                placeholder="Confirm new password"
+                                class="w-full rounded-xl border border-gray-200 px-4 py-3 pr-12 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none"
+                            />
+                            <button type="button" @click="showConfirm = !showConfirm" class="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-gray-600 transition-colors">
+                                <x-heroicon-o-eye x-show="!showConfirm" class="h-5 w-5" />
+                                <x-heroicon-o-eye-slash x-show="showConfirm" x-cloak class="h-5 w-5" />
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -16,6 +16,12 @@
     }
 @endphp
             <div class="mx-auto max-w-6xl px-8 py-12" x-data="{ showPhotoModal: false, hasFile: false, fileName: '' }">
+                @if(session('success'))
+                    <div class="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 rounded-2xl bg-green-600 px-6 py-3 text-sm font-bold text-white shadow-2xl border border-green-500" x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 -translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-4">
+                        <x-heroicon-s-check-circle class="h-5 w-5 text-green-200" />
+                        {{ session('success') }}
+                    </div>
+                @endif
                 <div class="mb-12 flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
                     <div>
                         <h1 class="text-4xl font-bold tracking-tight text-gray-900">My Profile</h1>
