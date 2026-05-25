@@ -81,12 +81,33 @@ This report maps the functional requirements against the current codebase state.
 
 The following tasks have been identified for subsequent phases of development:
 
-- 💳 **Card Payment Processing Improvement**: Implement a functional card payment gateway integration during checkout (currently simulated/non-functional).
+<!-- - 💳 **Card Payment Processing Improvement**: Implement a functional card payment gateway integration during checkout (currently simulated/non-functional).
 - 📧 **Email Integrations**: Set up active email services (SMTP/API) for vendor email verification and secure user password resets.
-- 🎨 **Continuous UI/UX Refinement**: Further polish responsive layouts, micro-animations, and overall interface usability across all storefront and dashboard screens.
+- 🎨 **Continuous UI/UX Refinement**: Further polish responsive layouts, micro-animations, and overall interface usability across all storefront and dashboard screens. -->
 
-- fix the database seeder, some of the orders are already past May 2026 (done)
-- improve orders-overview KPI design  (done)
-- fix the sidebar buttons (shouldn't act as checkbox) (done)
-- the data on the admin panel (products sold) does not match the one displayed on the home page (done)
+
 - fix profile and edit profile on customer and vendor (add eye on the password entry)
+- add toasts and success modals accross the system 
+(
+example: 
+ - when adding items to cart (done)
+ - when placing order (done)
+ - when updating profile
+ - when deleting items from cart
+ - when updating items in cart
+ - when updating order status 
+ - when deleting products
+ - when adding products 
+ - when updating products 
+)
+
+- add a way to cancel an order when the order status is still pending
+- update the cart and checkout to display if the item is a bundle or has discounts (add info abt it)
+
+- discounts and promotion page.. change the button color from black to green
+- " Campaign / Promotion Name " is not used on product cards
+
+
+- on vendor products page the drop down of " 2 products running low on stock ", add a input section on adding stocks not just fixed 10 25 50 100
+
+- 📧 **Email Integrations**: Set up active email services (SMTP/API) for vendor email verification and secure user password resets. Use PHPMailer 
