@@ -126,7 +126,9 @@ class Item extends Model
         }
         
         return (int) \Illuminate\Support\Facades\DB::table('order_items')
-            ->where('item_id', $this->item_id)
-            ->sum('quantity');
+            ->join('orders', 'order_items.order_id', '=', 'orders.order_id')
+            ->where('orders.order_status', '!=', 'cancelled')
+            ->where('order_items.item_id', $this->item_id)
+            ->sum('order_items.quantity');
     }
 }

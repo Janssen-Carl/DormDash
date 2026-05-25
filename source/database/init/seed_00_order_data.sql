@@ -140,11 +140,11 @@ VALUES
 UPDATE orders
 SET order_status = 'completed';
 
--- Update created_at to spread across different months (Jan–May)
+-- Update created_at to spread across different months in the past (Jan–May)
 SET @order_counter = 0;
 
 UPDATE orders
-SET created_at = DATE_ADD('2026-01-01', INTERVAL (@order_counter:=@order_counter+1)*5 DAY)
+SET created_at = DATE_SUB(NOW(), INTERVAL (@order_counter:=@order_counter+1)*2 DAY)
     ORDER BY order_id;
 
 -- Recalculate stock and record stock logs based on seeded order_items

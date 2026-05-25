@@ -21,8 +21,10 @@ class HomeController extends Controller
             }])
             ->orderByDesc(
                 DB::table('order_items')
-                    ->selectRaw('COALESCE(SUM(quantity), 0)')
+                    ->join('orders', 'order_items.order_id', '=', 'orders.order_id')
+                    ->selectRaw('COALESCE(SUM(order_items.quantity), 0)')
                     ->whereColumn('order_items.item_id', 'items.item_id')
+                    ->where('orders.order_status', '!=', 'cancelled')
             )
             ->orderBy('name', 'asc')
             ->limit(8)

@@ -260,7 +260,7 @@ class AdminController extends Controller
      * ────────────────────────────────────── */
     public function insights(Request $request)
     {
-        $timeframe = $request->query('timeframe', '30'); // '7', '30', 'all'
+        $timeframe = $request->query('timeframe', 'all'); // '7', '30', 'all'
         
         // Determine date filter for active query
         $days = ($timeframe === 'all') ? 30 : intval($timeframe);
@@ -279,6 +279,7 @@ class AdminController extends Controller
         
         $totalItemsSold = DB::table('order_items')
             ->join('orders', 'order_items.order_id', '=', 'orders.order_id')
+            ->where('orders.order_status', '!=', 'cancelled')
             ->when($timeframe !== 'all', function($q) use ($currentStart) {
                 return $q->where('orders.created_at', '>=', $currentStart);
             })
@@ -308,11 +309,13 @@ class AdminController extends Controller
         // Current Items Sold
         $currItems = DB::table('order_items')
             ->join('orders', 'order_items.order_id', '=', 'orders.order_id')
+            ->where('orders.order_status', '!=', 'cancelled')
             ->where('orders.created_at', '>=', $currentStart)
             ->sum('quantity');
         // Previous Items Sold
         $prevItems = DB::table('order_items')
             ->join('orders', 'order_items.order_id', '=', 'orders.order_id')
+            ->where('orders.order_status', '!=', 'cancelled')
             ->where('orders.created_at', '>=', $previousStart)
             ->where('orders.created_at', '<', $currentStart)
             ->sum('quantity');
@@ -374,6 +377,7 @@ class AdminController extends Controller
             ->join('orders', 'order_items.order_id', '=', 'orders.order_id')
             ->join('items', 'order_items.item_id', '=', 'items.item_id')
             ->leftJoin('vendors', 'items.vendor_id', '=', 'vendors.vendor_id')
+            ->where('orders.order_status', '!=', 'cancelled')
             ->when($timeframe !== 'all', function($q) use ($currentStart) {
                 return $q->where('orders.created_at', '>=', $currentStart);
             })
@@ -397,6 +401,7 @@ class AdminController extends Controller
             ->join('orders', 'order_items.order_id', '=', 'orders.order_id')
             ->join('items', 'order_items.item_id', '=', 'items.item_id')
             ->join('vendors', 'items.vendor_id', '=', 'vendors.vendor_id')
+            ->where('orders.order_status', '!=', 'cancelled')
             ->when($timeframe !== 'all', function($q) use ($currentStart) {
                 return $q->where('orders.created_at', '>=', $currentStart);
             })
@@ -511,7 +516,7 @@ class AdminController extends Controller
      * ────────────────────────────────────── */
     public function exportInsights(Request $request)
     {
-        $timeframe = $request->query('timeframe', '30'); // '7', '30', 'all'
+        $timeframe = $request->query('timeframe', 'all'); // '7', '30', 'all'
         
         $days = ($timeframe === 'all') ? 30 : intval($timeframe);
         $currentStart = now()->subDays($days);
@@ -526,6 +531,7 @@ class AdminController extends Controller
         $totalRevenue = (clone $query)->where('order_status', '!=', 'cancelled')->sum('order_total');
         $totalItemsSold = DB::table('order_items')
             ->join('orders', 'order_items.order_id', '=', 'orders.order_id')
+            ->where('orders.order_status', '!=', 'cancelled')
             ->when($timeframe !== 'all', function($q) use ($currentStart) {
                 return $q->where('orders.created_at', '>=', $currentStart);
             })
@@ -538,6 +544,7 @@ class AdminController extends Controller
             ->join('orders', 'order_items.order_id', '=', 'orders.order_id')
             ->join('items', 'order_items.item_id', '=', 'items.item_id')
             ->join('vendors', 'items.vendor_id', '=', 'vendors.vendor_id')
+            ->where('orders.order_status', '!=', 'cancelled')
             ->when($timeframe !== 'all', function($q) use ($currentStart) {
                 return $q->where('orders.created_at', '>=', $currentStart);
             })
@@ -557,6 +564,7 @@ class AdminController extends Controller
             ->join('orders', 'order_items.order_id', '=', 'orders.order_id')
             ->join('items', 'order_items.item_id', '=', 'items.item_id')
             ->leftJoin('vendors', 'items.vendor_id', '=', 'vendors.vendor_id')
+            ->where('orders.order_status', '!=', 'cancelled')
             ->when($timeframe !== 'all', function($q) use ($currentStart) {
                 return $q->where('orders.created_at', '>=', $currentStart);
             })

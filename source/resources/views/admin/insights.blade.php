@@ -670,7 +670,7 @@ document.addEventListener('DOMContentLoaded', () => {
         new Chart(prodCtx, {
             type: 'bar',
             data: {
-                labels: productNames.map(name => name.length > 20 ? name.substring(0, 18) + '..' : name),
+                labels: productNames.map(name => name.length > 35 ? name.substring(0, 32) + '..' : name),
                 datasets: [{
                     label: 'Units Sold',
                     data: productQuantities,
