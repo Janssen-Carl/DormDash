@@ -117,7 +117,7 @@
                         </div>
 
                         <div class="mt-4 flex justify-end">
-                            <a href="#"
+                            <a href="{{ route('password.request') }}"
                                 class="text-sm font-medium text-emerald-600 hover:text-emerald-700 transition-colors duration-200">
                                 Forgot Password?
                             </a>

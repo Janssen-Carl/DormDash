@@ -38,6 +38,9 @@ class UserController extends Controller
             ]);
 
             if ($validated['role'] === 'vendor') {
+                $user->verification_token = \Illuminate\Support\Str::random(60);
+                $user->save();
+
                 Vendor::create([
                     'vendor_id' => $user->user_id,
                     'name'      => $validated['store_name'] ?? $user->username,
@@ -49,12 +52,39 @@ class UserController extends Controller
         });
 
         if ($validated['role'] === 'vendor') {
-            return redirect('/login')->with('success', 'Registration successful! Your vendor account is pending approval by an administrator.');
+            // Send Verification Email via PHPMailer
+            $verifyUrl = route('email.verify', ['token' => $user->verification_token]);
+            $emailBody = \App\Services\MailService::getVerificationTemplate($user->username, $verifyUrl);
+            
+            \App\Services\MailService::send(
+                $user->email,
+                'Verify Your DormDash Vendor Account',
+                $emailBody
+            );
+
+            return redirect('/login')->with('success', 'Registration successful! A verification email has been sent to your address. Please verify your email first, then wait for administrator approval.');
         }
 
         auth()->login($user);
 
         return redirect('/');
+    }
+
+    public function verifyEmail($token)
+    {
+        $user = User::where('verification_token', $token)->first();
+
+        if (!$user) {
+            return redirect('/login')->withErrors([
+                'email' => 'Invalid or expired email verification token.',
+            ]);
+        }
+
+        $user->email_verified_at = now();
+        $user->verification_token = null;
+        $user->save();
+
+        return redirect('/login')->with('success', 'Email verified successfully! Your account is now pending administrator approval.');
     }
 
     public function login(Request $request)
@@ -66,6 +96,17 @@ class UserController extends Controller
 
         if (auth()->attempt($credentials)) {
             $user = auth()->user();
+
+            // Check if vendor email is verified first
+            if ($user->role === 'vendor' && !$user->email_verified_at) {
+                auth()->logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return back()->withErrors([
+                    'email' => 'Please verify your email address first. We sent a verification link to your email.',
+                ]);
+            }
 
             // Check if vendor account is active/approved
             if ($user->role === 'vendor' && (!$user->vendor || !$user->vendor->active)) {

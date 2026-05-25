@@ -13,6 +13,7 @@
         email: '', 
         role: '', 
         joined: '', 
+        verified: '', 
         vendor: { 
             name: '', 
             phone: '', 
@@ -162,7 +163,14 @@
                                         {{ strtoupper(substr($user->username, 0, 2)) }}
                                     </div>
                                     <div>
-                                        <p class="font-medium text-gray-900">{{ $user->username }}</p>
+                                        <div class="flex items-center gap-1.5">
+                                            <p class="font-medium text-gray-900">{{ $user->username }}</p>
+                                            @if($user->email_verified_at)
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-700">Verified</span>
+                                            @else
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-rose-50 text-rose-600 border border-rose-100 animate-pulse">Unverified</span>
+                                            @endif
+                                        </div>
                                         <p class="text-xs text-gray-400">{{ $user->email }}</p>
                                     </div>
                                 </div>
@@ -216,6 +224,7 @@
                                                     email: '{{ addslashes($user->email) }}',
                                                     role: '{{ $user->role }}',
                                                     joined: '{{ $user->created_at->format('M d, Y') }} ({{ $user->created_at->diffForHumans() }})',
+                                                    verified: '{{ $user->email_verified_at ? 'Verified' : 'Unverified' }}',
                                                     vendor: {
                                                         name: '{{ addslashes($user->vendor->name ?? '') }}',
                                                         phone: '{{ addslashes($user->vendor->phone ?? 'N/A') }}',
@@ -334,6 +343,13 @@
                             
                             <span class="font-medium text-zinc-400">Email</span>
                             <span class="col-span-2 text-zinc-800 break-all select-all font-medium" x-text="selectedUser.email"></span>
+                            
+                            <span class="font-medium text-zinc-400">Email Status</span>
+                            <span class="col-span-2">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold"
+                                      :class="selectedUser.verified === 'Verified' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'"
+                                      x-text="selectedUser.verified"></span>
+                            </span>
 
                             <span class="font-medium text-zinc-400">Role</span>
                             <span class="col-span-2">

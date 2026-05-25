@@ -42,6 +42,13 @@ Route::post('/login', [UserController::class, 'login']);
 
 Route::post('/logout', [UserController::class, 'logout']);
 
+Route::get('/verify-email/{token}', [UserController::class, 'verifyEmail'])->name('email.verify');
+
+Route::get('/forgot-password', [\App\Http\Controllers\ForgotPasswordController::class, 'showForgotForm'])->name('password.request');
+Route::post('/forgot-password', [\App\Http\Controllers\ForgotPasswordController::class, 'sendResetLink'])->name('password.email');
+Route::get('/reset-password/{token}', [\App\Http\Controllers\ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::post('/reset-password', [\App\Http\Controllers\ForgotPasswordController::class, 'resetPassword'])->name('password.update');
+
 /* -------------------- AUTH COMMON -------------------- */
 
 Route::get('/test-login/{id}', function ($id) {
