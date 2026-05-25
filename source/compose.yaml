@@ -70,7 +70,7 @@ services:
         working_dir: /var/www
         volumes:
             - .:/var/www
-        command: sh -c "npm install && npm run prod"
+        command: sh -c "npm install && npm run build"
         ports:
             - "5173:5173"
         networks:
