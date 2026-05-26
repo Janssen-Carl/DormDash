@@ -88,3 +88,6 @@ The following tasks have been identified for subsequent phases of development:
 To do:
 
 - improve design and fix functionality on profile and edit profile on customer and vendor 
+
+
+- fix cart page, sort from latest
