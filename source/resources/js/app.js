@@ -112,6 +112,34 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     });
+
+    // Create Scroll-to-Top Button dynamically
+    const scrollTopBtn = document.createElement('button');
+    scrollTopBtn.className = 'scroll-to-top-btn';
+    scrollTopBtn.setAttribute('aria-label', 'Scroll to Top');
+    scrollTopBtn.innerHTML = `
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+        </svg>
+    `;
+    document.body.appendChild(scrollTopBtn);
+
+    // Toggle button visibility based on scroll position
+    window.addEventListener('scroll', function () {
+        if (window.scrollY > 300) {
+            scrollTopBtn.classList.add('show');
+        } else {
+            scrollTopBtn.classList.remove('show');
+        }
+    });
+
+    // Smooth scroll to top on click
+    scrollTopBtn.addEventListener('click', function () {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
 });
 
 // Beautiful Premium custom confirmation dialog
