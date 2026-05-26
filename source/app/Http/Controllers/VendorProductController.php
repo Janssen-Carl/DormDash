@@ -33,8 +33,12 @@ class VendorProductController extends Controller
 
             // Handle Filter — default to active only (so "deleted" items vanish)
             $status = $request->input('status', 'active');
-            $status = in_array($status, ['active', 'inactive', 'all']) ? $status : 'active');
-            // 'all' shows everything
+            $status = in_array($status, ['active', 'inactive', 'all']) ? $status : 'active';
+            if ($status === 'active') {
+                $query->where('is_active', 1);
+            } elseif ($status === 'inactive') {
+                $query->where('is_active', 0);
+            }
 
             // Handle Sorting
             $sortBy = $request->input('sort', 'created_at');
@@ -141,15 +145,7 @@ class VendorProductController extends Controller
         try {
             DB::beginTransaction();
 
-            $item->update([
-                'name' => $validated['bundle_name'],
-                'description' => $validated['description'] ?? null,
-                'price' => $validated['price'],
-                'stock' => $validated['stock'],
-                'sku' => $validated['sku'] ?? null,
-                'is_active' => $isActive,
-            ]);
-
+            // Sync bundle items first so we can calculate effective stock
             DB::table('bundle_items')->where('bundle_id', $item->item_id)->delete();
 
             $selectedProducts = $request->input('selected_products');
@@ -173,12 +169,35 @@ class VendorProductController extends Controller
             }
 
             DB::table('bundle_items')->insert($bundleItemsData);
+
+            // Calculate the effective stock cap based on child items' current stock
+            $item->load('bundles');
+            $childLimit = $item->bundles->map(function ($child) {
+                $needed = $child->pivot->quantity;
+                return $needed > 0 ? intdiv($child->stock, $needed) : PHP_INT_MAX;
+            })->min() ?? PHP_INT_MAX;
+
+            $cappedStock = min($validated['stock'], $childLimit);
+
+            $item->update([
+                'name' => $validated['bundle_name'],
+                'description' => $validated['description'] ?? null,
+                'price' => $validated['price'],
+                'stock' => $cappedStock,
+                'sku' => $validated['sku'] ?? null,
+                'is_active' => $isActive,
+            ]);
             
             DB::commit();
 
+            $message = 'Bundle updated successfully!';
+            if ($cappedStock < $validated['stock']) {
+                $message .= " Stock was capped to {$cappedStock} due to child item availability.";
+            }
+
             return redirect()
                 ->route('vendor.products')
-                ->with('success', 'Bundle updated successfully!');
+                ->with('success', $message);
                 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -200,7 +219,7 @@ class VendorProductController extends Controller
             'description'   => 'nullable|string',
             'price'         => 'required|numeric|min:0',
             'stock'         => 'required|integer|min:0',
-            'sku'           => 'nullable|string|max:100',
+            'sku'           => 'nullable|string|max:100|unique:items,sku',
             'brand'         => 'nullable|string|max:100',
             'barcode'       => 'nullable|string|max:100',
             'unit_type'     => 'nullable|string|max:50',
@@ -231,19 +250,22 @@ class VendorProductController extends Controller
                 'vendor_id' => Auth::user()->vendor->vendor_id,
             ]));
         } catch (\Exception $e) {
-            dd('Insert failed', $e->getMessage());
+            return back()->withInput()->withErrors(['error' => 'Failed to create product: ' . $e->getMessage()]);
         }
 
         // Handle images
         $slug = \Illuminate\Support\Str::slug($item->name);
+        $imgDir = public_path('images/items');
+        if (!is_dir($imgDir)) {
+            mkdir($imgDir, 0755, true);
+        }
         
         if ($request->hasFile('images')) {
             $images = $request->file('images');
             foreach ($images as $index => $image) {
                 $ext = $image->getClientOriginalExtension();
                 $imageName = $slug . ($index > 0 ? '-' . ($index + 1) : '') . '.' . $ext;
-                $destination = storage_path('app/public/items/' . $imageName);
-                $image->move(dirname($destination), basename($destination));
+                $image->move($imgDir, $imageName);
 
                 ItemImage::create([
                     'item_id' => $item->item_id,
@@ -319,7 +341,7 @@ class VendorProductController extends Controller
                 'name' => $validated['bundle_name'],
                 'description' => $validated['description'] ?? null,
                 'price' => $validated['price'],
-                'stock' => $validated['stock'],
+                'stock' => 0,
                 'sku' => $validated['sku'] ?? null,
                 'is_bundle' => 1,
                 'is_active' => $isActive,
@@ -329,13 +351,17 @@ class VendorProductController extends Controller
             ]);
 
             $slug = \Illuminate\Support\Str::slug($bundleItem->name);
+            $imgDir = public_path('images/items');
+            if (!is_dir($imgDir)) {
+                mkdir($imgDir, 0755, true);
+            }
+
             if ($request->hasFile('images')) {
                 $images = $request->file('images');
                 foreach ($images as $index => $image) {
                     $ext = $image->getClientOriginalExtension();
                     $imageName = 'bundle-' . $slug . ($index > 0 ? '-' . ($index + 1) : '') . '-' . time() . '.' . $ext;
-                    $destination = storage_path('app/public/items/' . $imageName);
-                    $image->move(dirname($destination), basename($destination));
+                    $image->move($imgDir, $imageName);
 
                     ItemImage::create([
                         'item_id' => $bundleItem->item_id,
@@ -370,12 +396,27 @@ class VendorProductController extends Controller
             }
 
             DB::table('bundle_items')->insert($bundleItemsData);
+
+            // Cap bundle stock based on child items' availability
+            $bundleItem->load('bundles');
+            $childLimit = $bundleItem->bundles->map(function ($child) {
+                $needed = $child->pivot->quantity;
+                return $needed > 0 ? intdiv($child->stock, $needed) : PHP_INT_MAX;
+            })->min() ?? PHP_INT_MAX;
+
+            $cappedStock = min($validated['stock'], $childLimit);
+            $bundleItem->update(['stock' => $cappedStock]);
             
             DB::commit();
 
+            $message = 'Bundle created successfully!';
+            if ($cappedStock < $validated['stock']) {
+                $message .= " Stock was capped to {$cappedStock} due to child item availability.";
+            }
+
             return redirect()
                 ->route('vendor.products')
-                ->with('success', 'Bundle created successfully!');
+                ->with('success', $message);
                 
         } catch (\Exception $e) {
             DB::rollBack();

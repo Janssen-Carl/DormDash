@@ -119,6 +119,21 @@ class Item extends Model
         )->withPivot('quantity');
     }
 
+    public function getEffectiveStockAttribute()
+    {
+        if (!$this->is_bundle) {
+            return $this->stock;
+        }
+
+        $this->loadMissing('bundles');
+        $childLimit = $this->bundles->map(function ($child) {
+            $needed = $child->pivot->quantity;
+            return $needed > 0 ? intdiv($child->stock, $needed) : PHP_INT_MAX;
+        })->min();
+
+        return min($this->stock, $childLimit ?? PHP_INT_MAX);
+    }
+
     public function getSoldAttribute()
     {
         if (array_key_exists('total_sold', $this->attributes)) {

@@ -77,10 +77,9 @@
                         <x-heroicon-o-home class="mx-auto h-8 w-8 text-gray-400 mb-2" />
                         <p class="text-sm font-medium text-gray-900">No saved addresses</p>
                         <p class="text-xs text-gray-500 mt-1 mb-4">You need an address to receive your delivery.</p>
-                        <a href="/profile" class="inline-flex items-center justify-center rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm transition-colors hover:bg-gray-50">
+                        <a href="/profile/edit" class="inline-flex items-center justify-center rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm transition-colors hover:bg-gray-50">
                             Add Address in Profile
                         </a>
-                        <input type="hidden" name="address_id" value="1"> <!-- Fallback for testing -->
                     </div>
                 @endif
             </div>
@@ -165,11 +164,14 @@
                                         <button type="button" @click="if(items[{{ $index }}].quantity > 1) items[{{ $index }}].quantity--" class="px-2 py-1.5 text-gray-400 hover:text-green-600 hover:bg-gray-50 transition-colors focus:outline-none">
                                             <x-heroicon-o-minus class="h-3 w-3" />
                                         </button>
-                                        <input type="number" name="quantities[{{ $entry->item->item_id }}]" x-model.number="items[{{ $index }}].quantity" min="1" max="{{ $entry->item->stock }}" class="w-10 text-center bg-transparent border-none p-0 text-xs font-semibold text-gray-900 focus:ring-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
-                                        <button type="button" @click="if(items[{{ $index }}].quantity < {{ $entry->item->stock }}) items[{{ $index }}].quantity++" class="px-2 py-1.5 text-gray-400 hover:text-green-600 hover:bg-gray-50 transition-colors focus:outline-none">
+                                        <input type="number" name="quantities[{{ $entry->item->item_id }}]" x-model.number="items[{{ $index }}].quantity" min="1" max="{{ $entry->item->effective_stock }}" class="w-10 text-center bg-transparent border-none p-0 text-xs font-semibold text-gray-900 focus:ring-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+                                        <button type="button" @click="if(items[{{ $index }}].quantity < {{ $entry->item->effective_stock }}) items[{{ $index }}].quantity++" class="px-2 py-1.5 text-gray-400 hover:text-green-600 hover:bg-gray-50 transition-colors focus:outline-none">
                                             <x-heroicon-o-plus class="h-3 w-3" />
                                         </button>
                                     </div>
+                                    @if($entry->item->effective_stock <= 5)
+                                        <span class="text-[10px] text-amber-600 font-semibold">Only {{ $entry->item->effective_stock }} left</span>
+                                    @endif
                                 </div>
                                 <p class="text-sm font-semibold text-gray-900 mt-1" x-text="'₱' + formatPrice(items[{{ $index }}].price * items[{{ $index }}].quantity)"></p>
                             </div>

@@ -80,6 +80,15 @@ services:
         build:
             context: .
             dockerfile: Dockerfile.node
+    mailpit:
+        image: axllent/mailpit:latest
+        container_name: dormdash-mailpit
+        ports:
+            - "8025:8025"
+            - "1025:1025"
+        networks:
+            - laravel
+
     ai:
         image: python:3.11-slim
         container_name: dormdash-ai

@@ -49,8 +49,8 @@ class ForgotPasswordController extends Controller
             ]
         );
 
-        // Generate the recovery URL
-        $resetUrl = route('password.reset', ['token' => $token]) . '?email=' . urlencode($email);
+        // Generate the recovery URL using APP_URL to avoid inheriting request host
+        $resetUrl = config('app.url') . route('password.reset', ['token' => $token], false) . '?email=' . urlencode($email);
 
         // Render beautiful HTML template
         $body = MailService::getPasswordResetTemplate($user->username, $resetUrl);
@@ -82,7 +82,9 @@ class ForgotPasswordController extends Controller
         $request->validate([
             'token'                 => 'required',
             'email'                 => 'required|email|exists:users,email',
-            'password'              => 'required|string|min:8|confirmed',
+            'password'              => ['required', 'string', 'min:8', 'confirmed',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9\s])[\S]{8,}$/',
+            ],
             'password_confirmation' => 'required',
         ]);
 

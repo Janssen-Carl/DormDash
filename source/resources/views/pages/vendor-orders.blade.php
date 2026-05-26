@@ -81,6 +81,10 @@
                class="{{ ($status ?? '') === 'completed' ? 'bg-emerald-600 text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200' }} rounded-full px-4 py-2 text-sm font-semibold transition-colors whitespace-nowrap">
                 Completed
             </a>
+            <a href="{{ route('vendor.orders') }}?status=cancelled{{ $search ? '&search=' . $search : '' }}" 
+               class="{{ ($status ?? '') === 'cancelled' ? 'bg-rose-600 text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200' }} rounded-full px-4 py-2 text-sm font-semibold transition-colors whitespace-nowrap">
+                Cancelled
+            </a>
         </div>
     </div>
 
@@ -98,6 +102,7 @@
                         'shipped' => 'blue',
                         'to_ship' => 'amber',
                         'pending' => 'gray',
+                        'cancelled' => 'red',
                         default => 'gray'
                     };
                 @endphp

@@ -159,27 +159,58 @@
                                         @endif
                                     </div>
 
-                                    {{-- Quantity Controls --}}
-                                    <div class="flex items-center gap-3 rounded-lg border border-gray-200 p-1 shrink-0">
-                                        <form action="{{ route('cart.update', $cart->item_id) }}" method="POST" class="m-0">
-                                            @csrf
-                                            @method('PATCH')
-                                            <input type="hidden" name="action" value="decrement">
-                                            <button type="submit" class="flex h-7 w-7 items-center justify-center rounded text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900">
-                                                <x-heroicon-o-minus class="h-4 w-4" />
-                                            </button>
-                                        </form>
+                                    {{-- Stock Info --}}
+                                    @php
+                                        $stock = $cart->item->effective_stock;
+                                        $atMax = $cart->quantity >= $stock;
+                                    @endphp
+                                    <div class="flex flex-col items-end gap-1">
+                                        @if($stock > 0)
+                                            <span class="text-[10px] @if($stock <= 5) text-amber-600 font-semibold @else text-gray-400 @endif">
+                                                @if($stock <= 5 && $stock > 0) Only @endif {{ $stock }} in stock
+                                            </span>
+                                        @else
+                                            <span class="text-[10px] text-red-500 font-semibold">Out of stock</span>
+                                        @endif
 
-                                        <span class="w-6 text-center text-sm font-medium">{{ $cart->quantity }}</span>
+                                        {{-- Quantity Controls --}}
+                                        <div class="flex items-center gap-3 rounded-lg border border-gray-200 p-1 shrink-0">
+                                            <form action="{{ route('cart.update', $cart->item_id) }}" method="POST" class="m-0">
+                                                @csrf
+                                                @method('PATCH')
+                                                <input type="hidden" name="action" value="decrement">
+                                                <button type="submit" class="flex h-7 w-7 items-center justify-center rounded text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900">
+                                                    <x-heroicon-o-minus class="h-4 w-4" />
+                                                </button>
+                                            </form>
 
-                                        <form action="{{ route('cart.update', $cart->item_id) }}" method="POST" class="m-0">
-                                            @csrf
-                                            @method('PATCH')
-                                            <input type="hidden" name="action" value="increment">
-                                            <button type="submit" class="flex h-7 w-7 items-center justify-center rounded text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900">
+                                            <form action="{{ route('cart.update', $cart->item_id) }}" method="POST" class="m-0">
+                                                @csrf
+                                                @method('PATCH')
+                                                <input type="hidden" name="action" value="set">
+                                                <input type="number" name="quantity" value="{{ $cart->quantity }}"
+                                                    min="1" max="{{ $stock }}"
+                                                    onchange="this.form.submit()"
+                                                    onfocus="this.select()"
+                                                    class="w-10 text-center bg-transparent border-none p-0 text-sm font-medium text-gray-900 focus:ring-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none outline-none"
+                                                >
+                                            </form>
+
+                                            @if(!$atMax)
+                                            <form action="{{ route('cart.update', $cart->item_id) }}" method="POST" class="m-0">
+                                                @csrf
+                                                @method('PATCH')
+                                                <input type="hidden" name="action" value="increment">
+                                                <button type="submit" class="flex h-7 w-7 items-center justify-center rounded text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900">
+                                                    <x-heroicon-o-plus class="h-4 w-4" />
+                                                </button>
+                                            </form>
+                                            @else
+                                            <span class="flex h-7 w-7 items-center justify-center rounded text-gray-300 cursor-not-allowed">
                                                 <x-heroicon-o-plus class="h-4 w-4" />
-                                            </button>
-                                        </form>
+                                            </span>
+                                            @endif
+                                        </div>
                                     </div>
 
                                     <span class="w-24 shrink-0 text-right font-semibold text-gray-900">

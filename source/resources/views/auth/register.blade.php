@@ -198,6 +198,43 @@
                                     <x-heroicon-o-eye-slash class="h-5 w-5" id="eyeSlash" />
                                 </button>
                             </div>
+
+                            {{-- Password Strength Meter --}}
+                            <div id="passwordStrength" class="mt-3 hidden">
+                                <div class="flex gap-1 mb-2">
+                                    <div class="h-1.5 flex-1 rounded-full bg-gray-200 overflow-hidden">
+                                        <div id="strBar1" class="h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+                                    </div>
+                                    <div class="h-1.5 flex-1 rounded-full bg-gray-200 overflow-hidden">
+                                        <div id="strBar2" class="h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+                                    </div>
+                                    <div class="h-1.5 flex-1 rounded-full bg-gray-200 overflow-hidden">
+                                        <div id="strBar3" class="h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+                                    </div>
+                                    <div class="h-1.5 flex-1 rounded-full bg-gray-200 overflow-hidden">
+                                        <div id="strBar4" class="h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                                <p id="strengthLabel" class="text-xs font-semibold text-gray-500 mb-2">Strength: <span id="strengthText">None</span></p>
+                                <ul class="space-y-1 text-xs" id="requirementsList">
+                                    <li id="reqLength" class="text-gray-400 flex items-center gap-1.5">
+                                        <span class="req-icon">○</span> At least 8 characters
+                                    </li>
+                                    <li id="reqUpper" class="text-gray-400 flex items-center gap-1.5">
+                                        <span class="req-icon">○</span> One uppercase letter
+                                    </li>
+                                    <li id="reqLower" class="text-gray-400 flex items-center gap-1.5">
+                                        <span class="req-icon">○</span> One lowercase letter
+                                    </li>
+                                    <li id="reqNumber" class="text-gray-400 flex items-center gap-1.5">
+                                        <span class="req-icon">○</span> One number
+                                    </li>
+                                    <li id="reqSpecial" class="text-gray-400 flex items-center gap-1.5">
+                                        <span class="req-icon">○</span> One special character (@$!%*?&#...)
+                                    </li>
+                                </ul>
+                            </div>
+
                             @error('password')
                                 <p class="mt-2 text-sm font-medium text-red-600 flex items-center gap-1">
                                     <x-heroicon-o-exclamation-circle class="h-4 w-4" />
@@ -472,6 +509,95 @@
 
                     updateIndicators();
                 }
+
+                // Password Strength Meter
+                const passwordInputStr = document.getElementById('password');
+                const strengthBox = document.getElementById('passwordStrength');
+                const strBar1 = document.getElementById('strBar1');
+                const strBar2 = document.getElementById('strBar2');
+                const strBar3 = document.getElementById('strBar3');
+                const strBar4 = document.getElementById('strBar4');
+                const strengthText = document.getElementById('strengthText');
+
+                const reqLength = document.getElementById('reqLength');
+                const reqUpper = document.getElementById('reqUpper');
+                const reqLower = document.getElementById('reqLower');
+                const reqNumber = document.getElementById('reqNumber');
+                const reqSpecial = document.getElementById('reqSpecial');
+
+                const strengthConfig = [
+                    { label: 'Very Weak', bars: 1, color: 'bg-red-500' },
+                    { label: 'Weak', bars: 2, color: 'bg-orange-500' },
+                    { label: 'Moderate', bars: 3, color: 'bg-yellow-500' },
+                    { label: 'Strong', bars: 3, color: 'bg-emerald-500' },
+                    { label: 'Very Strong', bars: 4, color: 'bg-emerald-600' },
+                ];
+
+                function checkPasswordStrength(password) {
+                    const checks = {
+                        length: password.length >= 8,
+                        upper: /[A-Z]/.test(password),
+                        lower: /[a-z]/.test(password),
+                        number: /\d/.test(password),
+                        special: /[^a-zA-Z0-9\s]/.test(password),
+                    };
+
+                    const passed = Object.values(checks).filter(Boolean).length;
+
+                    // Update requirement indicators
+                    const reqs = [
+                        { el: reqLength, met: checks.length },
+                        { el: reqUpper, met: checks.upper },
+                        { el: reqLower, met: checks.lower },
+                        { el: reqNumber, met: checks.number },
+                        { el: reqSpecial, met: checks.special },
+                    ];
+
+                    reqs.forEach(({ el, met }) => {
+                        const icon = el.querySelector('.req-icon');
+                        if (met) {
+                            el.classList.remove('text-gray-400');
+                            el.classList.add('text-emerald-600');
+                            icon.textContent = '●';
+                        } else {
+                            el.classList.remove('text-emerald-600');
+                            el.classList.add('text-gray-400');
+                            icon.textContent = '○';
+                        }
+                    });
+
+                    // Determine strength level
+                    let level;
+                    if (password.length === 0) {
+                        strengthBox.classList.add('hidden');
+                        return;
+                    } else if (passed <= 1) level = 0;
+                    else if (passed === 2) level = 1;
+                    else if (passed === 3) level = 2;
+                    else if (passed === 4) level = 3;
+                    else level = 4;
+
+                    const cfg = strengthConfig[level];
+
+                    // Update bars
+                    const bars = [strBar1, strBar2, strBar3, strBar4];
+                    bars.forEach((bar, i) => {
+                        bar.className = 'h-full rounded-full transition-all duration-300';
+                        if (i < cfg.bars) {
+                            bar.classList.add(cfg.color);
+                            bar.style.width = '100%';
+                        } else {
+                            bar.style.width = '0%';
+                        }
+                    });
+
+                    strengthText.textContent = cfg.label;
+                    strengthBox.classList.remove('hidden');
+                }
+
+                passwordInputStr.addEventListener('input', function () {
+                    checkPasswordStrength(this.value);
+                });
 
                 // Initial setup
                 updateWizard();

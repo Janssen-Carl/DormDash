@@ -15,7 +15,16 @@
         }
     }
 @endphp
-            <div class="mx-auto max-w-6xl px-8 py-12">
+            <div class="mx-auto max-w-6xl px-8 py-12" x-data="{ showPhotoModal: false, hasFile: false, fileName: '' }">
+                @if($errors->any())
+                    <div class="mb-6 rounded-2xl border border-red-200 bg-red-50 px-5 py-3">
+                        <ul class="space-y-1 text-sm font-medium text-red-700">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
                 @if(session('success'))
                     <div class="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 rounded-2xl bg-green-600 px-6 py-3 text-sm font-bold text-white shadow-2xl border border-green-500" x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 -translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-4">
                         <x-heroicon-s-check-circle class="h-5 w-5 text-green-200" />
@@ -47,6 +56,13 @@
                                             {{ strtoupper(substr($user->username ?? 'U', 0, 2)) }}
                                         </div>
                                     @endif
+                                    <button
+                                        @click="showPhotoModal = true"
+                                        type="button"
+                                        class="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-green-600 text-white shadow-lg transition-all duration-200 hover:bg-green-700 hover:shadow-xl opacity-0 group-hover:opacity-100"
+                                    >
+                                        <x-heroicon-o-camera class="h-4 w-4" />
+                                    </button>
                                 </div>
 
                                 <h2 class="mt-8 text-xl font-bold text-gray-900">{{ $user->username }}</h2>
@@ -246,6 +262,82 @@
                         </div>
                     </div>
                 </div>
-
             </div>
+
+        {{-- Upload Photo Modal --}}
+        <div
+            x-cloak
+            x-show="showPhotoModal"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/10"
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+        >
+            <div
+                @click.away="showPhotoModal = false"
+                class="relative w-full max-w-md transform rounded-3xl bg-white shadow-xl transition-all duration-300"
+                x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0 scale-95"
+                x-transition:enter-end="opacity-100 scale-100"
+                x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="opacity-100 scale-100"
+                x-transition:leave-end="opacity-0 scale-95"
+            >
+                {{-- Modal Header --}}
+                <div class="flex items-center justify-between border-b border-gray-200 px-8 py-6">
+                    <h2 class="text-xl font-bold text-gray-900">Upload Profile Photo</h2>
+                    <button @click="showPhotoModal = false; hasFile = false; fileName = ''" type="button" class="text-gray-400 transition-colors duration-200 hover:text-gray-600">
+                        <x-heroicon-o-x-mark class="h-6 w-6" />
+                    </button>
+                </div>
+
+                <div class="px-8 py-6">
+                    <form class="space-y-6" action="{{ route('profile.photo') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-300 bg-gradient-to-br from-gray-50 to-gray-100 p-8 transition-all duration-200 hover:border-green-400 hover:bg-green-50 cursor-pointer"
+                            @dragover.prevent="$el.classList.add('border-green-500', 'bg-green-50')"
+                            @dragleave.prevent="$el.classList.remove('border-green-500', 'bg-green-50')"
+                            @drop.prevent="$el.classList.remove('border-green-500', 'bg-green-50')"
+                            @click="$refs.fileInput.click()">
+                            <x-heroicon-o-arrow-up-tray class="h-12 w-12 text-gray-400 mb-3" />
+                            <p class="text-sm font-semibold text-gray-900">Click to upload or drag and drop</p>
+                            <p class="mt-1 text-xs text-gray-600">PNG, JPG, GIF up to 4MB</p>
+                            <input type="file" name="profile_image" x-ref="fileInput" class="hidden" accept="image/*" @change="if ($event.target.files[0]) { hasFile = true; fileName = $event.target.files[0].name; }" />
+                        </div>
+
+                        <div class="rounded-xl bg-blue-50 border border-blue-200 p-4">
+                            <div class="flex gap-3">
+                                <div class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-blue-600 text-white">
+                                    <x-heroicon-o-information-circle class="h-4 w-4" />
+                                </div>
+                                <div>
+                                    <p class="text-sm font-semibold text-blue-900">Best for profile photos</p>
+                                    <p class="mt-1 text-xs text-blue-700">Use clear, square images for best results. Recommended size: 400x400px</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex h-32 items-center justify-center rounded-xl border-2 border-gray-200 bg-gray-50">
+                            <div class="text-center" x-show="!hasFile">
+                                <x-heroicon-o-photo class="mx-auto h-8 w-8 text-gray-400" />
+                                <p class="mt-2 text-sm text-gray-600">No image selected</p>
+                            </div>
+                            <div class="text-center" x-show="hasFile" x-cloak>
+                                <x-heroicon-o-check-circle class="mx-auto h-8 w-8 text-green-600" />
+                                <p class="mt-2 text-sm font-semibold text-gray-900" x-text="fileName"></p>
+                                <p class="mt-1 text-xs text-green-600">Ready to upload!</p>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-3 pt-4">
+                            <button @click="showPhotoModal = false; hasFile = false; fileName = ''" type="button" class="flex-1 rounded-xl border-2 border-gray-200 px-4 py-3 text-sm font-semibold text-gray-900 transition-all duration-200 hover:bg-gray-50 hover:border-gray-300">Cancel</button>
+                            <button type="submit" class="flex-1 rounded-xl bg-gradient-to-r from-green-600 to-green-500 px-4 py-3 text-sm font-semibold text-white transition-all duration-200 hover:shadow-lg hover:from-green-700 hover:to-green-600 shadow-md">Upload Photo</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
         @endsection

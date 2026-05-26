@@ -291,7 +291,7 @@ class ProductController extends Controller
                 $q->where('is_active', true)
                   ->where('date_start', '<=', now())
                   ->where('date_end', '>=', now());
-            }])
+            }, 'bundles.images'])
             ->where('item_id', $id)
             ->where('is_active', true)
             ->firstOrFail();

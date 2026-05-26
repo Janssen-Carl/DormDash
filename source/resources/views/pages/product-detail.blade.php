@@ -102,6 +102,35 @@
                     </div>
                 @endif
 
+                @if($item->is_bundle && $item->bundles->isNotEmpty())
+                <div class="mt-8">
+                    <h3 class="text-lg font-bold text-gray-900">Bundle Contents</h3>
+                    <div class="mt-3 space-y-3">
+                        @foreach($item->bundles as $child)
+                        <div class="flex items-center gap-4 rounded-xl border border-gray-200 bg-gray-50 p-4">
+                            <div class="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-gray-200">
+                                @if($child->images->first())
+                                    <img src="{{ asset($child->images->first()->image) }}" alt="{{ $child->name }}" class="h-full w-full object-cover" />
+                                @else
+                                    <div class="flex h-full w-full items-center justify-center text-gray-400">
+                                        <x-heroicon-o-photo class="h-6 w-6" />
+                                    </div>
+                                @endif
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="font-semibold text-gray-900 truncate">{{ $child->name }}</p>
+                                <p class="text-sm text-gray-500">₱{{ number_format($child->price, 2) }} each</p>
+                            </div>
+                            <div class="shrink-0 text-right">
+                                <p class="text-lg font-bold text-gray-900">x{{ $child->pivot->quantity }}</p>
+                                <p class="text-xs text-gray-500">Quantity</p>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+
                 <div class="mt-8">
                     <h3 class="text-lg font-bold text-gray-900">Description</h3>
                     <p class="mt-2 text-gray-600 leading-relaxed whitespace-pre-line">

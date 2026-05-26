@@ -30,7 +30,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\CheckRole::class,
         ]);
         
-        $middleware->append(\App\Http\Middleware\WebApplicationFirewall::class);
+        // $middleware->append(\App\Http\Middleware\WebApplicationFirewall::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

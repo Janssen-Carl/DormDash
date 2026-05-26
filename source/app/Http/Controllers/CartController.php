@@ -53,17 +53,30 @@ class CartController extends Controller
             'quantity' => 'required|integer|min:1'
         ]);
 
+        $addresses = \App\Models\Address::where('user_id', auth()->id())->count();
+        if ($addresses === 0) {
+            return redirect('/profile/edit')->withErrors(['msg' => 'Please add a delivery address before adding items to your cart.']);
+        }
+
+        $item = \App\Models\Item::findOrFail($request->item_id);
+
         $userId = auth()->id();
         
         $cart = Cart::where('customer_id', $userId)
             ->where('item_id', $request->item_id)
             ->first();
 
+        $effectiveStock = $item->effective_stock;
+        $newQty = $request->quantity + ($cart ? $cart->quantity : 0);
+        if ($newQty > $effectiveStock) {
+            return redirect()->back()->withErrors(['msg' => "Only {$effectiveStock} unit(s) of '{$item->name}' are available."]);
+        }
+
         if ($cart) {
             Cart::where('customer_id', $userId)
                 ->where('item_id', $request->item_id)
                 ->update([
-                    'quantity' => $cart->quantity + $request->quantity
+                    'quantity' => $newQty
                 ]);
         } else {
             Cart::create([
@@ -79,7 +92,7 @@ class CartController extends Controller
     public function update(Request $request, $itemId)
     {
         $request->validate([
-            'action' => 'required|in:increment,decrement'
+            'action' => 'required|in:increment,decrement,set'
         ]);
 
         $userId = auth()->id();
@@ -88,7 +101,21 @@ class CartController extends Controller
             ->where('item_id', $itemId)
             ->firstOrFail();
 
-        if ($request->action === 'increment') {
+        $item = \App\Models\Item::findOrFail($itemId);
+
+        $effectiveStock = $item->effective_stock;
+
+        if ($request->action === 'set') {
+            $qty = (int) $request->input('quantity', 1);
+            $qty = max(1, min($qty, $effectiveStock));
+            Cart::where('customer_id', $userId)
+                ->where('item_id', $itemId)
+                ->update(['quantity' => $qty]);
+            return redirect()->back()->with('success', 'Cart updated.');
+        } elseif ($request->action === 'increment') {
+            if ($cart->quantity + 1 > $effectiveStock) {
+                return redirect()->back()->withErrors(['msg' => "Only {$effectiveStock} unit(s) of '{$item->name}' are available."]);
+            }
             Cart::where('customer_id', $userId)
                 ->where('item_id', $itemId)
                 ->increment('quantity');

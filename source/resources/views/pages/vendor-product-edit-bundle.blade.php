@@ -3,7 +3,10 @@
 @section('title', 'Edit Product Bundle')
 
 @section('content')
-<div class="mx-auto max-w-4xl px-6 py-10" x-data="{ step: 1 }">
+@php
+    $productData = $products->mapWithKeys(fn($p) => [$p->item_id => ['stock' => (int)$p->stock]]);
+@endphp
+<div class="mx-auto max-w-4xl px-6 py-10" x-data="bundleEditor({{ Js::from($productData) }})">
 
     {{-- Header --}}
     <div class="mb-10 text-center flex flex-col sm:flex-row items-center justify-center gap-6">
@@ -161,11 +164,22 @@
                                 type="number"
                                 id="stock"
                                 name="stock"
+                                x-model="bundleStock"
                                 value="{{ old('stock', $item->stock) }}"
                                 placeholder="0"
                                 class="w-full rounded-xl border @error('stock') border-rose-400 @else border-zinc-200 @enderror bg-zinc-50 px-4 py-3.5 text-zinc-800 outline-none transition-all duration-200 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 font-medium"
                                 required
                             >
+                            <template x-if="maxBundles < bundleStock">
+                                <div class="mt-3 flex items-start gap-2.5 rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs font-medium text-amber-800">
+                                    <x-heroicon-o-exclamation-triangle class="h-4 w-4 shrink-0 mt-0.5 text-amber-500" />
+                                    <span>
+                                        Bundle stock (<span x-text="bundleStock"></span>) exceeds what child item stock can support. 
+                                        Maximum sellable bundles based on current child item availability: <strong x-text="maxBundles"></strong>.
+                                        Stock will be capped on save.
+                                    </span>
+                                </div>
+                            </template>
                         </div>
                     </div>
 
@@ -228,13 +242,13 @@
                                 $isIncluded = $bundleItems->has($product->item_id);
                                 $qty = $isIncluded ? $bundleItems[$product->item_id]->pivot->quantity : 1;
                             @endphp
-                            <tr class="hover:bg-zinc-50 transition-colors" x-data="{ isSelected: {{ $isIncluded ? 'true' : 'false' }} }">
+                            <tr class="hover:bg-zinc-50 transition-colors">
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <input 
                                         type="checkbox" 
                                         name="selected_products[{{ $product->item_id }}][selected]" 
                                         value="1" 
-                                        x-model="isSelected"
+                                        x-model="selected[{{ $product->item_id }}].selected"
                                         class="h-5 w-5 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500 transition cursor-pointer"
                                     >
                                 </td>
@@ -259,7 +273,8 @@
                                         min="1" 
                                         max="{{ $product->stock }}"
                                         value="{{ old('selected_products.' . $product->item_id . '.quantity', $qty) }}"
-                                        x-bind:disabled="!isSelected"
+                                        x-model.number="selected[{{ $product->item_id }}].qty"
+                                        x-bind:disabled="!selected[{{ $product->item_id }}].selected"
                                         class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-800 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500 disabled:opacity-50 disabled:bg-zinc-100"
                                     >
                                 </td>
@@ -342,4 +357,35 @@
 
     </form>
 </div>
+
+<script>
+function bundleEditor(products) {
+    return {
+        step: 1,
+        bundleStock: {{ $item->stock }},
+        selected: {},
+        init() {
+            @foreach ($products as $product)
+                @php $isIncluded = $bundleItems->has($product->item_id); @endphp
+                this.selected[{{ $product->item_id }}] = {
+                    selected: {{ $isIncluded ? 'true' : 'false' }},
+                    qty: {{ $isIncluded ? $bundleItems[$product->item_id]->pivot->quantity : 1 }}
+                };
+            @endforeach
+        },
+        get maxBundles() {
+            let max = Infinity;
+            for (const [id, data] of Object.entries(this.selected)) {
+                if (data.selected) {
+                    const childStock = (products[id] || {}).stock || 0;
+                    const needed = data.qty || 1;
+                    const possible = needed > 0 ? Math.floor(childStock / needed) : Infinity;
+                    if (possible < max) max = possible;
+                }
+            }
+            return max === Infinity ? 0 : max;
+        }
+    }
+}
+</script>
 @endsection

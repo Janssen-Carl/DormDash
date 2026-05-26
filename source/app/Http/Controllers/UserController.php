@@ -17,7 +17,9 @@ class UserController extends Controller
         $validated = $request->validate([
             'username'      => ['required', 'string', 'max:255', 'unique:users'],
             'email'         => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password'      => ['required', 'string', 'min:8', 'confirmed'],
+            'password'      => ['required', 'string', 'min:8', 'confirmed',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9\s])[\S]{8,}$/',
+            ],
             'role'          => ['required', 'in:customer,vendor'],
             'store_name'    => ['required_if:role,vendor', 'nullable', 'string', 'max:255'],
             'store_phone'   => ['required_if:role,vendor', 'nullable', 'string', 'max:255'],
@@ -31,41 +33,29 @@ class UserController extends Controller
         DB::transaction(function () use (&$user, $validated, $request) {
 
             $user = User::create([
-                'username' => $validated['username'],
-                'email'    => $validated['email'],
-                'password' => $validated['password'],
-                'role'     => $validated['role'],
+                'username'          => $validated['username'],
+                'email'             => $validated['email'],
+                'password'          => $validated['password'],
+                'role'              => $validated['role'],
+                'email_verified_at' => now(),
             ]);
 
             if ($validated['role'] === 'vendor') {
-                $user->verification_token = \Illuminate\Support\Str::random(60);
-                $user->save();
-
                 Vendor::create([
                     'vendor_id' => $user->user_id,
                     'name'      => $validated['store_name'] ?? $user->username,
                     'phone'     => $validated['store_phone'] ?? null,
                     'website'   => $validated['store_website'] ?? null,
-                    'active'    => false, // newly registered vendors must be approved by admin!
+                    'active'    => true,
                 ]);
             }
         });
 
-        if ($validated['role'] === 'vendor') {
-            // Send Verification Email via PHPMailer
-            $verifyUrl = route('email.verify', ['token' => $user->verification_token]);
-            $emailBody = \App\Services\MailService::getVerificationTemplate($user->username, $verifyUrl);
-            
-            \App\Services\MailService::send(
-                $user->email,
-                'Verify Your DormDash Vendor Account',
-                $emailBody
-            );
-
-            return redirect('/login')->with('success', 'Registration successful! A verification email has been sent to your address. Please verify your email first, then wait for administrator approval.');
-        }
-
         auth()->login($user);
+
+        if ($validated['role'] === 'vendor') {
+            return redirect()->route('vendor.home');
+        }
 
         return redirect('/');
     }
@@ -245,7 +235,7 @@ class UserController extends Controller
                     $vendor->profile_img = 'storage/' . $path;
                     $vendor->save();
                 }
-            } elseif ($user->role === 'customer') {
+            } else {
                 $customer = $user->customer;
                 if ($customer) {
                     $customer->profile_img = 'storage/' . $path;
@@ -345,7 +335,9 @@ class UserController extends Controller
         if ($request->filled('current_password') || $request->filled('new_password')) {
             $request->validate([
                 'current_password' => 'required',
-                'new_password' => 'required|string|min:8|confirmed',
+                'new_password' => ['required', 'string', 'min:8', 'confirmed',
+                    'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9\s])[\S]{8,}$/',
+                ],
             ]);
 
             if (!Hash::check($request->input('current_password'), $user->password)) {
@@ -379,7 +371,7 @@ class UserController extends Controller
                     $vendor->profile_img = 'storage/' . $path;
                     $vendor->save();
                 }
-            } elseif ($user->role === 'customer') {
+            } else {
                 $customer = $user->customer;
                 if ($customer) {
                     $customer->profile_img = 'storage/' . $path;

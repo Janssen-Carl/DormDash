@@ -105,11 +105,23 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->withErrors(['msg' => 'No valid items found for checkout.']);
         }
 
+        // Validate stock before showing checkout page
+        foreach ($items as $entry) {
+            $effectiveStock = $entry->item->effective_stock;
+            if ($entry->quantity > $effectiveStock) {
+                return redirect()->route('cart.index')->withErrors(['msg' => "Only {$effectiveStock} unit(s) of '{$entry->item->name}' are available. Please adjust your cart."]);
+            }
+        }
+
         $deliveryFee = 50.00;
         $total = $subtotal + $deliveryFee;
 
         // Fetch user addresses for the view
         $addresses = Address::where('user_id', $userId)->get();
+
+        if ($addresses->isEmpty()) {
+            return redirect('/profile/edit')->withErrors(['msg' => 'You need to add a delivery address before checking out.']);
+        }
 
         return view('pages.checkout', compact('items', 'subtotal', 'deliveryFee', 'total', 'addresses', 'sourceType', 'sourceData'));
     }
@@ -199,42 +211,62 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->withErrors(['msg' => 'Order could not be processed.']);
         }
 
-        $deliveryFee = 50.00;
-        $total = $subtotal + $deliveryFee;
-
-        DB::transaction(function () use ($userId, $request, $items, $total) {
-            // 1. Create Order
-            $order = Order::create([
-                'customer_id' => $userId,
-                'address_id' => $request->address_id,
-                'shipping_method' => 'Standard',
-                'order_total' => $total,
-                'order_status' => 'pending'
-            ]);
-
-            // 2. Attach Items
-            $syncData = [];
-            foreach ($items as $entry) {
-                $syncData[$entry->item_id] = [
-                    'quantity' => $entry->quantity,
-                    'price' => $entry->price
-                ];
+        // Validate stock for all items before proceeding
+        $itemIds = $items->pluck('item_id')->unique();
+        $stockItems = Item::with('bundles')->whereIn('item_id', $itemIds)->get()->keyBy('item_id');
+        foreach ($items as $entry) {
+            $stockItem = $stockItems[$entry->item_id] ?? null;
+            if (!$stockItem) {
+                return redirect()->route('cart.index')->withErrors(['msg' => 'An item in your cart no longer exists.']);
             }
-            $order->items()->attach($syncData);
+            $effectiveStock = $stockItem->effective_stock;
+            if ($entry->quantity > $effectiveStock) {
+                return redirect()->route('cart.index')->withErrors(['msg' => "Only {$effectiveStock} unit(s) of '{$stockItem->name}' are available. Please adjust your quantity."]);
+            }
+        }
 
-            // 3. Create Payment Transaction
-            // FR-18: record the payment method chosen at checkout
-            // FR-19: COD starts as 'pending' (cash collected on delivery); card starts as 'success'
-            $paymentMethod = $request->payment_method; // 'cod' or 'card'
-            $paymentStatus = ($paymentMethod === 'cod') ? 'pending' : 'success';
+        $deliveryFee = 50.00;
 
-            PaymentTransaction::create([
-                'order_id'       => $order->order_id,
-                'amount'         => $total,
-                'status'         => $paymentStatus,
-                'payment_method' => $paymentMethod,
-                'reference_no'   => 'REF' . strtoupper(uniqid()),
-            ]);
+        // Group items by vendor so each vendor gets their own order
+        $itemVendorMap = Item::whereIn('item_id', $items->pluck('item_id'))->pluck('vendor_id', 'item_id');
+        $grouped = $items->groupBy(fn($entry) => $itemVendorMap[$entry->item_id] ?? 0);
+
+        DB::transaction(function () use ($userId, $request, $grouped, $deliveryFee) {
+            foreach ($grouped as $vendorId => $vendorItems) {
+                $subtotal = $vendorItems->sum(fn($entry) => $entry->price * $entry->quantity);
+                $total = $subtotal + $deliveryFee;
+
+                // 1. Create Order for this vendor
+                $order = Order::create([
+                    'customer_id' => $userId,
+                    'address_id' => $request->address_id,
+                    'shipping_method' => 'Standard',
+                    'order_total' => $total,
+                    'order_status' => 'pending'
+                ]);
+
+                // 2. Attach Items belonging to this vendor
+                $syncData = [];
+                foreach ($vendorItems as $entry) {
+                    $syncData[$entry->item_id] = [
+                        'quantity' => $entry->quantity,
+                        'price' => $entry->price
+                    ];
+                }
+                $order->items()->attach($syncData);
+
+                // 3. Create Payment Transaction
+                $paymentMethod = $request->payment_method;
+                $paymentStatus = ($paymentMethod === 'cod') ? 'pending' : 'success';
+
+                PaymentTransaction::create([
+                    'order_id'       => $order->order_id,
+                    'amount'         => $total,
+                    'status'         => $paymentStatus,
+                    'payment_method' => $paymentMethod,
+                    'reference_no'   => 'REF' . strtoupper(uniqid()),
+                ]);
+            }
 
             // 4. Cleanup Cart
             if ($request->source === 'cart') {

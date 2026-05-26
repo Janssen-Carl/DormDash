@@ -121,6 +121,7 @@
                             <input
                                 :type="showNew ? 'text' : 'password'"
                                 name="new_password"
+                                id="new_password"
                                 placeholder="Enter new password"
                                 class="w-full rounded-xl border border-gray-200 px-4 py-3 pr-12 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none"
                             />
@@ -128,6 +129,26 @@
                                 <x-heroicon-o-eye x-show="!showNew" class="h-5 w-5" />
                                 <x-heroicon-o-eye-slash x-show="showNew" x-cloak class="h-5 w-5" />
                             </button>
+                        </div>
+                        <div id="pwRequirements" class="mt-3 space-y-1 text-xs">
+                            <p class="text-xs font-semibold text-gray-500 mb-1">Password must contain:</p>
+                            <ul class="space-y-1">
+                                <li id="reqLength" class="text-gray-400 flex items-center gap-1.5">
+                                    <span class="req-icon">○</span> At least 8 characters
+                                </li>
+                                <li id="reqUpper" class="text-gray-400 flex items-center gap-1.5">
+                                    <span class="req-icon">○</span> One uppercase letter
+                                </li>
+                                <li id="reqLower" class="text-gray-400 flex items-center gap-1.5">
+                                    <span class="req-icon">○</span> One lowercase letter
+                                </li>
+                                <li id="reqNumber" class="text-gray-400 flex items-center gap-1.5">
+                                    <span class="req-icon">○</span> One number
+                                </li>
+                                <li id="reqSpecial" class="text-gray-400 flex items-center gap-1.5">
+                                    <span class="req-icon">○</span> One special character (@$!%*?&#...)
+                                </li>
+                            </ul>
                         </div>
                     </div>
 
@@ -161,4 +182,49 @@
             </div>
         </form>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const pwInput = document.getElementById('new_password');
+            if (!pwInput) return;
+
+            const reqLength = document.getElementById('reqLength');
+            const reqUpper = document.getElementById('reqUpper');
+            const reqLower = document.getElementById('reqLower');
+            const reqNumber = document.getElementById('reqNumber');
+            const reqSpecial = document.getElementById('reqSpecial');
+
+            pwInput.addEventListener('input', function () {
+                const val = this.value;
+                const checks = {
+                    length: val.length >= 8,
+                    upper: /[A-Z]/.test(val),
+                    lower: /[a-z]/.test(val),
+                    number: /\d/.test(val),
+                    special: /[^a-zA-Z0-9\s]/.test(val),
+                };
+
+                const reqs = [
+                    { el: reqLength, met: checks.length },
+                    { el: reqUpper, met: checks.upper },
+                    { el: reqLower, met: checks.lower },
+                    { el: reqNumber, met: checks.number },
+                    { el: reqSpecial, met: checks.special },
+                ];
+
+                reqs.forEach(({ el, met }) => {
+                    const icon = el.querySelector('.req-icon');
+                    if (met) {
+                        el.classList.remove('text-gray-400');
+                        el.classList.add('text-emerald-600');
+                        icon.textContent = '●';
+                    } else {
+                        el.classList.remove('text-emerald-600');
+                        el.classList.add('text-gray-400');
+                        icon.textContent = '○';
+                    }
+                });
+            });
+        });
+    </script>
 @endsection

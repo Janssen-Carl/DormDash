@@ -3,7 +3,7 @@
 @section('title', 'Add Product')
 
 @section('content')
-<div class="mx-auto max-w-4xl px-6 py-10" x-data="{ step: 1 }">
+<div class="mx-auto max-w-4xl px-6 py-10" x-data="{ step: 1, selectedFiles: [] }">
 
     {{-- Header --}}
     <div class="mb-10 text-center">
@@ -413,15 +413,24 @@
                     </label>
                     <div class="flex items-center justify-center w-full">
                         <label class="flex flex-col items-center justify-center w-full h-44 border-2 border-zinc-200 border-dashed rounded-2xl cursor-pointer bg-zinc-50/30 hover:bg-zinc-50 transition-all duration-200 hover:border-emerald-500/30">
-                            <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                                <x-heroicon-o-cloud-arrow-up class="w-10 h-10 mb-3 text-zinc-400" />
-                                <p class="mb-2 text-sm text-zinc-600 font-semibold">
-                                    Click to select images
-                                </p>
-                                <p class="text-xs text-zinc-400">
-                                    JPEG, PNG, JPG or GIF (Max 2MB per file)
-                                </p>
-                            </div>
+                            <template x-if="selectedFiles.length === 0">
+                                <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                    <x-heroicon-o-cloud-arrow-up class="w-10 h-10 mb-3 text-zinc-400" />
+                                    <p class="mb-2 text-sm text-zinc-600 font-semibold">
+                                        Click to select images
+                                    </p>
+                                    <p class="text-xs text-zinc-400">
+                                        JPEG, PNG, JPG or GIF (Max 2MB per file)
+                                    </p>
+                                </div>
+                            </template>
+                            <template x-if="selectedFiles.length > 0">
+                                <div class="flex flex-col items-center justify-center pt-5 pb-6 px-4 text-center">
+                                    <x-heroicon-o-check-circle class="w-10 h-10 mb-3 text-emerald-500" />
+                                    <p class="mb-1 text-sm text-zinc-700 font-semibold" x-text="selectedFiles.length + ' file(s) selected'"></p>
+                                    <p class="text-xs text-zinc-400 truncate max-w-full" x-text="[...selectedFiles].map(f => f.name).join(', ')"></p>
+                                </div>
+                            </template>
                             <input
                                 type="file"
                                 id="images"
@@ -429,6 +438,7 @@
                                 accept="image/*"
                                 multiple
                                 class="hidden"
+                                @change="selectedFiles = $event.target.files"
                             >
                         </label>
                     </div>

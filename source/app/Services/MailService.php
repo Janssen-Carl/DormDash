@@ -25,10 +25,12 @@ class MailService
             // SMTP Server Settings
             $mail->isSMTP();
             $mail->Host       = env('MAIL_HOST', 'smtp.gmail.com');
-            $mail->SMTPAuth   = true;
-            $mail->Username   = env('MAIL_USERNAME', '');
-            $mail->Password   = env('MAIL_PASSWORD', '');
-            $mail->SMTPSecure = env('MAIL_ENCRYPTION', 'tls'); // tls or ssl
+            $username = env('MAIL_USERNAME', '');
+            $password = env('MAIL_PASSWORD', '');
+            $mail->SMTPAuth   = $username !== '' && $password !== '';
+            $mail->Username   = $username;
+            $mail->Password   = $password;
+            $mail->SMTPSecure = env('MAIL_ENCRYPTION', ''); // tls or ssl
             $mail->Port       = env('MAIL_PORT', 587);
 
             // SMTPOptions to prevent SSL handshake issues on some systems

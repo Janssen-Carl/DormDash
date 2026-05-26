@@ -193,6 +193,101 @@ def inventory_alerts(vendor_id: int = Query(...), threshold: int = Query(default
     return df.to_dict(orient='records')
 
 
+@app.get("/forecast/global/revenue")
+def global_revenue_forecast(days: int = Query(90), horizon: int = Query(7)):
+    """
+    Forecast platform-wide daily revenue (all vendors) using linear regression.
+    """
+    start_date = (datetime.utcnow() - timedelta(days=days)).date()
+
+    query = text("""
+        SELECT
+            DATE(o.created_at) AS order_date,
+            SUM(oi.price * oi.quantity) AS revenue
+        FROM orders o
+        JOIN order_items oi ON o.order_id = oi.order_id
+        WHERE DATE(o.created_at) >= :start_date
+        GROUP BY DATE(o.created_at)
+        ORDER BY order_date
+    """)
+
+    with engine.connect() as conn:
+        df = pd.read_sql(query, conn, params={"start_date": start_date})
+
+    if df.empty or len(df) < 2:
+        return {
+            "predicted": [0.0 for _ in range(horizon)],
+            "dates": [ (datetime.utcnow() + timedelta(days=i+1)).strftime('%Y-%m-%d') for i in range(horizon) ],
+            "historical": []
+        }
+
+    df = df.sort_values("order_date").reset_index(drop=True)
+    df['day_index'] = np.arange(len(df))
+
+    X = df[['day_index']].values
+    y = df['revenue'].values
+
+    model = LinearRegression()
+    model.fit(X, y)
+
+    future_idx = np.arange(len(df), len(df) + horizon).reshape(-1, 1)
+    preds = model.predict(future_idx)
+
+    preds = [round(float(max(p, 0.0)), 2) for p in preds]
+    hist = df.assign(order_date=df['order_date'].astype(str)).to_dict(orient='records')
+
+    return {
+        "predicted": preds,
+        "dates": [ (datetime.utcnow() + timedelta(days=i+1)).strftime('%Y-%m-%d') for i in range(horizon) ],
+        "historical": hist
+    }
+
+
+@app.get("/forecast/global/summary")
+def global_forecast_summary(days: int = Query(90), horizon: int = Query(1)):
+    """
+    Platform-wide forecast summary: predicted next day, last day, percent change.
+    """
+    start_date = (datetime.utcnow() - timedelta(days=days)).date()
+
+    query = text("""
+        SELECT
+            DATE(o.created_at) AS order_date,
+            SUM(oi.price * oi.quantity) AS revenue
+        FROM orders o
+        JOIN order_items oi ON o.order_id = oi.order_id
+        WHERE DATE(o.created_at) >= :start_date
+        GROUP BY DATE(o.created_at)
+        ORDER BY order_date
+    """)
+
+    with engine.connect() as conn:
+        df = pd.read_sql(query, conn, params={"start_date": start_date})
+
+    if df.empty or len(df) < 2:
+        return {
+            'predicted_next_day': 0.0,
+            'last_day': 0.0,
+            'percent_change': 0.0
+        }
+
+    df = df.sort_values('order_date').reset_index(drop=True)
+    X = np.arange(len(df)).reshape(-1, 1)
+    y = df['revenue'].values
+
+    model = LinearRegression().fit(X, y)
+    next_idx = np.array([[len(df)]])
+    pred = float(max(model.predict(next_idx)[0], 0.0))
+    last = float(df['revenue'].iloc[-1])
+    pct = ((pred - last) / last * 100) if last != 0 else 0.0
+
+    return {
+        'predicted_next_day': round(pred, 2),
+        'last_day': round(last, 2),
+        'percent_change': round(pct, 2)
+    }
+
+
 @app.get('/health')
 def health():
     return {"status": "ok"}

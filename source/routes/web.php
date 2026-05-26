@@ -134,6 +134,9 @@ Route::middleware(['auth', 'role:vendor'])->group(function () {
     Route::post('/vendor-profile/vendor-product-add-bundle', [VendorProductController::class, 'storeBundle'])->name('vendor.products.storeBundle');
 
     Route::prefix('vendor')->name('vendor.')->group(function () {
+        Route::get('/items', function () {
+            return redirect()->route('vendor.products');
+        })->name('items.index');
         Route::get('/items/create', [VendorProductController::class, 'create'])
             ->name('items.create');
         Route::post('/items', [VendorProductController::class, 'store'])
@@ -165,7 +168,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 });
 
 /* ── One-time admin setup (creates first admin user) ── */
-Route::get('/admin/setup', function () {
+Route::get('/setup-admin', function () {
     if (\App\Models\User::where('role', 'admin')->exists()) {
         return response()->json(['message' => 'Admin already exists. Setup blocked.'], 403);
     }

@@ -25,7 +25,8 @@ class VendorOrderController extends Controller
         });
 
         $pendingCount = (clone $baseQuery)->where('order_status', 'pending')->count();
-        $confirmedCount = (clone $baseQuery)->whereIn('order_status', ['to_ship', 'shipped', 'delivered'])->count();
+        $confirmedCount = (clone $baseQuery)->where('order_status', 'to_ship')->count();
+        $cancelledCount = (clone $baseQuery)->where('order_status', 'cancelled')->count();
         $totalCount = $baseQuery->count();
 
         // 2. Build filtered orders query for listing
@@ -65,7 +66,7 @@ class VendorOrderController extends Controller
             if ($status === 'pending') {
                 $query->where('order_status', 'pending');
             } elseif ($status === 'confirmed') {
-                $query->whereIn('order_status', ['to_ship', 'shipped', 'delivered']);
+                $query->where('order_status', 'to_ship');
             } elseif (in_array($status, $allowedStatuses)) {
                 $query->where('order_status', $status);
             }
@@ -73,51 +74,48 @@ class VendorOrderController extends Controller
 
         $orders = $query->orderBy('created_at', 'desc')->get();
 
-        return view('pages.vendor-orders', compact('orders', 'pendingCount', 'confirmedCount', 'totalCount', 'search', 'status'));
+        return view('pages.vendor-orders', compact('orders', 'pendingCount', 'confirmedCount', 'cancelledCount', 'totalCount', 'search', 'status'));
     }
 
     public function confirm($orderId)
     {
         if (!is_numeric($orderId)) {
-            return redirect()->back()->with('error', 'Invalid order ID.');
+            return redirect()->route('vendor.orders', ['status' => 'pending'])->with('error', 'Invalid order ID.');
         }
 
         $user = Auth::user();
         $vendor = $user->vendor;
 
         if (!$vendor) {
-            return redirect()->back()->with('error', 'Vendor profile not found.');
+            return redirect()->route('vendor.orders', ['status' => 'pending'])->with('error', 'Vendor profile not found.');
         }
 
-        // Find the order that has this vendor's items and is currently pending
         $order = Order::with('items')->whereHas('items', function ($query) use ($vendor) {
                 $query->where('items.vendor_id', $vendor->vendor_id);
             })
             ->where('order_id', $orderId)
             ->where('order_status', 'pending')
-            ->firstOrFail();
+            ->first();
+
+        if (!$order) {
+            return redirect()->route('vendor.orders', ['status' => 'pending'])->with('error', "Order #{$orderId} not found or already confirmed.");
+        }
 
         \Illuminate\Support\Facades\DB::transaction(function () use ($order, $vendor) {
-            // Deduct stock for items belonging to this vendor in this order
             foreach ($order->items as $item) {
                 if ($item->vendor_id === $vendor->vendor_id) {
                     $quantityOrdered = $item->pivot->quantity;
-                    
-                    // 1. Deduct stock for the main item (standard product or the bundle itself)
+
                     if ($item->stock >= $quantityOrdered) {
                         $item->decrement('stock', $quantityOrdered);
                     } else {
-                        // Not enough stock, decrement to 0 at worst
                         $item->stock = max(0, $item->stock - $quantityOrdered);
                         $item->save();
                     }
 
-                    // 2. If the item is a bundle, proportionally deduct stock from its included sub-products
                     if ($item->is_bundle) {
                         foreach ($item->bundles as $childItem) {
-                            // Calculate total needed: (quantity of child per bundle) * (number of bundles ordered)
                             $totalChildDeduction = $childItem->pivot->quantity * $quantityOrdered;
-                            
                             if ($childItem->stock >= $totalChildDeduction) {
                                 $childItem->decrement('stock', $totalChildDeduction);
                             } else {
@@ -129,76 +127,79 @@ class VendorOrderController extends Controller
                 }
             }
 
-            // Transition: pending -> to_ship
             $order->update(['order_status' => 'to_ship']);
         });
 
-        return redirect()->back()->with('success', "Order #{$orderId} has been confirmed successfully!");
+        return redirect()->route('vendor.orders', ['status' => 'confirmed'])
+            ->with('success', "Order #{$orderId} has been confirmed successfully!");
     }
 
     public function ship($orderId)
     {
         if (!is_numeric($orderId)) {
-            return redirect()->back()->with('error', 'Invalid order ID.');
+            return redirect()->route('vendor.orders', ['status' => 'to_ship'])->with('error', 'Invalid order ID.');
         }
 
         $user = Auth::user();
         $vendor = $user->vendor;
 
         if (!$vendor) {
-            return redirect()->back()->with('error', 'Vendor profile not found.');
+            return redirect()->route('vendor.orders', ['status' => 'to_ship'])->with('error', 'Vendor profile not found.');
         }
 
-        // Find the order that has this vendor's items and is ready to ship
         $order = Order::whereHas('items', function ($query) use ($vendor) {
                 $query->where('items.vendor_id', $vendor->vendor_id);
             })
             ->where('order_id', $orderId)
             ->where('order_status', 'to_ship')
-            ->firstOrFail();
+            ->first();
 
-        // Transition: to_ship -> shipped
+        if (!$order) {
+            return redirect()->route('vendor.orders', ['status' => 'to_ship'])->with('error', "Order #{$orderId} not found or already shipped.");
+        }
+
         $order->update([
             'order_status' => 'shipped',
             'send_date' => now(),
             'tracking_number' => 'TRK-' . date('Ymd') . '-' . str_pad($orderId, 3, '0', STR_PAD_LEFT)
         ]);
 
-        return redirect()->back()->with('success', "Order #{$orderId} has been marked as shipped!");
+        return redirect()->route('vendor.orders', ['status' => 'shipped'])->with('success', "Order #{$orderId} has been marked as shipped!");
     }
 
     public function deliver($orderId)
     {
         if (!is_numeric($orderId)) {
-            return redirect()->back()->with('error', 'Invalid order ID.');
+            return redirect()->route('vendor.orders', ['status' => 'shipped'])->with('error', 'Invalid order ID.');
         }
 
         $user = Auth::user();
         $vendor = $user->vendor;
 
         if (!$vendor) {
-            return redirect()->back()->with('error', 'Vendor profile not found.');
+            return redirect()->route('vendor.orders', ['status' => 'shipped'])->with('error', 'Vendor profile not found.');
         }
 
-        // Find the order that has this vendor's items and is currently shipped
         $order = Order::with('paymentTransaction')->whereHas('items', function ($query) use ($vendor) {
                 $query->where('items.vendor_id', $vendor->vendor_id);
             })
             ->where('order_id', $orderId)
             ->where('order_status', 'shipped')
-            ->firstOrFail();
+            ->first();
 
-        // Transition: shipped -> delivered
+        if (!$order) {
+            return redirect()->route('vendor.orders', ['status' => 'shipped'])->with('error', "Order #{$orderId} not found or already delivered.");
+        }
+
         $order->update([
             'order_status' => 'delivered',
             'receive_date' => now()
         ]);
 
-        // FR-19: For COD orders, cash is collected on delivery → mark payment as 'paid'
         if ($order->paymentTransaction && $order->paymentTransaction->payment_method === 'cod') {
             $order->paymentTransaction->update(['status' => 'paid']);
         }
 
-        return redirect()->back()->with('success', "Order #{$orderId} has been delivered successfully!");
+        return redirect()->route('vendor.orders', ['status' => 'delivered'])->with('success', "Order #{$orderId} has been delivered successfully!");
     }
 }
