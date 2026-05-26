@@ -161,7 +161,7 @@
 
                                     {{-- Quantity Controls --}}
                                     <div class="flex items-center gap-3 rounded-lg border border-gray-200 p-1 shrink-0">
-                                        <form action="{{ route('cart.update', $cart->item_id) }}" method="POST" class="m-0">
+                                        <form action="{{ route('cart.update', $cart->item_id) }}" method="POST" class="m-0" @if($cart->quantity == 1) onsubmit="return confirm('Remove this item from your cart?')" @endif>
                                             @csrf
                                             @method('PATCH')
                                             <input type="hidden" name="action" value="decrement">
@@ -187,7 +187,7 @@
                                     </span>
 
                                     {{-- Remove Item --}}
-                                    <form action="{{ route('cart.destroy', $cart->item_id) }}" method="POST" class="m-0 shrink-0">
+                                    <form action="{{ route('cart.destroy', $cart->item_id) }}" method="POST" class="m-0 shrink-0" onsubmit="return confirm('Remove this item from your cart?')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="ml-2 flex items-center justify-center rounded p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500">

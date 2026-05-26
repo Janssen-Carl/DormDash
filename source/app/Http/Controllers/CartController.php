@@ -92,13 +92,13 @@ class CartController extends Controller
             Cart::where('customer_id', $userId)
                 ->where('item_id', $itemId)
                 ->increment('quantity');
-            return redirect()->back()->with('success', 'Cart updated — quantity increased.');
+            return redirect()->back();
         } elseif ($request->action === 'decrement') {
             if ($cart->quantity > 1) {
                 Cart::where('customer_id', $userId)
                     ->where('item_id', $itemId)
                     ->decrement('quantity');
-                return redirect()->back()->with('success', 'Cart updated — quantity decreased.');
+                return redirect()->back();
             } else {
                 Cart::where('customer_id', $userId)
                     ->where('item_id', $itemId)
