@@ -172,45 +172,45 @@
                                         @else
                                             <span class="text-[10px] text-red-500 font-semibold">Out of stock</span>
                                         @endif
+                                    </div>
 
-                                        {{-- Quantity Controls --}}
-                                        <div class="flex items-center gap-3 rounded-lg border border-gray-200 p-1 shrink-0">
-                                            <form action="{{ route('cart.update', $cart->item_id) }}" method="POST" class="m-0">
-                                                @csrf
-                                                @method('PATCH')
-                                                <input type="hidden" name="action" value="decrement">
-                                                <button type="submit" class="flex h-7 w-7 items-center justify-center rounded text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900">
-                                                    <x-heroicon-o-minus class="h-4 w-4" />
-                                                </button>
-                                            </form>
+                                    {{-- Quantity Controls --}}
+                                    <div class="flex items-center gap-3 rounded-lg border border-gray-200 p-1 shrink-0">
+                                        <form action="{{ route('cart.update', $cart->item_id) }}" method="POST" class="m-0" @if($cart->quantity == 1) onsubmit="return confirm('Remove this item from your cart?')" @endif>
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="action" value="decrement">
+                                            <button type="submit" class="flex h-7 w-7 items-center justify-center rounded text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900">
+                                                <x-heroicon-o-minus class="h-4 w-4" />
+                                            </button>
+                                        </form>
 
-                                            <form action="{{ route('cart.update', $cart->item_id) }}" method="POST" class="m-0">
-                                                @csrf
-                                                @method('PATCH')
-                                                <input type="hidden" name="action" value="set">
-                                                <input type="number" name="quantity" value="{{ $cart->quantity }}"
-                                                    min="1" max="{{ $stock }}"
-                                                    onchange="this.form.submit()"
-                                                    onfocus="this.select()"
-                                                    class="w-10 text-center bg-transparent border-none p-0 text-sm font-medium text-gray-900 focus:ring-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none outline-none"
-                                                >
-                                            </form>
+                                        <form action="{{ route('cart.update', $cart->item_id) }}" method="POST" class="m-0">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="action" value="set">
+                                            <input type="number" name="quantity" value="{{ $cart->quantity }}"
+                                                min="1" max="{{ $stock }}"
+                                                onchange="this.form.submit()"
+                                                onfocus="this.select()"
+                                                class="w-10 text-center bg-transparent border-none p-0 text-sm font-medium text-gray-900 focus:ring-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none outline-none"
+                                            >
+                                        </form>
 
-                                            @if(!$atMax)
-                                            <form action="{{ route('cart.update', $cart->item_id) }}" method="POST" class="m-0">
-                                                @csrf
-                                                @method('PATCH')
-                                                <input type="hidden" name="action" value="increment">
-                                                <button type="submit" class="flex h-7 w-7 items-center justify-center rounded text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900">
-                                                    <x-heroicon-o-plus class="h-4 w-4" />
-                                                </button>
-                                            </form>
-                                            @else
-                                            <span class="flex h-7 w-7 items-center justify-center rounded text-gray-300 cursor-not-allowed">
+                                        @if(!$atMax)
+                                        <form action="{{ route('cart.update', $cart->item_id) }}" method="POST" class="m-0">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="action" value="increment">
+                                            <button type="submit" class="flex h-7 w-7 items-center justify-center rounded text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900">
                                                 <x-heroicon-o-plus class="h-4 w-4" />
-                                            </span>
-                                            @endif
-                                        </div>
+                                            </button>
+                                        </form>
+                                        @else
+                                        <span class="flex h-7 w-7 items-center justify-center rounded text-gray-300 cursor-not-allowed">
+                                            <x-heroicon-o-plus class="h-4 w-4" />
+                                        </span>
+                                        @endif
                                     </div>
 
                                     <span class="w-24 shrink-0 text-right font-semibold text-gray-900">
@@ -218,7 +218,7 @@
                                     </span>
 
                                     {{-- Remove Item --}}
-                                    <form action="{{ route('cart.destroy', $cart->item_id) }}" method="POST" class="m-0 shrink-0">
+                                    <form action="{{ route('cart.destroy', $cart->item_id) }}" method="POST" class="m-0 shrink-0" onsubmit="return confirm('Remove this item from your cart?')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="ml-2 flex items-center justify-center rounded p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500">

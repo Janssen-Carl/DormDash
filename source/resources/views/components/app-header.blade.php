@@ -33,13 +33,12 @@
             @endphp
             <span class="relative">
                 <x-heroicon-o-shopping-cart class="h-3.5 w-3.5" />
-                @if($cartCount > 0)
-                <span
+                <span id="header-cart-badge"
                     class="absolute -top-1.5 -right-2 rounded-full bg-green-600 px-1 text-[9px] font-semibold text-white"
+                    @if($cartCount == 0) style="display: none;" @endif
                 >
                     {{ $cartCount }}
                 </span>
-                @endif
             </span>
             Cart
         </a>

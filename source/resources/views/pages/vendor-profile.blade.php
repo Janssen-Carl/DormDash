@@ -151,13 +151,10 @@
                                         <p class="mt-3 text-sm text-gray-700 font-medium">{{ $addr->street }}</p>
                                         <p class="mt-1 text-xs text-gray-600">{{ collect([$addr->city, $addr->province_state, $addr->postal_code, $addr->country])->filter()->join(', ') }}</p>
                                     </div>
-                                    <div class="flex items-center gap-2">
+                                    <div class="flex items-center gap-4">
                                         @if(!$isDefault)
-                                            <form method="POST" action="/vendor-profile">
+                                            <form method="POST" action="{{ route('address.default', $addr->address_id) }}" class="inline">
                                                 @csrf
-                                                <input type="hidden" name="username" value="{{ $vendor?->name ?? $user?->username }}">
-                                                <input type="hidden" name="email" value="{{ $vendor?->email ?? $user?->email }}">
-                                                <input type="hidden" name="address_id" value="{{ $addr->address_id }}">
                                                 <button type="submit" class="text-gray-400 transition-all duration-200 hover:text-green-600 opacity-0 group-hover:opacity-100 text-xs font-semibold">
                                                     Set as Default
                                                 </button>

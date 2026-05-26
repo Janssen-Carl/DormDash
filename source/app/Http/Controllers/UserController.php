@@ -9,6 +9,7 @@ use App\Models\CusBankingInfo;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rules\Password;
 
 class UserController extends Controller
 {
@@ -17,9 +18,7 @@ class UserController extends Controller
         $validated = $request->validate([
             'username'      => ['required', 'string', 'max:255', 'unique:users'],
             'email'         => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password'      => ['required', 'string', 'min:8', 'confirmed',
-                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9\s])[\S]{8,}$/',
-            ],
+            'password'      => ['required', 'string', Password::min(8)->letters()->mixedCase()->numbers()->symbols(), 'confirmed'],
             'role'          => ['required', 'in:customer,vendor'],
             'store_name'    => ['required_if:role,vendor', 'nullable', 'string', 'max:255'],
             'store_phone'   => ['required_if:role,vendor', 'nullable', 'string', 'max:255'],
@@ -335,9 +334,7 @@ class UserController extends Controller
         if ($request->filled('current_password') || $request->filled('new_password')) {
             $request->validate([
                 'current_password' => 'required',
-                'new_password' => ['required', 'string', 'min:8', 'confirmed',
-                    'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9\s])[\S]{8,}$/',
-                ],
+                'new_password' => ['required', 'string', Password::min(8)->letters()->mixedCase()->numbers()->symbols(), 'confirmed'],
             ]);
 
             if (!Hash::check($request->input('current_password'), $user->password)) {
@@ -523,5 +520,29 @@ class UserController extends Controller
 
         $redirect = $user->role === 'vendor' ? '/vendor-profile' : '/profile';
         return redirect($redirect)->with('success', 'Payment card removed successfully.');
+    }
+
+    // Set Default Address
+    public function setDefaultAddress($id)
+    {
+        $user = auth()->user();
+        $address = Address::where('user_id', $user->user_id)->findOrFail($id);
+
+        if ($user->role === 'vendor') {
+            $vendor = $user->vendor;
+            if ($vendor) {
+                $vendor->address_id = $address->address_id;
+                $vendor->save();
+            }
+        } else {
+            $customer = $user->customer;
+            if ($customer) {
+                $customer->primary_address_id = $address->address_id;
+                $customer->save();
+            }
+        }
+
+        $redirect = $user->role === 'vendor' ? '/vendor-profile' : '/profile';
+        return redirect($redirect)->with('success', 'Default delivery address updated successfully.');
     }
 }

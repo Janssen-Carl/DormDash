@@ -241,6 +241,49 @@
                                     {{ $message }}
                                 </p>
                             @enderror
+
+                            {{-- Real-time Password Strength and Checklist --}}
+                            <div class="mt-3 p-4 rounded-2xl border border-gray-200 bg-gray-50/50 space-y-3" id="passwordChecklist">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Password Strength</span>
+                                    <span class="text-xs font-bold text-gray-400 transition-colors duration-300" id="strengthText">Weak</span>
+                                </div>
+                                <div class="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gray-300 w-0 transition-all duration-500 rounded-full" id="strengthBar"></div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-x-4 gap-y-2 pt-1 text-xs">
+                                    <div class="flex items-center gap-2 text-gray-500 transition-colors duration-200" id="req-length">
+                                        <div class="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-gray-200 text-gray-400 border border-gray-300 transition-all duration-200 req-icon">
+                                            <x-heroicon-s-check class="h-2.5 w-2.5 hidden" />
+                                        </div>
+                                        <span>Min. 8 characters</span>
+                                    </div>
+                                    <div class="flex items-center gap-2 text-gray-500 transition-colors duration-200" id="req-upper">
+                                        <div class="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-gray-200 text-gray-400 border border-gray-300 transition-all duration-200 req-icon">
+                                            <x-heroicon-s-check class="h-2.5 w-2.5 hidden" />
+                                        </div>
+                                        <span>Uppercase letter (A-Z)</span>
+                                    </div>
+                                    <div class="flex items-center gap-2 text-gray-500 transition-colors duration-200" id="req-lower">
+                                        <div class="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-gray-200 text-gray-400 border border-gray-300 transition-all duration-200 req-icon">
+                                            <x-heroicon-s-check class="h-2.5 w-2.5 hidden" />
+                                        </div>
+                                        <span>Lowercase letter (a-z)</span>
+                                    </div>
+                                    <div class="flex items-center gap-2 text-gray-500 transition-colors duration-200" id="req-number">
+                                        <div class="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-gray-200 text-gray-400 border border-gray-300 transition-all duration-200 req-icon">
+                                            <x-heroicon-s-check class="h-2.5 w-2.5 hidden" />
+                                        </div>
+                                        <span>Numeric digit (0-9)</span>
+                                    </div>
+                                    <div class="flex items-center gap-2 text-gray-500 transition-colors duration-200" id="req-symbol">
+                                        <div class="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-gray-200 text-gray-400 border border-gray-300 transition-all duration-200 req-icon">
+                                            <x-heroicon-s-check class="h-2.5 w-2.5 hidden" />
+                                        </div>
+                                        <span>Special character (!@#...)</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         {{-- Confirm Password Field --}}
@@ -510,97 +553,110 @@
                     updateIndicators();
                 }
 
-                // Password Strength Meter
-                const passwordInputStr = document.getElementById('password');
-                const strengthBox = document.getElementById('passwordStrength');
-                const strBar1 = document.getElementById('strBar1');
-                const strBar2 = document.getElementById('strBar2');
-                const strBar3 = document.getElementById('strBar3');
-                const strBar4 = document.getElementById('strBar4');
+                // Real-time password validation logic
+                const reqLength = document.getElementById('req-length');
+                const reqUpper = document.getElementById('req-upper');
+                const reqLower = document.getElementById('req-lower');
+                const reqNumber = document.getElementById('req-number');
+                const reqSymbol = document.getElementById('req-symbol');
+                const strengthBar = document.getElementById('strengthBar');
                 const strengthText = document.getElementById('strengthText');
 
-                const reqLength = document.getElementById('reqLength');
-                const reqUpper = document.getElementById('reqUpper');
-                const reqLower = document.getElementById('reqLower');
-                const reqNumber = document.getElementById('reqNumber');
-                const reqSpecial = document.getElementById('reqSpecial');
-
-                const strengthConfig = [
-                    { label: 'Very Weak', bars: 1, color: 'bg-red-500' },
-                    { label: 'Weak', bars: 2, color: 'bg-orange-500' },
-                    { label: 'Moderate', bars: 3, color: 'bg-yellow-500' },
-                    { label: 'Strong', bars: 3, color: 'bg-emerald-500' },
-                    { label: 'Very Strong', bars: 4, color: 'bg-emerald-600' },
-                ];
-
-                function checkPasswordStrength(password) {
-                    const checks = {
-                        length: password.length >= 8,
-                        upper: /[A-Z]/.test(password),
-                        lower: /[a-z]/.test(password),
-                        number: /\d/.test(password),
-                        special: /[^a-zA-Z0-9\s]/.test(password),
+                function updateRequirements() {
+                    const val = passwordInput.value;
+                    
+                    const rules = {
+                        length: val.length >= 8,
+                        upper: /[A-Z]/.test(val),
+                        lower: /[a-z]/.test(val),
+                        number: /[0-9]/.test(val),
+                        symbol: /[^A-Za-z0-9]/.test(val)
                     };
 
-                    const passed = Object.values(checks).filter(Boolean).length;
+                    let satisfiedCount = 0;
 
-                    // Update requirement indicators
-                    const reqs = [
-                        { el: reqLength, met: checks.length },
-                        { el: reqUpper, met: checks.upper },
-                        { el: reqLower, met: checks.lower },
-                        { el: reqNumber, met: checks.number },
-                        { el: reqSpecial, met: checks.special },
-                    ];
-
-                    reqs.forEach(({ el, met }) => {
-                        const icon = el.querySelector('.req-icon');
+                    const updateRuleUI = (element, met) => {
+                        const iconContainer = element.querySelector('.req-icon');
+                        const checkSvg = iconContainer.querySelector('svg');
+                        
                         if (met) {
-                            el.classList.remove('text-gray-400');
-                            el.classList.add('text-emerald-600');
-                            icon.textContent = '●';
+                            satisfiedCount++;
+                            element.classList.remove('text-gray-500');
+                            element.classList.add('text-emerald-600', 'font-medium');
+                            iconContainer.classList.remove('bg-gray-200', 'text-gray-400', 'border-gray-300');
+                            iconContainer.classList.add('bg-emerald-500', 'text-white', 'border-transparent');
+                            checkSvg.classList.remove('hidden');
                         } else {
-                            el.classList.remove('text-emerald-600');
-                            el.classList.add('text-gray-400');
-                            icon.textContent = '○';
+                            element.classList.add('text-gray-500');
+                            element.classList.remove('text-emerald-600', 'font-medium');
+                            iconContainer.classList.add('bg-gray-200', 'text-gray-400', 'border-gray-300');
+                            iconContainer.classList.remove('bg-emerald-500', 'text-white', 'border-transparent');
+                            checkSvg.classList.add('hidden');
                         }
-                    });
+                    };
 
-                    // Determine strength level
-                    let level;
-                    if (password.length === 0) {
-                        strengthBox.classList.add('hidden');
-                        return;
-                    } else if (passed <= 1) level = 0;
-                    else if (passed === 2) level = 1;
-                    else if (passed === 3) level = 2;
-                    else if (passed === 4) level = 3;
-                    else level = 4;
+                    updateRuleUI(reqLength, rules.length);
+                    updateRuleUI(reqUpper, rules.upper);
+                    updateRuleUI(reqLower, rules.lower);
+                    updateRuleUI(reqNumber, rules.number);
+                    updateRuleUI(reqSymbol, rules.symbol);
 
-                    const cfg = strengthConfig[level];
+                    // Update strength bar & text
+                    const percentage = (satisfiedCount / 5) * 100;
+                    strengthBar.style.width = `${percentage}%`;
 
-                    // Update bars
-                    const bars = [strBar1, strBar2, strBar3, strBar4];
-                    bars.forEach((bar, i) => {
-                        bar.className = 'h-full rounded-full transition-all duration-300';
-                        if (i < cfg.bars) {
-                            bar.classList.add(cfg.color);
-                            bar.style.width = '100%';
-                        } else {
-                            bar.style.width = '0%';
-                        }
-                    });
+                    // Remove old coloring
+                    strengthBar.classList.remove('bg-rose-500', 'bg-amber-500', 'bg-yellow-500', 'bg-lime-500', 'bg-emerald-500');
+                    strengthText.classList.remove('text-rose-500', 'text-amber-500', 'text-yellow-500', 'text-lime-500', 'text-emerald-500');
 
-                    strengthText.textContent = cfg.label;
-                    strengthBox.classList.remove('hidden');
+                    let strengthName = 'Weak';
+                    let strengthClass = 'text-rose-500';
+                    let barClass = 'bg-rose-500';
+
+                    if (satisfiedCount <= 1) {
+                        strengthName = 'Very Weak';
+                        strengthClass = 'text-rose-500';
+                        barClass = 'bg-rose-500';
+                    } else if (satisfiedCount === 2) {
+                        strengthName = 'Weak';
+                        strengthClass = 'text-amber-500';
+                        barClass = 'bg-amber-500';
+                    } else if (satisfiedCount === 3) {
+                        strengthName = 'Medium';
+                        strengthClass = 'text-yellow-500';
+                        barClass = 'bg-yellow-500';
+                    } else if (satisfiedCount === 4) {
+                        strengthName = 'Strong';
+                        strengthClass = 'text-lime-500';
+                        barClass = 'bg-lime-500';
+                    } else if (satisfiedCount === 5) {
+                        strengthName = 'Very Strong';
+                        strengthClass = 'text-emerald-500';
+                        barClass = 'bg-emerald-500';
+                    }
+
+                    strengthText.textContent = strengthName;
+                    strengthText.classList.add(strengthClass);
+                    strengthBar.classList.add(barClass);
+
+                    // Update submit button state
+                    const allMet = satisfiedCount === 5;
+                    submitBtn.disabled = !allMet;
+                    
+                    if (allMet) {
+                        submitBtn.classList.remove('from-gray-400', 'to-gray-300', 'cursor-not-allowed', 'opacity-60');
+                        submitBtn.classList.add('from-emerald-600', 'to-emerald-500', 'hover:shadow-lg', 'hover:from-emerald-700', 'hover:to-emerald-600', 'active:scale-95');
+                    } else {
+                        submitBtn.classList.add('from-gray-400', 'to-gray-300', 'cursor-not-allowed', 'opacity-60');
+                        submitBtn.classList.remove('from-emerald-600', 'to-emerald-500', 'hover:shadow-lg', 'hover:from-emerald-700', 'hover:to-emerald-600', 'active:scale-95');
+                    }
                 }
 
-                passwordInputStr.addEventListener('input', function () {
-                    checkPasswordStrength(this.value);
-                });
+                passwordInput.addEventListener('input', updateRequirements);
 
                 // Initial setup
                 updateWizard();
+                updateRequirements();
             });
         </script>
     </section>

@@ -151,7 +151,14 @@
                                         <dt class="text-gray-500">Payment Method</dt>
                                         <dd class="font-medium text-gray-900">
                                             @if($order->paymentTransaction)
-                                                {{ $order->paymentTransaction->payment_method === 'cod' ? 'Cash on Delivery' : 'Credit / Debit Card' }}
+                                                @if($order->paymentTransaction->payment_method === 'cod')
+                                                    Cash on Delivery
+                                                @else
+                                                    Credit / Debit Card
+                                                    @if($order->paymentTransaction->acc_last4_no)
+                                                        <span class="text-xs text-gray-500 font-mono">(•••• {{ $order->paymentTransaction->acc_last4_no }})</span>
+                                                    @endif
+                                                @endif
                                             @else
                                                 Cash on Delivery
                                             @endif

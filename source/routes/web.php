@@ -69,6 +69,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/photo', [\App\Http\Controllers\UserController::class, 'updatePhoto'])->name('profile.photo');
     Route::get('/address-payment/add', fn() => view('pages/address-payment-add'));
     Route::post('/address/add', [\App\Http\Controllers\UserController::class, 'addAddress'])->name('address.add');
+    Route::post('/address/{id}/default', [\App\Http\Controllers\UserController::class, 'setDefaultAddress'])->name('address.default');
     Route::post('/payment/add', [\App\Http\Controllers\UserController::class, 'addPayment'])->name('payment.add');
     Route::delete('/address/{id}/delete', [\App\Http\Controllers\UserController::class, 'deleteAddress'])->name('address.delete');
     Route::delete('/payment/{id}/delete', [\App\Http\Controllers\UserController::class, 'deletePayment'])->name('payment.delete');

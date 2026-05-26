@@ -115,15 +115,32 @@ class CheckoutController extends Controller
 
         $deliveryFee = 50.00;
         $total = $subtotal + $deliveryFee;
+        
+        $customer = \App\Models\Customer::where('customer_id', $userId)->first();
+        $cards = $customer ? \App\Models\CusBankingInfo::where('customer_id', $customer->customer_id)->get() : collect();
+        $defaultCardId = $customer ? $customer->primary_banking_info : null;
 
-        // Fetch user addresses for the view
+        // Fetch user addresses for the view, sorted with primary address first
+        $user = auth()->user();
+        $primaryAddressId = null;
+        if ($user->role === 'vendor') {
+            $primaryAddressId = $user->vendor->address_id ?? null;
+        } else {
+            $primaryAddressId = $user->customer->primary_address_id ?? null;
+        }
+
         $addresses = Address::where('user_id', $userId)->get();
+        if ($primaryAddressId) {
+            $addresses = $addresses->sortByDesc(function ($address) use ($primaryAddressId) {
+                return $address->address_id == $primaryAddressId;
+            })->values();
+        }
 
         if ($addresses->isEmpty()) {
             return redirect('/profile/edit')->withErrors(['msg' => 'You need to add a delivery address before checking out.']);
         }
 
-        return view('pages.checkout', compact('items', 'subtotal', 'deliveryFee', 'total', 'addresses', 'sourceType', 'sourceData'));
+        return view('pages.checkout', compact('items', 'subtotal', 'deliveryFee', 'total', 'addresses', 'sourceType', 'sourceData', 'cards', 'defaultCardId'));
     }
 
     public function store(Request $request)
@@ -227,16 +244,47 @@ class CheckoutController extends Controller
 
         $deliveryFee = 50.00;
 
+        // Securely prepare tokenized card info if using card payment
+        $cardToken = null;
+        $cardLast4 = null;
+        if ($request->payment_method === 'card') {
+            $customer = \App\Models\Customer::where('customer_id', $userId)->firstOrFail();
+            if ($request->filled('card_id') && $request->card_id !== 'new') {
+                $banking = \App\Models\CusBankingInfo::where('customer_id', $customer->customer_id)
+                    ->where('banking_id', $request->card_id)
+                    ->firstOrFail();
+                $cardToken = $banking->token;
+                $cardLast4 = $banking->acc_last4_no;
+            } else {
+                $request->validate([
+                    'new_card_name' => 'required|string|max:100',
+                    'new_card_number' => 'required|string',
+                    'new_card_type' => 'required|in:visa,mastercard,amex,discover',
+                ]);
+                $cleanCard = preg_replace('/\s+/', '', $request->new_card_number);
+                $cardLast4 = substr($cleanCard, -4);
+                $cardToken = 'TOK_' . strtoupper(uniqid());
+
+                \App\Models\CusBankingInfo::create([
+                    'customer_id' => $customer->customer_id,
+                    'payment_method' => $request->new_card_type,
+                    'provider' => ucfirst($request->new_card_type),
+                    'account_name' => strtoupper($request->new_card_name),
+                    'acc_last4_no' => $cardLast4,
+                    'token' => $cardToken,
+                ]);
+            }
+        }
+
         // Group items by vendor so each vendor gets their own order
         $itemVendorMap = Item::whereIn('item_id', $items->pluck('item_id'))->pluck('vendor_id', 'item_id');
         $grouped = $items->groupBy(fn($entry) => $itemVendorMap[$entry->item_id] ?? 0);
 
-        DB::transaction(function () use ($userId, $request, $grouped, $deliveryFee) {
+        DB::transaction(function () use ($userId, $request, $grouped, $deliveryFee, $cardToken, $cardLast4) {
             foreach ($grouped as $vendorId => $vendorItems) {
                 $subtotal = $vendorItems->sum(fn($entry) => $entry->price * $entry->quantity);
                 $total = $subtotal + $deliveryFee;
 
-                // 1. Create Order for this vendor
                 $order = Order::create([
                     'customer_id' => $userId,
                     'address_id' => $request->address_id,
@@ -245,7 +293,6 @@ class CheckoutController extends Controller
                     'order_status' => 'pending'
                 ]);
 
-                // 2. Attach Items belonging to this vendor
                 $syncData = [];
                 foreach ($vendorItems as $entry) {
                     $syncData[$entry->item_id] = [
@@ -255,7 +302,6 @@ class CheckoutController extends Controller
                 }
                 $order->items()->attach($syncData);
 
-                // 3. Create Payment Transaction
                 $paymentMethod = $request->payment_method;
                 $paymentStatus = ($paymentMethod === 'cod') ? 'pending' : 'success';
 
@@ -265,6 +311,8 @@ class CheckoutController extends Controller
                     'status'         => $paymentStatus,
                     'payment_method' => $paymentMethod,
                     'reference_no'   => 'REF' . strtoupper(uniqid()),
+                    'token'          => $cardToken,
+                    'acc_last4_no'   => $cardLast4,
                 ]);
             }
 
