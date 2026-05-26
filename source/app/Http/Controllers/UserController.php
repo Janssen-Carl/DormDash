@@ -509,4 +509,28 @@ class UserController extends Controller
         $redirect = $user->role === 'vendor' ? '/vendor-profile' : '/profile';
         return redirect($redirect)->with('success', 'Payment card removed successfully.');
     }
+
+    // Set Default Address
+    public function setDefaultAddress($id)
+    {
+        $user = auth()->user();
+        $address = Address::where('user_id', $user->user_id)->findOrFail($id);
+
+        if ($user->role === 'vendor') {
+            $vendor = $user->vendor;
+            if ($vendor) {
+                $vendor->address_id = $address->address_id;
+                $vendor->save();
+            }
+        } else {
+            $customer = $user->customer;
+            if ($customer) {
+                $customer->primary_address_id = $address->address_id;
+                $customer->save();
+            }
+        }
+
+        $redirect = $user->role === 'vendor' ? '/vendor-profile' : '/profile';
+        return redirect($redirect)->with('success', 'Default delivery address updated successfully.');
+    }
 }

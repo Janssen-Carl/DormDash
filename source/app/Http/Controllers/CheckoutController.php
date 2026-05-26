@@ -108,8 +108,21 @@ class CheckoutController extends Controller
         $cards = $customer ? \App\Models\CusBankingInfo::where('customer_id', $customer->customer_id)->get() : collect();
         $defaultCardId = $customer ? $customer->primary_banking_info : null;
 
-        // Fetch user addresses for the view
+        // Fetch user addresses for the view, sorted with primary address first
+        $user = auth()->user();
+        $primaryAddressId = null;
+        if ($user->role === 'vendor') {
+            $primaryAddressId = $user->vendor->address_id ?? null;
+        } else {
+            $primaryAddressId = $user->customer->primary_address_id ?? null;
+        }
+
         $addresses = Address::where('user_id', $userId)->get();
+        if ($primaryAddressId) {
+            $addresses = $addresses->sortByDesc(function ($address) use ($primaryAddressId) {
+                return $address->address_id == $primaryAddressId;
+            })->values();
+        }
 
         return view('pages.checkout', compact('items', 'subtotal', 'deliveryFee', 'total', 'addresses', 'sourceType', 'sourceData', 'cards', 'defaultCardId'));
     }

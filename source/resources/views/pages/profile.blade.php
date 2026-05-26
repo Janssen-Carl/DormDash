@@ -150,9 +150,15 @@
                                                  <p class="mt-3 text-sm text-gray-700 font-medium">{{ $address->street }}</p>
                                                  <p class="mt-1 text-xs text-gray-600">{{ $address->city }}, {{ $address->country }}</p>
                                              </div>
-                                             <div class="flex items-center gap-2">
+                                             <div class="flex items-center gap-4">
                                                  @if(!$isDefault)
-                                                     <form action="{{ route('address.delete', $address->address_id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this address?')">
+                                                     <form method="POST" action="{{ route('address.default', $address->address_id) }}" class="inline">
+                                                         @csrf
+                                                         <button type="submit" class="text-gray-400 transition-all duration-200 hover:text-green-600 opacity-0 group-hover:opacity-100 text-xs font-semibold">
+                                                             Set as Default
+                                                         </button>
+                                                     </form>
+                                                     <form action="{{ route('address.delete', $address->address_id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this address?')" class="inline">
                                                          @csrf
                                                          @method('DELETE')
                                                          <button type="submit" class="text-gray-400 transition-all duration-200 hover:text-red-600 opacity-0 group-hover:opacity-100">
