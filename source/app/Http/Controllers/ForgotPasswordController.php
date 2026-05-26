@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+use Illuminate\Validation\Rules\Password;
 
 class ForgotPasswordController extends Controller
 {
@@ -82,7 +83,7 @@ class ForgotPasswordController extends Controller
         $request->validate([
             'token'                 => 'required',
             'email'                 => 'required|email|exists:users,email',
-            'password'              => 'required|string|min:8|confirmed',
+            'password'              => ['required', 'string', Password::min(8)->letters()->mixedCase()->numbers()->symbols(), 'confirmed'],
             'password_confirmation' => 'required',
         ]);
 
