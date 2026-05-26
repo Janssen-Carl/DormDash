@@ -62,57 +62,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, true);
 
-    // Intercept Add to Cart form submissions asynchronously
-    document.addEventListener('submit', function (event) {
-        const form = event.target;
-        const action = form.getAttribute('action') || '';
-        const method = (form.getAttribute('method') || '').toUpperCase();
-
-        if (method === 'POST' && (action === '/cart' || action.endsWith('/cart'))) {
-            // Only intercept standard Add to Cart actions (not deletes or patches)
-            const methodOverride = form.querySelector('input[name="_method"]');
-            if (methodOverride && (methodOverride.value === 'DELETE' || methodOverride.value === 'PATCH')) {
-                return;
-            }
-
-            event.preventDefault();
-
-            // Submit asynchronously
-            const formData = new FormData(form);
-            fetch(action, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => {
-                if (response.ok) {
-                    // Update Cart badge dynamically
-                    const badge = document.getElementById('header-cart-badge');
-                    if (badge) {
-                        const quantityInput = form.querySelector('input[name="quantity"]');
-                        const qtyToAdd = quantityInput ? parseInt(quantityInput.value) || 1 : 1;
-                        
-                        let currentCount = parseInt(badge.textContent) || 0;
-                        let newCount = currentCount + qtyToAdd;
-                        
-                        badge.textContent = newCount;
-                        badge.style.display = 'inline-block';
-                    }
-                    
-                    showFloatingToast('Added to cart successfully.');
-                } else {
-                    form.submit();
-                }
-            })
-            .catch(error => {
-                console.error('Error adding to cart:', error);
-                form.submit();
-            });
-        }
-    });
-
     // Create Scroll-to-Top Button dynamically
     const scrollTopBtn = document.createElement('button');
     scrollTopBtn.className = 'scroll-to-top-btn';
@@ -245,3 +194,31 @@ function showFloatingToast(message) {
         }, 300);
     }, 4000);
 }
+
+window.addToCart = function(event, form) {
+    event.preventDefault();
+    fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => {
+        if (r.ok) {
+            let badge = document.getElementById('header-cart-badge');
+            if (badge) {
+                let qtyInput = form.querySelector('[name=quantity]');
+                let qty = qtyInput ? parseInt(qtyInput.value) || 1 : 1;
+                badge.textContent = (parseInt(badge.textContent) || 0) + qty;
+                badge.style.display = 'inline-block';
+            }
+            showFloatingToast('Added to cart successfully.');
+        } else {
+            r.text().then(t => {
+                try { let d = JSON.parse(t); alert(d.error || 'Error'); } catch(e) { form.submit(); }
+            });
+        }
+    })
+    .catch(() => alert('Network error. Please try again.'));
+};
+
+window.showFloatingToast = showFloatingToast;

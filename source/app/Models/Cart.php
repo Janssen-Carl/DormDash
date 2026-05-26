@@ -7,7 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Cart extends Model
 {
     protected $table = 'carts';
-    public $timestamps = false;
+    public $timestamps = true;
+    public $incrementing = false;
 
     protected $fillable = [
         'customer_id',

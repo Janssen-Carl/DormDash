@@ -181,7 +181,7 @@
 
                 @if ($item->is_available && $item->stock > 0)
                 <div class="mt-10 flex flex-col gap-4">
-                    <form x-data="{ qty: 1, maxQty: {{ $item->stock }} }" action="{{ route('cart.store') }}" method="POST" class="flex-1">
+                    <form x-data="{ qty: 1, maxQty: {{ $item->stock }} }" @submit.prevent="window.addToCart($event, $event.target)" action="{{ route('cart.store') }}" method="POST" class="flex-1">
                         @csrf
                         <input type="hidden" name="item_id" value="{{ $item->item_id }}">
                         

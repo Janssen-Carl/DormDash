@@ -144,17 +144,17 @@
                                      @endif
                                   </div>
 
-                                 <div class="mt-4 flex gap-2">
-                                     <form action="{{ route('cart.store') }}" method="POST" class="flex-1 m-0">
-                                         @csrf
-                                         <input type="hidden" name="item_id" value="{{ $product->item_id }}">
-                                         <input type="hidden" name="quantity" value="1">
-                                         <button type="submit"
-                                             class="w-full rounded-lg bg-green-50 border border-green-200 py-2 text-xs font-semibold text-green-600 transition-all duration-200 hover:bg-green-100">
-                                             <x-heroicon-o-shopping-cart class="inline h-4 w-4 mr-1" />
-                                             Add to Cart
-                                         </button>
-                                     </form>
+                                  <div class="mt-4 flex gap-2">
+                                      <form x-data="{}" @submit.prevent="window.addToCart($event, $event.target)" action="{{ route('cart.store') }}" method="POST" class="flex-1 m-0">
+                                          @csrf
+                                          <input type="hidden" name="item_id" value="{{ $product->item_id }}">
+                                          <input type="hidden" name="quantity" value="1">
+                                          <button type="submit"
+                                              class="w-full rounded-lg bg-green-50 border border-green-200 py-2 text-xs font-semibold text-green-600 transition-all duration-200 hover:bg-green-100">
+                                              <x-heroicon-o-shopping-cart class="inline h-4 w-4 mr-1" />
+                                              Add to Cart
+                                          </button>
+                                      </form>
                                      <form action="{{ route('checkout.index') }}" method="GET" class="flex-1 m-0">
                                          <input type="hidden" name="buy_item" value="{{ $product->item_id }}">
                                          <input type="hidden" name="qty" value="1">

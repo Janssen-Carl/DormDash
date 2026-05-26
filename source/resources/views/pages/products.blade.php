@@ -314,7 +314,7 @@
                                             </div>
 
                                             <div class="mt-4 flex gap-2">
-                                                <form action="{{ route('cart.store') }}" method="POST" class="flex-1 m-0">
+                                                <form x-data="{}" @submit.prevent="window.addToCart($event, $event.target)" action="{{ route('cart.store') }}" method="POST" class="flex-1 m-0">
                                                     @csrf
                                                     <input type="hidden" name="item_id" value="{{ $product->item_id }}">
                                                     <input type="hidden" name="quantity" value="1">
@@ -435,7 +435,7 @@
                                                 </div>
 
                                                 <div class="mt-4 flex gap-2">
-                                                    <form action="{{ route('cart.store') }}" method="POST" class="flex-1 m-0">
+                                                    <form x-data="{}" @submit.prevent="window.addToCart($event, $event.target)" action="{{ route('cart.store') }}" method="POST" class="flex-1 m-0">
                                                         @csrf
                                                         <input type="hidden" name="item_id" value="{{ $product->item_id }}">
                                                         <input type="hidden" name="quantity" value="1">

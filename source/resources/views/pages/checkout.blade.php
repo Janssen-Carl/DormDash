@@ -179,10 +179,20 @@
         <div class="col-span-1" x-data="{ 
             items: {{ Js::from($items->map(fn($e) => ['id' => $e->item->item_id, 'price' => (float)$e->price, 'quantity' => (int)$e->quantity])) }},
             deliveryFee: {{ $deliveryFee }},
+            openDeleteCheckout: false,
+            itemToDeleteCheckout: null,
             get subtotal() { return this.items.reduce((sum, item) => sum + (item.price * item.quantity), 0); },
             get totalQuantity() { return this.items.reduce((sum, item) => sum + parseInt(item.quantity), 0); },
             get total() { return this.subtotal + this.deliveryFee; },
-            formatPrice(price) { return price.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+            formatPrice(price) { return price.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); },
+            removeCheckoutItem() {
+                let item = this.itemToDeleteCheckout;
+                if (!item) return;
+                this.items.splice(item.index, 1);
+                fetch('/cart/' + item.id, { method: 'DELETE', headers: { 'X-CSRF-TOKEN': document.querySelector('[name=csrf-token]')?.getAttribute('content') || '' } });
+                this.openDeleteCheckout = false;
+                this.itemToDeleteCheckout = null;
+            }
         }">
             <div class="sticky top-8 rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
                 <h2 class="text-xl font-bold text-gray-900 mb-6">Order Summary</h2>
@@ -226,7 +236,7 @@
                                         <button type="button" @click="if(items[{{ $index }}].quantity > 1) items[{{ $index }}].quantity--" class="px-2 py-1.5 text-gray-400 hover:text-green-600 hover:bg-gray-50 transition-colors focus:outline-none">
                                             <x-heroicon-o-minus class="h-3 w-3" />
                                         </button>
-                                        <input type="number" name="quantities[{{ $entry->item->item_id }}]" x-model.number="items[{{ $index }}].quantity" min="1" max="{{ $entry->item->effective_stock }}" class="w-10 text-center bg-transparent border-none p-0 text-xs font-semibold text-gray-900 focus:ring-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+                                        <input type="number" name="quantities[{{ $entry->item->item_id }}]" x-model.number="items[{{ $index }}].quantity" min="1" max="{{ $entry->item->effective_stock }}" @input="if (items[{{ $index }}].quantity < 1) items[{{ $index }}].quantity = 1; if (items[{{ $index }}].quantity > {{ $entry->item->effective_stock }}) items[{{ $index }}].quantity = {{ $entry->item->effective_stock }}" class="w-10 text-center bg-transparent border-none p-0 text-xs font-semibold text-gray-900 focus:ring-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
                                         <button type="button" @click="if(items[{{ $index }}].quantity < {{ $entry->item->effective_stock }}) items[{{ $index }}].quantity++" class="px-2 py-1.5 text-gray-400 hover:text-green-600 hover:bg-gray-50 transition-colors focus:outline-none">
                                             <x-heroicon-o-plus class="h-3 w-3" />
                                         </button>
@@ -235,7 +245,12 @@
                                         <span class="text-[10px] text-amber-600 font-semibold">Only {{ $entry->item->effective_stock }} left</span>
                                     @endif
                                 </div>
-                                <p class="text-sm font-semibold text-gray-900 mt-1" x-text="'₱' + formatPrice(items[{{ $index }}].price * items[{{ $index }}].quantity)"></p>
+                                <div class="flex items-center gap-2 mt-2">
+                                    <p class="text-sm font-semibold text-gray-900" x-text="'₱' + formatPrice(items[{{ $index }}].price * items[{{ $index }}].quantity)"></p>
+                                    <button type="button" @click="itemToDeleteCheckout = { index: {{ $index }}, id: {{ $entry->item->item_id }}, name: '{{ addslashes($entry->item->name) }}' }; openDeleteCheckout = true" class="ml-auto text-gray-400 hover:text-red-500 transition-colors">
+                                        <x-heroicon-o-trash class="h-4 w-4" />
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     @endforeach
@@ -266,5 +281,72 @@
             </div>
         </div>
     </form>
+{{-- Delete Confirmation Modal --}}
+<div x-show="openDeleteCheckout" 
+     class="fixed inset-0 z-50 overflow-y-auto" 
+     style="display: none;"
+     x-transition:enter="transition ease-out duration-300"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="transition ease-in duration-200"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0">
+    
+    <div class="fixed inset-0 bg-zinc-900/60 backdrop-blur-sm transition-opacity" @click="openDeleteCheckout = false"></div>
+
+    <div class="flex min-h-screen items-center justify-center p-4 text-center sm:p-0">
+        <div x-show="openDeleteCheckout"
+             class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-zinc-100"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+             x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+             x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+            
+            <div class="h-1.5 w-full bg-gradient-to-r from-red-500 to-rose-600"></div>
+
+            <button type="button" 
+                    @click="openDeleteCheckout = false" 
+                    class="absolute right-4 top-4 rounded-lg p-1.5 text-zinc-400 hover:text-zinc-600 hover:bg-zinc-50 transition-colors">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+
+            <div class="px-6 pb-6 pt-8">
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-red-50 flex items-center justify-center text-red-600 flex-shrink-0">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-lg font-bold text-zinc-900 leading-6">Remove Item</h3>
+                        <p class="mt-1 text-sm text-zinc-500">
+                            Are you sure you want to remove <span class="font-semibold text-zinc-700" x-text="itemToDeleteCheckout?.name"></span> from this order?
+                        </p>
+                    </div>
+                </div>
+
+                <div class="mt-7 flex flex-col sm:flex-row-reverse gap-3 border-t border-zinc-100 pt-5">
+                    <button type="button" 
+                            @click="removeCheckoutItem()"
+                            class="w-full inline-flex justify-center items-center gap-2 rounded-xl bg-red-600 px-4 py-3 text-sm font-bold text-white shadow-md hover:bg-red-700 focus:outline-none transition-all active:scale-98">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                        Remove
+                    </button>
+                    <button type="button" 
+                            @click="openDeleteCheckout = false" 
+                            class="flex-1 w-full rounded-xl bg-zinc-100 px-4 py-3 text-sm font-bold text-zinc-700 hover:bg-zinc-200 focus:outline-none transition-colors">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 </div>
 @endsection

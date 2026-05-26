@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Cart;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CartController extends Controller
 {
@@ -17,6 +18,7 @@ class CartController extends Controller
                   ->where('date_start', '<=', now())
                   ->where('date_end', '>=', now());
             }])
+            ->latest()
             ->get();
             
         // Group items by vendor
@@ -55,6 +57,9 @@ class CartController extends Controller
 
         $addresses = \App\Models\Address::where('user_id', auth()->id())->count();
         if ($addresses === 0) {
+            if ($request->ajax()) {
+                return response()->json(['error' => 'Please add a delivery address before adding items to your cart.'], 422);
+            }
             return redirect('/profile/edit')->withErrors(['msg' => 'Please add a delivery address before adding items to your cart.']);
         }
 
@@ -69,6 +74,9 @@ class CartController extends Controller
         $effectiveStock = $item->effective_stock;
         $newQty = $request->quantity + ($cart ? $cart->quantity : 0);
         if ($newQty > $effectiveStock) {
+            if ($request->ajax()) {
+                return response()->json(['error' => "Only {$effectiveStock} unit(s) of '{$item->name}' are available."], 422);
+            }
             return redirect()->back()->withErrors(['msg' => "Only {$effectiveStock} unit(s) of '{$item->name}' are available."]);
         }
 
@@ -76,7 +84,8 @@ class CartController extends Controller
             Cart::where('customer_id', $userId)
                 ->where('item_id', $request->item_id)
                 ->update([
-                    'quantity' => $newQty
+                    'quantity' => $newQty,
+                    'updated_at' => now()
                 ]);
         } else {
             Cart::create([
@@ -84,6 +93,10 @@ class CartController extends Controller
                 'item_id' => $request->item_id,
                 'quantity' => $request->quantity
             ]);
+        }
+
+        if ($request->ajax()) {
+            return response()->json(['message' => 'Added to cart successfully.']);
         }
 
         return redirect()->back()->with('success', 'Added to cart successfully.');
@@ -110,7 +123,10 @@ class CartController extends Controller
             $qty = max(1, min($qty, $effectiveStock));
             Cart::where('customer_id', $userId)
                 ->where('item_id', $itemId)
-                ->update(['quantity' => $qty]);
+                ->update([
+                    'quantity' => $qty,
+                    'updated_at' => now()
+                ]);
             return redirect()->back()->with('success', 'Cart updated.');
         } elseif ($request->action === 'increment') {
             if ($cart->quantity + 1 > $effectiveStock) {
@@ -118,13 +134,19 @@ class CartController extends Controller
             }
             Cart::where('customer_id', $userId)
                 ->where('item_id', $itemId)
-                ->increment('quantity');
+                ->update([
+                    'quantity' => DB::raw('quantity + 1'),
+                    'updated_at' => now()
+                ]);
             return redirect()->back();
         } elseif ($request->action === 'decrement') {
             if ($cart->quantity > 1) {
                 Cart::where('customer_id', $userId)
                     ->where('item_id', $itemId)
-                    ->decrement('quantity');
+                    ->update([
+                        'quantity' => DB::raw('quantity - 1'),
+                        'updated_at' => now()
+                    ]);
                 return redirect()->back();
             } else {
                 Cart::where('customer_id', $userId)
@@ -137,15 +159,22 @@ class CartController extends Controller
         return redirect()->back();
     }
 
-    public function destroy($itemId)
+    public function destroy($itemId, Request $request)
     {
         if (!is_numeric($itemId)) {
+            if ($request->ajax()) {
+                return response()->json(['error' => 'Invalid item.'], 422);
+            }
             return redirect()->back()->with('error', 'Invalid item.');
         }
 
         Cart::where('customer_id', auth()->id())
             ->where('item_id', $itemId)
             ->delete();
+
+        if ($request->ajax()) {
+            return response()->json(['message' => 'Item removed from cart.']);
+        }
 
         return redirect()->back()->with('success', 'Item removed from cart.');
     }

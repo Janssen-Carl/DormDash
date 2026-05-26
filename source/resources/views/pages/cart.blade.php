@@ -176,7 +176,8 @@
 
                                     {{-- Quantity Controls --}}
                                     <div class="flex items-center gap-3 rounded-lg border border-gray-200 p-1 shrink-0">
-                                        <form action="{{ route('cart.update', $cart->item_id) }}" method="POST" class="m-0" @if($cart->quantity == 1) onsubmit="return confirm('Remove this item from your cart?')" @endif>
+                                        @if($cart->quantity > 1)
+                                        <form action="{{ route('cart.update', $cart->item_id) }}" method="POST" class="m-0">
                                             @csrf
                                             @method('PATCH')
                                             <input type="hidden" name="action" value="decrement">
@@ -184,6 +185,11 @@
                                                 <x-heroicon-o-minus class="h-4 w-4" />
                                             </button>
                                         </form>
+                                        @else
+                                        <span class="flex h-7 w-7 items-center justify-center rounded text-gray-300 cursor-not-allowed">
+                                            <x-heroicon-o-minus class="h-4 w-4" />
+                                        </span>
+                                        @endif
 
                                         <form action="{{ route('cart.update', $cart->item_id) }}" method="POST" class="m-0">
                                             @csrf
@@ -218,10 +224,11 @@
                                     </span>
 
                                     {{-- Remove Item --}}
-                                    <form action="{{ route('cart.destroy', $cart->item_id) }}" method="POST" class="m-0 shrink-0" onsubmit="return confirm('Remove this item from your cart?')">
+                                    <form action="{{ route('cart.destroy', $cart->item_id) }}" method="POST" class="m-0" onsubmit="return confirm('Are you sure you want to remove {{ addslashes($cart->item->name) }} from your cart?')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="ml-2 flex items-center justify-center rounded p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500">
+                                        <button type="submit"
+                                                class="ml-2 flex items-center justify-center rounded p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500 shrink-0">
                                             <x-heroicon-o-trash class="h-5 w-5" />
                                         </button>
                                     </form>
@@ -291,4 +298,5 @@
             </aside>
         </div>
     </div>
+
 @endsection
