@@ -16,6 +16,9 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8" x-data="{
             cartData: {{ Js::from($cartData) }},
             selectedItems: {{ Js::from($cartData->pluck('item_id')->map(fn($id) => (string)$id)) }},
+            deleteId: 0,
+            deleteName: '',
+            openDelete: false,
             
             init() {
                 let savedSelected = sessionStorage.getItem('cartSelectedItems');
@@ -83,10 +86,30 @@
             
             formatCurrency(value) {
                 return new Intl.NumberFormat('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
+            },
+
+            get allSelected() {
+                return this.cartData.length > 0 && this.cartData.every(i => this.selectedItems.includes(String(i.item_id)));
+            },
+
+            toggleAll(event) {
+                let allIds = this.cartData.map(i => String(i.item_id));
+                if (event.target.checked) {
+                    allIds.forEach(id => { if (!this.selectedItems.includes(id)) this.selectedItems.push(id); });
+                } else {
+                    this.selectedItems = [];
+                }
             }
         }">
             {{-- Cart Items --}}
             <div class="col-span-1 lg:col-span-2">
+                @if($cartData->count() > 0)
+                <div class="mb-4 flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-6 py-3">
+                    <input type="checkbox" :checked="allSelected" @change="toggleAll($event)" class="rounded border-gray-300 text-green-600 focus:ring-green-600 cursor-pointer h-5 w-5">
+                    <span class="text-sm font-semibold text-gray-700">Select All</span>
+                    <span class="text-xs text-gray-400" x-text="'(' + selectedItems.length + ' of ' + cartData.length + ' selected)'"></span>
+                </div>
+                @endif
                 @forelse ($groupedCartItems as $vendorId => $vendorItems)
                     @php
                         $vendor = $vendorItems->first()->item->vendor;
@@ -224,14 +247,11 @@
                                     </span>
 
                                     {{-- Remove Item --}}
-                                    <form action="{{ route('cart.destroy', $cart->item_id) }}" method="POST" class="m-0" onsubmit="return confirm('Are you sure you want to remove {{ addslashes($cart->item->name) }} from your cart?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                                class="ml-2 flex items-center justify-center rounded p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500 shrink-0">
-                                            <x-heroicon-o-trash class="h-5 w-5" />
-                                        </button>
-                                    </form>
+                                    <button type="button"
+                                            @click="deleteId = {{ $cart->item_id }}; deleteName = '{{ addslashes($cart->item->name) }}'; openDelete = true"
+                                            class="ml-2 flex items-center justify-center rounded p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500 shrink-0">
+                                        <x-heroicon-o-trash class="h-5 w-5" />
+                                    </button>
                                 </div>
                             @endforeach
                         </div>
@@ -296,7 +316,77 @@
                     </button>
                 </div>
             </aside>
+
+            {{-- Custom Delete Confirmation Modal --}}
+            <div x-show="openDelete"
+                 class="fixed inset-0 z-50 overflow-y-auto"
+                 style="display: none;"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0">
+
+                <div class="fixed inset-0 bg-zinc-900/60 backdrop-blur-sm transition-opacity" @click="openDelete = false"></div>
+
+                <div class="flex min-h-screen items-center justify-center p-4 text-center sm:p-0">
+                    <div x-show="openDelete"
+                         class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 w-full max-w-sm border border-zinc-100"
+                         x-transition:enter="transition ease-out duration-300"
+                         x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                         x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                         x-transition:leave="transition ease-in duration-200"
+                         x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                         x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+
+                        <div class="h-1.5 w-full bg-gradient-to-r from-red-500 to-rose-600"></div>
+
+                        <button type="button"
+                                @click="openDelete = false"
+                                class="absolute right-4 top-4 rounded-lg p-1.5 text-zinc-400 hover:text-zinc-600 hover:bg-zinc-50 transition-colors">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+
+                        <div class="px-6 pb-6 pt-8">
+                            <div class="flex items-start gap-4">
+                                <div class="w-12 h-12 rounded-2xl bg-red-50 flex items-center justify-center text-red-600 flex-shrink-0">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                                    </svg>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-bold text-zinc-900 leading-6">Remove Item</h3>
+                                    <p class="mt-1 text-sm text-zinc-500">
+                                        Are you sure you want to remove <span class="font-semibold text-zinc-700" x-text="deleteName"></span> from your cart?
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="mt-7 flex flex-col sm:flex-row-reverse gap-3 border-t border-zinc-100 pt-5">
+                                <form :action="'/cart/' + deleteId" method="POST" class="flex-1 w-full">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit"
+                                            class="w-full inline-flex justify-center items-center gap-2 rounded-xl bg-red-600 px-4 py-3 text-sm font-bold text-white shadow-md hover:bg-red-700 focus:outline-none transition-all active:scale-98">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                        </svg>
+                                        Remove
+                                    </button>
+                                </form>
+                                <button type="button"
+                                        @click="openDelete = false"
+                                        class="flex-1 w-full rounded-xl bg-zinc-100 px-4 py-3 text-sm font-bold text-zinc-700 hover:bg-zinc-200 focus:outline-none transition-colors">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-
 @endsection

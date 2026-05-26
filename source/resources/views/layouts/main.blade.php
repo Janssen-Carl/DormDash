@@ -80,5 +80,33 @@ window.addToCart = function(event, form) {
 
         </script>
 
+    <button id="scrollToTopBtn" type="button" aria-label="Scroll to Top"
+            class="fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full flex items-center justify-center cursor-pointer opacity-0 invisible translate-y-5 scale-90 transition-all duration-300"
+            style="background: rgba(16, 185, 129, 0.95); color: #fff; box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4); backdrop-filter: blur(4px); display: none; border: none;">
+        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5"/>
+        </svg>
+    </button>
+
+    <script>
+    (function() {
+        var btn = document.getElementById('scrollToTopBtn');
+        if (!btn) return;
+        btn.style.display = '';
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 300) {
+                btn.classList.add('opacity-100', 'visible', 'translate-y-0', 'scale-100');
+                btn.classList.remove('opacity-0', 'invisible', 'translate-y-5', 'scale-90');
+            } else {
+                btn.classList.remove('opacity-100', 'visible', 'translate-y-0', 'scale-100');
+                btn.classList.add('opacity-0', 'invisible', 'translate-y-5', 'scale-90');
+            }
+        });
+        btn.addEventListener('click', function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    })();
+    </script>
+
     </body>
 </html>
