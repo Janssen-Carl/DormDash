@@ -19,13 +19,49 @@
                 Ordered on {{ $order->created_at->format('M d, Y h:i A') }}
             </span>
             @if($order->order_status === 'pending')
-                <form action="{{ route('orders.cancel', $order->order_id) }}" method="POST" class="m-0" onsubmit="return confirm('Are you sure you want to cancel this order?')">
-                    @csrf
-                    <button type="submit" class="inline-flex items-center justify-center gap-1.5 rounded-xl bg-red-50 border border-red-200 px-4 py-2 text-xs font-bold text-red-600 transition-all duration-200 hover:bg-red-100 hover:border-red-300 shadow-sm">
-                        <x-heroicon-o-x-circle class="h-4 w-4 shrink-0 text-red-500" />
-                        Cancel Order
-                    </button>
-                </form>
+                <button type="button" onclick="document.getElementById('cancel-modal-{{ $order->order_id }}').classList.remove('hidden')" class="inline-flex items-center justify-center gap-1.5 rounded-xl bg-red-50 border border-red-200 px-3 py-1.5 text-xs font-bold text-red-600 transition-all duration-200 hover:bg-red-100 hover:border-red-300 shadow-sm">
+                    <x-heroicon-o-x-circle class="h-4 w-4 shrink-0 text-red-500" />
+                    Cancel Order
+                </button>
+
+                <div id="cancel-modal-{{ $order->order_id }}" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+                    <div class="fixed inset-0 bg-zinc-900/60 backdrop-blur-sm" onclick="document.getElementById('cancel-modal-{{ $order->order_id }}').classList.add('hidden')"></div>
+                    <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl w-full max-w-sm border border-zinc-100">
+                        <div class="h-1.5 w-full bg-gradient-to-r from-red-500 to-rose-600"></div>
+                        <button type="button" onclick="document.getElementById('cancel-modal-{{ $order->order_id }}').classList.add('hidden')" class="absolute right-4 top-4 rounded-lg p-1.5 text-zinc-400 hover:text-zinc-600 hover:bg-zinc-50 transition-colors">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                        <div class="px-6 pb-6 pt-8">
+                            <div class="flex items-start gap-4">
+                                <div class="w-12 h-12 rounded-2xl bg-red-50 flex items-center justify-center text-red-600 flex-shrink-0">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                                    </svg>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-bold text-zinc-900 leading-6">Cancel Order</h3>
+                                    <p class="mt-1 text-sm text-zinc-500">Are you sure you want to cancel this order? This action cannot be undone.</p>
+                                </div>
+                            </div>
+                            <form action="{{ route('orders.cancel', $order->order_id) }}" method="POST">
+                                @csrf
+                                <div class="mt-7 flex flex-col sm:flex-row-reverse gap-3 border-t border-zinc-100 pt-5">
+                                    <button type="submit" class="w-full inline-flex justify-center items-center gap-2 rounded-xl bg-red-600 px-4 py-3 text-sm font-bold text-white shadow-md hover:bg-red-700 focus:outline-none transition-all">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                                        </svg>
+                                        Cancel Order
+                                    </button>
+                                    <button type="button" onclick="document.getElementById('cancel-modal-{{ $order->order_id }}').classList.add('hidden')" class="flex-1 w-full rounded-xl bg-zinc-100 px-4 py-3 text-sm font-bold text-zinc-700 hover:bg-zinc-200 focus:outline-none transition-colors">
+                                        Keep Order
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             @endif
         </div>
     </div>
@@ -362,7 +398,14 @@
                                     <p class="text-xs text-gray-500 mt-1">Quantity: {{ $product->pivot->quantity }}</p>
                                 </div>
                             </div>
-                            <span class="text-sm font-bold text-gray-900">₱{{ number_format($product->pivot->price * $product->pivot->quantity, 2) }}</span>
+                            <span class="text-sm font-bold text-gray-900">
+                                @php
+                                    $discountedQty = $product->pivot->discounted_qty ?? $product->pivot->quantity;
+                                    $fullPriceQty = $product->pivot->quantity - $discountedQty;
+                                    $lineTotal = $discountedQty * $product->pivot->price + $fullPriceQty * $product->price;
+                                @endphp
+                                ₱{{ number_format($lineTotal, 2) }}
+                            </span>
                         </div>
                     @endforeach
                 </div>

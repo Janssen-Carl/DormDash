@@ -31,31 +31,33 @@ class UserController extends Controller
 
         DB::transaction(function () use (&$user, $validated, $request) {
 
+            $isVendor = $validated['role'] === 'vendor';
+
             $user = User::create([
                 'username'          => $validated['username'],
                 'email'             => $validated['email'],
                 'password'          => $validated['password'],
                 'role'              => $validated['role'],
-                'email_verified_at' => now(),
+                'email_verified_at' => $isVendor ? null : now(),
             ]);
 
-            if ($validated['role'] === 'vendor') {
+            if ($isVendor) {
                 Vendor::create([
                     'vendor_id' => $user->user_id,
                     'name'      => $validated['store_name'] ?? $user->username,
                     'phone'     => $validated['store_phone'] ?? null,
                     'website'   => $validated['store_website'] ?? null,
-                    'active'    => true,
+                    'active'    => false,
                 ]);
             }
         });
 
-        auth()->login($user);
-
         if ($validated['role'] === 'vendor') {
-            return redirect()->route('vendor.home');
+            auth()->logout();
+            return redirect('/vendor-pending');
         }
 
+        auth()->login($user);
         return redirect('/');
     }
 
@@ -200,9 +202,6 @@ class UserController extends Controller
             'phone'    => 'nullable|string|max:50',
             'profile_image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:4096',
             'website'  => 'nullable|url|max:255',
-            'address'  => 'nullable|string|max:500',
-            'city'     => 'nullable|string|max:100',
-            'country'  => 'nullable|string|max:100',
         ];
 
         $validated = $request->validate($rules);
@@ -281,50 +280,6 @@ class UserController extends Controller
                 $customer = $user->customer;
                 if ($customer) {
                     $customer->primary_address_id = $request->input('address_id');
-                    $customer->save();
-                }
-            }
-        }
-
-        // Handle address fields from edit form
-        if ($request->filled('address')) {
-            $address = null;
-            if ($user->role === 'vendor') {
-                $vendor = $user->vendor;
-                if ($vendor && $vendor->address) {
-                    $address = $vendor->address;
-                }
-            } else {
-                $customer = $user->customer;
-                if ($customer && $customer->primaryAddress) {
-                    $address = $customer->primaryAddress;
-                }
-            }
-
-            if (!$address) {
-                $address = new Address();
-                $address->user_id = $user->user_id;
-            }
-
-            $address->street = strip_tags($validated['address']);
-            $address->city = strip_tags($validated['city'] ?? '');
-            $address->province_state = strip_tags($validated['city'] ?? 'Batangas');
-            $address->postal_code = '4200';
-            $address->country = strip_tags($validated['country'] ?? 'Philippines');
-            $address->phone = strip_tags($validated['phone'] ?? '');
-            $address->email = $user->email;
-            $address->save();
-
-            if ($user->role === 'vendor') {
-                $vendor = $user->vendor;
-                if ($vendor) {
-                    $vendor->address_id = $address->address_id;
-                    $vendor->save();
-                }
-            } else {
-                $customer = $user->customer;
-                if ($customer && $request->has('is_default_address')) {
-                    $customer->primary_address_id = $address->address_id;
                     $customer->save();
                 }
             }

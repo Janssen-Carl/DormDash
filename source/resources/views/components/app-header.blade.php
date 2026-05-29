@@ -10,7 +10,7 @@
         @auth
         <a
             href="/home"
-            class="{{ request()->routeIs('home') || request()->path() === 'home' ? 'border border-green-200 bg-green-50 text-green-600' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' }} flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-sm font-medium transition-colors"
+            class="{{ request()->path() === 'customer/home' || request()->path() === 'home' ? 'border border-green-200 bg-green-50 text-green-600' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900' }} flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-sm font-medium transition-colors"
         >
             <x-heroicon-o-home class="h-3.5 w-3.5" />
             Home

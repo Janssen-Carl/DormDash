@@ -225,6 +225,7 @@
                             <th class="px-4 py-3.5 whitespace-nowrap">Promotional Rate</th>
                             <th class="px-4 py-3.5 whitespace-nowrap">Original vs Promo Price</th>
                             <th class="px-4 py-3.5 whitespace-nowrap">Validity Duration</th>
+                            <th class="px-4 py-3.5 whitespace-nowrap">Redemptions</th>
                             <th class="px-4 py-3.5 whitespace-nowrap">Status</th>
                             <th class="px-4 py-3.5 text-right whitespace-nowrap">Actions</th>
                         </tr>
@@ -323,7 +324,17 @@
                                         </div>
                                     </div>
                                 </td>
-                                
+
+                                {{-- Redemptions --}}
+                                <td class="px-4 py-4 whitespace-nowrap text-sm">
+                                    @if($discount->use_limit)
+                                        <span class="font-semibold text-zinc-700">{{ $discount->redemption_count ?? 0 }}</span>
+                                        <span class="text-zinc-400"> / {{ $discount->use_limit }}</span>
+                                    @else
+                                        <span class="text-zinc-400">Unlimited</span>
+                                    @endif
+                                </td>
+
                                 {{-- Status Badge --}}
                                 <td class="px-4 py-4 whitespace-nowrap">
                                     <span class="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold {{ $statusClass }}">

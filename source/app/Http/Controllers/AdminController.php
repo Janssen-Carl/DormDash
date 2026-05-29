@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Vendor;
 use App\Models\Order;
 use App\Models\Item;
+use App\Services\MailService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -129,6 +130,11 @@ class AdminController extends Controller
         $vendor->active = true;
         $vendor->save();
 
+        if (!$user->email_verified_at) {
+            $user->email_verified_at = now();
+            $user->save();
+        }
+
         AdminLog::create([
             'admin_id'        => Auth::id(),
             'action'          => 'approved_vendor',
@@ -137,6 +143,10 @@ class AdminController extends Controller
             'target_role'     => 'vendor',
             'notes'           => "Vendor '{$vendor->name}' approved and set to active.",
         ]);
+
+        $loginUrl = config('app.url') . '/login';
+        $body = MailService::getVendorApprovedTemplate($user->username, $loginUrl);
+        MailService::send($user->email, 'Your DormDash Vendor Account Has Been Approved', $body);
 
         return back()->with('success', "Vendor '{$user->username}' has been approved.");
     }

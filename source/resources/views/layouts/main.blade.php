@@ -5,6 +5,7 @@
 
         @vite(['resources/js/app.js', 'resources/css/app.css'])
         <meta name="csrf-token" content="{{ csrf_token() }}">
+        <script>window.isAuthenticated = @json(auth()->check());</script>
 
         <link rel="preconnect" href="https://fonts.bunny.net" />
         <link href="https://fonts.bunny.net/css?family=inter:400,500,600&display=swap" rel="stylesheet" />
@@ -54,6 +55,10 @@ function showFloatingToast(message) {
 
 window.addToCart = function(event, form) {
     event.preventDefault();
+    if (!window.isAuthenticated) {
+        window.location.href = '/login';
+        return;
+    }
     fetch(form.action, {
         method: 'POST',
         body: new FormData(form),
@@ -78,33 +83,42 @@ window.addToCart = function(event, form) {
     .catch(function() { alert('Network error. Please try again.'); });
 };
 
+document.addEventListener('submit', function(e) {
+    if (!window.isAuthenticated) {
+        var form = e.target.closest('form');
+        if (form && form.action && form.action.indexOf('/checkout') !== -1 && form.method.toLowerCase() === 'get') {
+            e.preventDefault();
+            window.location.href = '/login';
+        }
+    }
+});
+
         </script>
 
-    <button id="scrollToTopBtn" type="button" aria-label="Scroll to Top"
-            class="fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full flex items-center justify-center cursor-pointer opacity-0 invisible translate-y-5 scale-90 transition-all duration-300"
-            style="background: rgba(16, 185, 129, 0.95); color: #fff; box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4); backdrop-filter: blur(4px); display: none; border: none;">
-        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" class="w-5 h-5">
+    <button id="scrollTopBtn" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })" type="button" aria-label="Scroll to Top"
+            style="position:fixed;bottom:24px;right:24px;z-index:9999;width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;background:linear-gradient(135deg,#059669,#047857);color:#fff;border:none;box-shadow:0 10px 25px -5px rgba(5,150,105,0.4),0 8px 10px -6px rgba(5,150,105,0.3);opacity:0;visibility:hidden;transform:scale(0.8);transition:all 0.35s cubic-bezier(0.34,1.56,0.64,1)">
+        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="width:20px;height:20px">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5"/>
         </svg>
     </button>
 
     <script>
-    (function() {
-        var btn = document.getElementById('scrollToTopBtn');
+    (function(){
+        var btn = document.getElementById('scrollTopBtn');
         if (!btn) return;
-        btn.style.display = '';
-        window.addEventListener('scroll', function() {
+        function toggle() {
             if (window.scrollY > 300) {
-                btn.classList.add('opacity-100', 'visible', 'translate-y-0', 'scale-100');
-                btn.classList.remove('opacity-0', 'invisible', 'translate-y-5', 'scale-90');
+                btn.style.opacity = '1';
+                btn.style.visibility = 'visible';
+                btn.style.transform = 'scale(1)';
             } else {
-                btn.classList.remove('opacity-100', 'visible', 'translate-y-0', 'scale-100');
-                btn.classList.add('opacity-0', 'invisible', 'translate-y-5', 'scale-90');
+                btn.style.opacity = '0';
+                btn.style.visibility = 'hidden';
+                btn.style.transform = 'scale(0.8)';
             }
-        });
-        btn.addEventListener('click', function() {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
+        }
+        window.addEventListener('scroll', toggle, { passive: true });
+        toggle();
     })();
     </script>
 

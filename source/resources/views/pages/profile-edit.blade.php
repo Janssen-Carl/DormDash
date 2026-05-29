@@ -111,54 +111,6 @@
                         </div>
                     </div>
 
-                    {{-- Default Delivery Address Section --}}
-                    <div class="rounded-3xl border border-gray-100 bg-gradient-to-br from-white to-gray-50 p-8 shadow-lg">
-                        <h3 class="mb-8 text-lg font-bold text-gray-900">Default Delivery Address</h3>
-
-                        <div class="space-y-5">
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-3">Address</label>
-                                <input
-                                    type="text"
-                                    name="address"
-                                    value="{{ old('address', optional($profile->primary_address)->street ?? '') }}"
-                                    placeholder="Enter your address"
-                                    class="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none"
-                                />
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-5">
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-3">City</label>
-                                    <input
-                                        type="text"
-                                        name="city"
-                                        value="{{ old('city', optional($profile->primary_address)->city ?? '') }}"
-                                        placeholder="Enter city"
-                                        class="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none"
-                                    />
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-3">Country</label>
-                                    <input
-                                        type="text"
-                                        name="country"
-                                        value="{{ old('country', optional($profile->primary_address)->country ?? '') }}"
-                                        placeholder="Enter country"
-                                        class="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none"
-                                    />
-                                </div>
-                            </div>
-
-                            <div class="flex items-center gap-3">
-                                <label class="flex items-center gap-3 cursor-pointer p-4 rounded-xl border-2 border-green-200 bg-green-50 hover:bg-green-100 transition-all duration-200">
-                                    <input type="checkbox" name="is_default_address" {{ optional($profile->primary_address)->address_id ? 'checked' : '' }} class="rounded border-green-300 text-green-600 focus:ring-green-600" />
-                                    <span class="font-semibold text-gray-700">Set as default delivery address</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
                     {{-- Password Change Section --}}
                     <div class="rounded-3xl border border-gray-100 bg-gradient-to-br from-white to-gray-50 p-8 shadow-lg">
                         <h3 class="mb-8 text-lg font-bold text-gray-900">Change Password</h3>

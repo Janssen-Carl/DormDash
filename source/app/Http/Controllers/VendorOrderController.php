@@ -65,8 +65,6 @@ class VendorOrderController extends Controller
         if ($status && $status !== 'all') {
             if ($status === 'pending') {
                 $query->where('order_status', 'pending');
-            } elseif ($status === 'confirmed') {
-                $query->where('order_status', 'to_ship');
             } elseif (in_array($status, $allowedStatuses)) {
                 $query->where('order_status', $status);
             }

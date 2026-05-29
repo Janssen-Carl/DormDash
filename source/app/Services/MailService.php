@@ -189,4 +189,55 @@ class MailService
         </html>
         ';
     }
+
+    /**
+     * Generate the vendor account approved email HTML.
+     */
+    public static function getVendorApprovedTemplate($username, $loginUrl)
+    {
+        return '
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Vendor Account Approved - DormDash</title>
+            <style>
+                body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f3f4f6; margin: 0; padding: 0; }
+                .email-container { max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -4px rgba(0,0,0,0.05); border: 1px solid #e5e7eb; }
+                .header-gradient { height: 8px; background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%); }
+                .content-padding { padding: 48px; }
+                .logo-container { width: 56px; height: 56px; background-color: #ecfdf5; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; }
+                .logo-icon { color: #059669; font-size: 24px; font-weight: bold; line-height: 56px; text-align: center; width: 100%; }
+                h1 { color: #111827; font-size: 24px; font-weight: 800; margin-top: 0; margin-bottom: 8px; }
+                p { color: #4b5563; font-size: 16px; line-height: 1.6; margin-bottom: 24px; }
+                .btn-container { text-align: center; margin-top: 32px; margin-bottom: 32px; }
+                .btn { display: inline-block; background: linear-gradient(135deg, #059669 0%, #0d9488 100%); color: #ffffff !important; font-weight: 700; font-size: 16px; padding: 14px 32px; text-decoration: none; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(16,185,129,0.2); }
+                .divider { border-top: 1px solid #f3f4f6; margin-top: 32px; margin-bottom: 24px; }
+                .footer { color: #9ca3af; font-size: 12px; line-height: 1.5; }
+                .footer a { color: #059669; text-decoration: none; font-weight: 600; }
+            </style>
+        </head>
+        <body>
+            <div class="email-container">
+                <div class="header-gradient"></div>
+                <div class="content-padding">
+                    <h1>Account Approved</h1>
+                    <p>Hi <strong>' . htmlspecialchars($username) . '</strong>,</p>
+                    <p>Great news! Your vendor account has been reviewed and approved by our team. You can now log in to your vendor dashboard and start managing your shop on DormDash.</p>
+                    <div class="btn-container">
+                        <a href="' . $loginUrl . '" class="btn">Log In to Your Dashboard</a>
+                    </div>
+                    <p>Welcome aboard, and we look forward to seeing your products on DormDash!</p>
+                    <div class="divider"></div>
+                    <div class="footer">
+                        <p>Questions? Visit our <a href="#">Merchant Help Center</a> or reply to this email.<br>
+                        &copy; ' . date('Y') . ' DormDash. All rights reserved.</p>
+                    </div>
+                </div>
+            </div>
+        </body>
+        </html>
+        ';
+    }
 }

@@ -197,6 +197,10 @@ function showFloatingToast(message) {
 
 window.addToCart = function(event, form) {
     event.preventDefault();
+    if (!window.isAuthenticated) {
+        window.location.href = '/login';
+        return;
+    }
     fetch(form.action, {
         method: 'POST',
         body: new FormData(form),

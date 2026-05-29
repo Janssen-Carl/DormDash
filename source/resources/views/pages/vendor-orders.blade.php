@@ -61,10 +61,6 @@
                class="{{ ($status ?? '') === 'pending' ? 'bg-emerald-600 text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200' }} rounded-full px-4 py-2 text-sm font-semibold transition-colors whitespace-nowrap">
                 Not Confirmed
             </a>
-            <a href="{{ route('vendor.orders') }}?status=confirmed{{ $search ? '&search=' . $search : '' }}" 
-               class="{{ ($status ?? '') === 'confirmed' ? 'bg-emerald-600 text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200' }} rounded-full px-4 py-2 text-sm font-semibold transition-colors whitespace-nowrap">
-                Confirmed
-            </a>
             <a href="{{ route('vendor.orders') }}?status=to_ship{{ $search ? '&search=' . $search : '' }}" 
                class="{{ ($status ?? '') === 'to_ship' ? 'bg-emerald-600 text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200' }} rounded-full px-4 py-2 text-sm font-semibold transition-colors whitespace-nowrap">
                 To Ship
@@ -157,12 +153,26 @@
                                                 <div>
                                                     <p class="font-semibold text-gray-900">{{ $item->name }}</p>
                                                     <p class="text-sm text-gray-500">
-                                                        {{ $item->pivot->quantity }} x ₱{{ number_format($item->pivot->price, 2) }}
+                                                        @php
+                                                            $discountedQty = $item->pivot->discounted_qty ?? $item->pivot->quantity;
+                                                            $fullPriceQty = $item->pivot->quantity - $discountedQty;
+                                                            $lineTotal = $discountedQty * $item->pivot->price + $fullPriceQty * $item->price;
+                                                        @endphp
+                                                        @if($discountedQty < $item->pivot->quantity)
+                                                            {{ $discountedQty }} x ₱{{ number_format($item->pivot->price, 2) }} + {{ $fullPriceQty }} x ₱{{ number_format($item->price, 2) }}
+                                                        @else
+                                                            {{ $item->pivot->quantity }} x ₱{{ number_format($item->pivot->price, 2) }}
+                                                        @endif
                                                     </p>
                                                 </div>
                                             </div>
                                             <p class="font-semibold text-gray-900">
-                                                ₱{{ number_format($item->pivot->quantity * $item->pivot->price, 2) }}
+                                                @php
+                                                    $discountedQty = $item->pivot->discounted_qty ?? $item->pivot->quantity;
+                                                    $fullPriceQty = $item->pivot->quantity - $discountedQty;
+                                                    $lineTotal = $discountedQty * $item->pivot->price + $fullPriceQty * $item->price;
+                                                @endphp
+                                                ₱{{ number_format($lineTotal, 2) }}
                                             </p>
                                         </div>
                                     @endforeach

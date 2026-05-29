@@ -82,9 +82,7 @@ class ProductController extends Controller
             $itemsQuery = Item::where('is_active', true)
                 ->where('is_available', true)
                 ->with(['images', 'vendor', 'discounts' => function ($q) {
-                    $q->where('is_active', true)
-                      ->where('date_start', '<=', now())
-                      ->where('date_end', '>=', now());
+                    $q->usable();
                 }]);
 
             if ($request->input('is_bundle') == '1') {
@@ -95,9 +93,7 @@ class ProductController extends Controller
 
             if ($request->input('has_discount') == '1') {
                 $itemsQuery->whereHas('discounts', function ($q) {
-                    $q->where('is_active', true)
-                      ->where('date_start', '<=', now())
-                      ->where('date_end', '>=', now());
+                    $q->usable();
                 });
             }
 
@@ -288,9 +284,7 @@ class ProductController extends Controller
         }
 
         $item = Item::with(['images', 'vendor', 'categories', 'discounts' => function ($q) {
-                $q->where('is_active', true)
-                  ->where('date_start', '<=', now())
-                  ->where('date_end', '>=', now());
+                $q->usable();
             }, 'bundles.images'])
             ->where('item_id', $id)
             ->where('is_active', true)

@@ -43,7 +43,7 @@ class Order extends Model
             'order_items',
             'order_id',
             'item_id'
-        )->withPivot('quantity', 'price');
+        )->withPivot('quantity', 'price', 'discounted_qty');
     }
 
     public function paymentTransaction()

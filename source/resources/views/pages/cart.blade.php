@@ -18,6 +18,8 @@
             selectedItems: {{ Js::from($cartData->pluck('item_id')->map(fn($id) => (string)$id)) }},
             deleteId: 0,
             deleteName: '',
+            deleteItems: [],
+            deleteMode: 'single',
             openDelete: false,
             
             init() {
@@ -103,13 +105,6 @@
         }">
             {{-- Cart Items --}}
             <div class="col-span-1 lg:col-span-2">
-                @if($cartData->count() > 0)
-                <div class="mb-4 flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-6 py-3">
-                    <input type="checkbox" :checked="allSelected" @change="toggleAll($event)" class="rounded border-gray-300 text-green-600 focus:ring-green-600 cursor-pointer h-5 w-5">
-                    <span class="text-sm font-semibold text-gray-700">Select All</span>
-                    <span class="text-xs text-gray-400" x-text="'(' + selectedItems.length + ' of ' + cartData.length + ' selected)'"></span>
-                </div>
-                @endif
                 @forelse ($groupedCartItems as $vendorId => $vendorItems)
                     @php
                         $vendor = $vendorItems->first()->item->vendor;
@@ -248,7 +243,7 @@
 
                                     {{-- Remove Item --}}
                                     <button type="button"
-                                            @click="deleteId = {{ $cart->item_id }}; deleteName = '{{ addslashes($cart->item->name) }}'; openDelete = true"
+                                            @click="deleteId = {{ $cart->item_id }}; deleteName = '{{ addslashes($cart->item->name) }}'; deleteMode = 'single'; openDelete = true"
                                             class="ml-2 flex items-center justify-center rounded p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500 shrink-0">
                                         <x-heroicon-o-trash class="h-5 w-5" />
                                     </button>
@@ -279,6 +274,20 @@
 
             {{-- Order Summary --}}
             <aside class="col-span-1">
+                @if($cartData->count() > 0)
+                <div class="mb-4 flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-6 py-3">
+                    <input type="checkbox" :checked="allSelected" @change="toggleAll($event)" class="rounded border-gray-300 text-green-600 focus:ring-green-600 cursor-pointer h-5 w-5">
+                    <span class="text-sm font-semibold text-gray-700">Select All</span>
+                    <span class="text-xs text-gray-400" x-text="'(' + selectedItems.length + ' of ' + cartData.length + ' selected)'"></span>
+                    <button type="button"
+                            @click="deleteItems = [...selectedItems]; deleteMode = 'bulk'; openDelete = true"
+                            x-show="selectedItems.length > 0"
+                            class="ml-auto inline-flex items-center gap-1.5 rounded-lg bg-red-50 border border-red-200 px-3 py-1.5 text-xs font-bold text-red-600 transition-all duration-200 hover:bg-red-100 hover:border-red-300">
+                        <x-heroicon-o-trash class="h-3.5 w-3.5" />
+                        Delete
+                    </button>
+                </div>
+                @endif
                 <div class="rounded-xl border border-gray-200 bg-white p-6 sticky top-24">
                     <h2 class="mb-4 text-lg font-semibold text-gray-900">Order Summary</h2>
 
@@ -358,25 +367,54 @@
                                     </svg>
                                 </div>
                                 <div class="flex-1">
-                                    <h3 class="text-lg font-bold text-zinc-900 leading-6">Remove Item</h3>
-                                    <p class="mt-1 text-sm text-zinc-500">
-                                        Are you sure you want to remove <span class="font-semibold text-zinc-700" x-text="deleteName"></span> from your cart?
-                                    </p>
+                                    <template x-if="deleteMode === 'single'">
+                                        <div>
+                                            <h3 class="text-lg font-bold text-zinc-900 leading-6">Remove Item</h3>
+                                            <p class="mt-1 text-sm text-zinc-500">
+                                                Are you sure you want to remove <span class="font-semibold text-zinc-700" x-text="deleteName"></span> from your cart?
+                                            </p>
+                                        </div>
+                                    </template>
+                                    <template x-if="deleteMode === 'bulk'">
+                                        <div>
+                                            <h3 class="text-lg font-bold text-zinc-900 leading-6">Remove Selected Items</h3>
+                                            <p class="mt-1 text-sm text-zinc-500">
+                                                Are you sure you want to remove the <span class="font-semibold text-zinc-700" x-text="deleteItems.length"></span> selected item(s) from your cart?
+                                            </p>
+                                        </div>
+                                    </template>
                                 </div>
                             </div>
 
                             <div class="mt-7 flex flex-col sm:flex-row-reverse gap-3 border-t border-zinc-100 pt-5">
-                                <form :action="'/cart/' + deleteId" method="POST" class="flex-1 w-full">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit"
-                                            class="w-full inline-flex justify-center items-center gap-2 rounded-xl bg-red-600 px-4 py-3 text-sm font-bold text-white shadow-md hover:bg-red-700 focus:outline-none transition-all active:scale-98">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                        </svg>
-                                        Remove
-                                    </button>
-                                </form>
+                                <template x-if="deleteMode === 'single'">
+                                    <form :action="'/cart/' + deleteId" method="POST" class="flex-1 w-full">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                                class="w-full inline-flex justify-center items-center gap-2 rounded-xl bg-red-600 px-4 py-3 text-sm font-bold text-white shadow-md hover:bg-red-700 focus:outline-none transition-all active:scale-98">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                            </svg>
+                                            Remove
+                                        </button>
+                                    </form>
+                                </template>
+                                <template x-if="deleteMode === 'bulk'">
+                                    <form action="/cart/delete-selected" method="POST" class="flex-1 w-full">
+                                        @csrf
+                                        <template x-for="id in deleteItems" :key="id">
+                                            <input type="hidden" name="item_ids[]" :value="id">
+                                        </template>
+                                        <button type="submit"
+                                                class="w-full inline-flex justify-center items-center gap-2 rounded-xl bg-red-600 px-4 py-3 text-sm font-bold text-white shadow-md hover:bg-red-700 focus:outline-none transition-all active:scale-98">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                            </svg>
+                                            Delete
+                                        </button>
+                                    </form>
+                                </template>
                                 <button type="button"
                                         @click="openDelete = false"
                                         class="flex-1 w-full rounded-xl bg-zinc-100 px-4 py-3 text-sm font-bold text-zinc-700 hover:bg-zinc-200 focus:outline-none transition-colors">

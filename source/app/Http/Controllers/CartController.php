@@ -14,9 +14,7 @@ class CartController extends Controller
         
         $cartItems = Cart::where('customer_id', $userId)
             ->with(['item.images', 'item.vendor', 'item.discounts' => function ($q) {
-                $q->where('is_active', true)
-                  ->where('date_start', '<=', now())
-                  ->where('date_end', '>=', now());
+                $q->usable();
             }])
             ->latest()
             ->get();
@@ -157,6 +155,23 @@ class CartController extends Controller
         }
 
         return redirect()->back();
+    }
+
+    public function destroySelected(Request $request)
+    {
+        $request->validate([
+            'item_ids' => 'required|array',
+            'item_ids.*' => 'required|numeric'
+        ]);
+
+        $itemIds = array_map('intval', $request->item_ids);
+
+        Cart::where('customer_id', auth()->id())
+            ->whereIn('item_id', $itemIds)
+            ->delete();
+
+        $count = count($request->item_ids);
+        return redirect()->back()->with('success', "$count item(s) removed from cart.");
     }
 
     public function destroy($itemId, Request $request)

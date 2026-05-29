@@ -48,6 +48,8 @@ Route::get('/forgot-password', [\App\Http\Controllers\ForgotPasswordController::
 Route::post('/forgot-password', [\App\Http\Controllers\ForgotPasswordController::class, 'sendResetLink'])->name('password.email');
 Route::get('/reset-password/{token}', [\App\Http\Controllers\ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
 Route::post('/reset-password', [\App\Http\Controllers\ForgotPasswordController::class, 'resetPassword'])->name('password.update');
+Route::get('/password-reset-success', fn() => view('auth.password-reset-success'));
+Route::get('/vendor-pending', fn() => view('auth.vendor-pending'));
 
 /* -------------------- AUTH COMMON -------------------- */
 
@@ -83,6 +85,7 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
     Route::post('/cart', [CartController::class, 'store'])->name('cart.store');
     Route::patch('/cart/{item_id}', [CartController::class, 'update'])->name('cart.update');
     Route::delete('/cart/{item_id}', [CartController::class, 'destroy'])->name('cart.destroy');
+    Route::post('/cart/delete-selected', [CartController::class, 'destroySelected'])->name('cart.delete-selected');
 
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::post('/orders/{order}/complete', [OrderController::class, 'complete'])->name('orders.complete');

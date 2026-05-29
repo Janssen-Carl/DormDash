@@ -66,11 +66,7 @@ class Item extends Model
 
     public function getActiveDiscount()
     {
-        return $this->discounts()
-            ->where('is_active', true)
-            ->where('date_start', '<=', now())
-            ->where('date_end', '>=', now())
-            ->first();
+        return $this->discounts()->usable()->first();
     }
 
     public function getDiscountedPriceAttribute()

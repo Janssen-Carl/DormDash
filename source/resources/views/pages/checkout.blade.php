@@ -189,7 +189,7 @@
                 let item = this.itemToDeleteCheckout;
                 if (!item) return;
                 this.items.splice(item.index, 1);
-                fetch('/cart/' + item.id, { method: 'DELETE', headers: { 'X-CSRF-TOKEN': document.querySelector('[name=csrf-token]')?.getAttribute('content') || '' } });
+                fetch('/cart/' + item.id, { method: 'DELETE', headers: { 'X-CSRF-TOKEN': document.querySelector('[name=csrf-token]')?.getAttribute('content') || '', 'X-Requested-With': 'XMLHttpRequest' } }).catch(function(e){ console.error('Checkout delete error:', e); });
                 this.openDeleteCheckout = false;
                 this.itemToDeleteCheckout = null;
             }
@@ -279,8 +279,6 @@
                     By placing your order, you agree to our Terms of Service and Privacy Policy.
                 </p>
             </div>
-        </div>
-    </form>
 {{-- Delete Confirmation Modal --}}
 <div x-show="openDeleteCheckout" 
      class="fixed inset-0 z-50 overflow-y-auto" 
@@ -296,7 +294,7 @@
 
     <div class="flex min-h-screen items-center justify-center p-4 text-center sm:p-0">
         <div x-show="openDeleteCheckout"
-             class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-zinc-100"
+             class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 w-full max-w-sm border border-zinc-100"
              x-transition:enter="transition ease-out duration-300"
              x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
              x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
@@ -348,5 +346,7 @@
         </div>
     </div>
 </div>
+        </div>
+    </form>
 </div>
 @endsection

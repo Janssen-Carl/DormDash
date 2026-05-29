@@ -28,9 +28,7 @@ class CheckoutController extends Controller
             $sourceData = $request->reorder_id;
             
             $order = Order::with(['items.images', 'items.vendor', 'items.discounts' => function ($q) {
-                $q->where('is_active', true)
-                  ->where('date_start', '<=', now())
-                  ->where('date_end', '>=', now());
+                $q->usable();
             }])
                 ->where('customer_id', $userId)
                 ->findOrFail($request->reorder_id);
@@ -53,9 +51,7 @@ class CheckoutController extends Controller
             $sourceData = ['item_id' => $request->buy_item, 'qty' => $request->qty];
             
             $item = Item::with(['images', 'vendor', 'discounts' => function ($q) {
-                $q->where('is_active', true)
-                  ->where('date_start', '<=', now())
-                  ->where('date_end', '>=', now());
+                $q->usable();
             }])->findOrFail($request->buy_item);
             $price = $item->discounted_price;
             $quantity = $request->qty;
@@ -77,9 +73,7 @@ class CheckoutController extends Controller
             $sourceData = $selectedItems;
             
             $cartItems = Cart::with(['item.images', 'item.vendor', 'item.discounts' => function ($q) {
-                $q->where('is_active', true)
-                  ->where('date_start', '<=', now())
-                  ->where('date_end', '>=', now());
+                $q->usable();
             }])
                 ->where('customer_id', $userId)
                 ->whereIn('item_id', $selectedItems)
@@ -163,9 +157,7 @@ class CheckoutController extends Controller
                 return redirect()->route('cart.index')->withErrors(['msg' => 'Invalid reorder reference.']);
             }
             $order = Order::with(['items.discounts' => function ($q) {
-                $q->where('is_active', true)
-                  ->where('date_start', '<=', now())
-                  ->where('date_end', '>=', now());
+                $q->usable();
             }])->where('customer_id', $userId)->findOrFail($request->reorder_id);
             foreach ($order->items as $item) {
                 $quantity = isset($updatedQuantities[$item->item_id]) ? (int)$updatedQuantities[$item->item_id] : $item->pivot->quantity;
@@ -174,8 +166,8 @@ class CheckoutController extends Controller
                         'item_id' => $item->item_id,
                         'quantity' => $quantity,
                         'price' => $item->discounted_price,
+                        'original_price' => (float)$item->price,
                     ]);
-                    $subtotal += $item->discounted_price * $quantity;
                 }
             }
         } elseif ($request->source === 'buy_now') {
@@ -183,9 +175,7 @@ class CheckoutController extends Controller
                 return redirect()->route('cart.index')->withErrors(['msg' => 'Invalid item reference.']);
             }
             $item = Item::with(['discounts' => function ($q) {
-                $q->where('is_active', true)
-                  ->where('date_start', '<=', now())
-                  ->where('date_end', '>=', now());
+                $q->usable();
             }])->findOrFail($request->buy_item);
             $quantity = isset($updatedQuantities[$item->item_id]) ? (int)$updatedQuantities[$item->item_id] : (int)$request->qty;
             if ($quantity > 0) {
@@ -193,8 +183,8 @@ class CheckoutController extends Controller
                     'item_id' => $item->item_id,
                     'quantity' => $quantity,
                     'price' => $item->discounted_price,
+                    'original_price' => (float)$item->price,
                 ]);
-                $subtotal += $item->discounted_price * $quantity;
             }
         } elseif ($request->source === 'cart') {
             $selectedItems = $request->input('selected_items', []);
@@ -203,9 +193,7 @@ class CheckoutController extends Controller
             }
             $selectedItems = array_filter($selectedItems, 'is_numeric');
             $cartItems = Cart::with(['item.discounts' => function ($q) {
-                $q->where('is_active', true)
-                  ->where('date_start', '<=', now())
-                  ->where('date_end', '>=', now());
+                $q->usable();
             }])
                 ->where('customer_id', $userId)
                 ->whereIn('item_id', $selectedItems)
@@ -218,8 +206,8 @@ class CheckoutController extends Controller
                         'item_id' => $cart->item_id,
                         'quantity' => $quantity,
                         'price' => $cart->item->discounted_price,
+                        'original_price' => (float)$cart->item->price,
                     ]);
-                    $subtotal += $cart->item->discounted_price * $quantity;
                 }
             }
         }
@@ -241,6 +229,43 @@ class CheckoutController extends Controller
                 return redirect()->route('cart.index')->withErrors(['msg' => "Only {$effectiveStock} unit(s) of '{$stockItem->name}' are available. Please adjust your quantity."]);
             }
         }
+
+        // Calculate per-unit discounted quantities & correct subtotal
+        $discountedItems = Item::with(['discounts' => function ($q) {
+            $q->usable();
+        }])->whereIn('item_id', $itemIds)->get()->keyBy('item_id');
+
+        $subtotal = 0.0;
+        $usedDiscounts = [];
+
+        foreach ($items as $entry) {
+            $itemModel = $discountedItems->get($entry->item_id);
+            $discountedQty = $entry->quantity;
+
+            if ($itemModel) {
+                $discount = $itemModel->getActiveDiscount();
+                if ($discount && $discount->use_limit !== null) {
+                    $remaining = max(0, $discount->use_limit - $discount->redemption_count);
+                    $discountedQty = min($entry->quantity, $remaining);
+                    if ($discountedQty > 0) {
+                        $usedDiscounts[$discount->discount_id] = ($usedDiscounts[$discount->discount_id] ?? 0) + $discountedQty;
+                    }
+                }
+            }
+
+            $entry->discounted_qty = $discountedQty;
+            if ($discountedQty < $entry->quantity) {
+                $fullPriceQty = $entry->quantity - $discountedQty;
+                $blendedPrice = ($discountedQty * $entry->price + $fullPriceQty * $entry->original_price) / $entry->quantity;
+                $entry->price = $blendedPrice;
+            }
+
+            $subtotal += $entry->price * $entry->quantity;
+        }
+
+        // Group items by vendor so each vendor gets their own order
+        $itemVendorMap = Item::whereIn('item_id', $items->pluck('item_id'))->pluck('vendor_id', 'item_id');
+        $grouped = $items->groupBy(fn($entry) => $itemVendorMap[$entry->item_id] ?? 0);
 
         $deliveryFee = 50.00;
 
@@ -276,11 +301,7 @@ class CheckoutController extends Controller
             }
         }
 
-        // Group items by vendor so each vendor gets their own order
-        $itemVendorMap = Item::whereIn('item_id', $items->pluck('item_id'))->pluck('vendor_id', 'item_id');
-        $grouped = $items->groupBy(fn($entry) => $itemVendorMap[$entry->item_id] ?? 0);
-
-        DB::transaction(function () use ($userId, $request, $grouped, $deliveryFee, $cardToken, $cardLast4) {
+        DB::transaction(function () use ($userId, $request, $grouped, $deliveryFee, $cardToken, $cardLast4, $usedDiscounts) {
             foreach ($grouped as $vendorId => $vendorItems) {
                 $subtotal = $vendorItems->sum(fn($entry) => $entry->price * $entry->quantity);
                 $total = $subtotal + $deliveryFee;
@@ -297,7 +318,8 @@ class CheckoutController extends Controller
                 foreach ($vendorItems as $entry) {
                     $syncData[$entry->item_id] = [
                         'quantity' => $entry->quantity,
-                        'price' => $entry->price
+                        'price' => $entry->price,
+                        'discounted_qty' => $entry->discounted_qty,
                     ];
                 }
                 $order->items()->attach($syncData);
@@ -324,6 +346,18 @@ class CheckoutController extends Controller
                     Cart::where('customer_id', $userId)
                         ->whereIn('item_id', $selectedItems)
                         ->delete();
+                }
+            }
+
+            // 5. Track discount redemptions (per-unit)
+            foreach ($usedDiscounts as $discountId => $count) {
+                $discount = \App\Models\Discount::find($discountId);
+                if ($discount) {
+                    $newCount = $discount->redemption_count + $count;
+                    $discount->update([
+                        'redemption_count' => $newCount,
+                        'is_active' => ($discount->use_limit !== null && $newCount >= $discount->use_limit) ? false : $discount->is_active,
+                    ]);
                 }
             }
         });
